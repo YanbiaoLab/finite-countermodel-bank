@@ -1,0 +1,15 @@
+# Keep hashed and parsed metadata stable across checkout platforms.
+*.csv text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+**/SHA256SUMS text eol=lf
+
+# `raw/` always means bytes as received, regardless of filename extension.
+reproduction/**/raw/** -text -eol
+
+# The submitted solvers contain very long Base85 payload lines. Preserve their
+# exact bytes while keeping GitHub reviews focused on hashes and manifests.
+reproduction/00-submission-anchor/raw/*.py -text -diff -merge -eol linguist-generated=true
