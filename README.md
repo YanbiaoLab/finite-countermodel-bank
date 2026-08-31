@@ -72,6 +72,8 @@ the stable table identifier is the SHA-256 digest of those bytes.
 
 ## License
 
-No repository-wide license has been selected. See [NOTICE.md](NOTICE.md) and
-[LICENSES/README.md](LICENSES/README.md). Repository publication alone does not
-grant permission to copy, modify, or redistribute the contents.
+This project is licensed under the [Apache License 2.0](LICENSE). The license
+applies to material for which the project contributors hold the necessary rights.
+Source artifacts with separate or unconfirmed rights retain the status recorded in
+their stage manifests; see [NOTICE.md](NOTICE.md) and
+[LICENSES/README.md](LICENSES/README.md).
