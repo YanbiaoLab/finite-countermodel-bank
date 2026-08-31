@@ -59,6 +59,6 @@ PR 2 重建器以有界流处理两份解压后各 489,598,720 字节的 pair bi
 
 ## 许可证
 
-仓库尚未选择统一许可证。详见 [NOTICE.md](NOTICE.md) 与
-[LICENSES/README.md](LICENSES/README.md)。仅将内容放入本仓库不自动授予复制、修改或
-再分发权限。
+本项目采用 [Apache License 2.0](LICENSE)。该许可证适用于项目贡献者拥有必要权利的
+材料；具有独立许可或权利状态尚未确认的来源产物，继续遵循各阶段 manifest 中记录的
+状态。详见 [NOTICE.md](NOTICE.md) 与 [LICENSES/README.md](LICENSES/README.md)。

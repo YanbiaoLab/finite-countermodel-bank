@@ -1,8 +1,13 @@
 # Provenance and rights notice
 
-This repository currently has no repository-wide license. The presence of a file
-in this repository is not, by itself, a grant of permission to copy, modify, or
-redistribute it.
+Copyright 2026 Finite Countermodel Bank contributors.
+
+This project is licensed under the Apache License, Version 2.0, as set out in the
+root `LICENSE` file. That license applies only to material for which the project
+contributors hold the necessary rights. It does not relicense third-party or
+source-specific material. A source record marked `not-specified` remains a record
+of unconfirmed rights status and is not converted into an open-source license by
+the repository's primary license.
 
 The artifacts in `reproduction/00-submission-anchor/raw/` are archive copies of
 solver source files submitted by team `EQT02-T00037` to the SAIR Mathematics
@@ -39,5 +44,5 @@ credential markers, private-key blocks, or host-specific absolute paths. As with
 PR 1, the manifests record `not-specified; no license grant inferred` for these
 sources.
 
-See `LICENSES/README.md` for how future source-specific license texts will be
-recorded.
+See `LICENSES/README.md` for the primary-license scope and how future
+source-specific license texts will be recorded.
