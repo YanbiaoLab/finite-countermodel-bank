@@ -12,11 +12,11 @@ raw files.
 
 | PR | Stage | Transition or anchor | Required evidence | Status |
 | --- | --- | --- | --- | --- |
-| PR 0 | `00-submission-anchor` | Four SAIR submissions → two byte-distinct solver blobs | Four downloaded files, submission index, hashes, schema, verifier | Captured in this PR |
-| PR 1 | `10-primary-9450` | 9,452 nonzero contributors → 9,450 recoverable exact tables | Historical inputs, recovery report, normalized tables, per-record provenance | Planned |
-| PR 1 | `20-registered-9852` | 9,450 + 402 → 9,852 | Registry snapshot, exact-dedup delta | Planned |
-| PR 1 | `30-early-deltas-9957` | 9,852 + (66 − 55) + (145 − 51) → 9,957 | Separate d1 and d2 snapshots and membership deltas | Planned |
-| PR 1 | `40-delivery-10059` | 9,957 + 102 → 10,059 | Delivery snapshot, independent-check report, zero-overlap delta | Planned |
+| PR 0 | `00-submission-anchor` | Four SAIR submissions → two byte-distinct solver blobs | Four downloaded files, submission index, hashes, schema, verifier | Merged in PR #2 |
+| PR 1 | `10-primary-9450` | 9,452 nonzero contributors → 9,450 recoverable exact tables | Historical inputs, recovery report, normalized tables, per-record provenance | Verified in this PR |
+| PR 1 | `20-registered-9852` | 9,450 + 402 → 9,852 | Registry snapshot, exact-dedup delta | Verified in this PR |
+| PR 1 | `30-early-deltas-9957` | 9,852 + (66 − 55) + (145 − 51) → 9,957 | Separate d1 and d2 snapshots and membership deltas | Verified in this PR |
+| PR 1 | `40-delivery-10059` | 9,957 + 102 → 10,059 | Delivery snapshot, independent-check report, zero-overlap delta | Verified in this PR |
 | PR 2 | `50-generator-prune-3535` | 10,059 − 241 − 6,283 → 3,535 | Generator-reproducible and order-at-most-4 removal ledgers | Planned |
 | PR 2 | `60-fin4-residual-284151591` | 324,157,667 − 40,006,076 → 284,151,591 directed pairs | Universe manifest, Fin4 coverage bitset, residual bitset, cardinality checks | Planned |
 | PR 2 | `70-positive-marginal-core-1470` | 3,535 − 2,065 → 1,470 | Residual coverage scores, deterministic selection order, keep/drop delta | Planned |
@@ -46,20 +46,25 @@ PR 未完成人工 review 前，不推进下一个 PR。
 1,487 + 1,414                                   = 2,901
 ```
 
-The values above are expected claims until their corresponding stage is merged and
-verified. `CLAIMS.csv` is authoritative for claim status.
+Values through 10,059 are reconstructed and verified in PR 1; later values remain
+expected claims until their corresponding stage is merged and verified.
+`CLAIMS.csv` is authoritative for claim status.
 
-## Source routing for future PRs / 后续 PR 的源文件入口
+## Source routing / 源文件入口
 
 Paths below are relative to the sibling `math-distill-equational-stage2` checkout.
-They identify the audited starting points, not yet-published evidence.
+Stages 10–40 are fixed by the raw snapshots in PR 1; paths for Stage 50 and later
+identify audited or expected starting points whose evidence is not yet published.
+
+以下路径相对于同级 `math-distill-equational-stage2` checkout。Stage 10–40 已由
+PR 1 的 raw 快照固定；Stage 50 及后续路径仍只是已审计或预期的入口，证据尚未发布。
 
 | Stage | Audited starting point |
 | --- | --- |
-| `10-primary-9450` | `members/wubing/data/processed/rulebooks/order5_rule_registry/false/selected_false_finmodel_rule_scripts/` |
-| `20-registered-9852` | `members/wubing/experiments/solvers/false_solver/drafts/d3/` |
-| `30-early-deltas-9957` | `members/wubing/experiments/solvers/false_solver/drafts/d6/` and `drafts/d8/` |
-| `40-delivery-10059` | `members/wubing/experiments/solvers/false_solver/drafts/d11/` |
+| `10-primary-9450` | `members/wubing/data/processed/rulebooks/order5_rule_registry/false/selected_false_finmodel_rule_scripts/` and `members/wubing/data/324M_remaining_pairs/order5_equations.csv` |
+| `20-registered-9852` | `members/wubing/data/processed/rulebooks/order5_rule_registry/false/` and `members/wubing/experiments/solvers/false_solver/drafts/d3/` |
+| `30-early-deltas-9957` | `members/wubing/experiments/solvers/false_solver/drafts/` subdirectories `d1`, `d2`, `d4`, `d6`, and `d8` |
+| `40-delivery-10059` | `members/wubing/data/processed/jiaming/` and `members/wubing/experiments/solvers/false_solver/drafts/d11/` |
 | `50-generator-prune-3535` | `members/wubing/experiments/solvers/false/20260812_d17/` |
 | `60-fin4-residual-284151591` | `members/wubing/data/324M_remaining_pairs/`, `members/wubing/data/284M_remaining_pairs/` |
 | `70-positive-marginal-core-1470` | `members/wubing/artifacts/runs/d17-finite-model-284m-pair-coverage-20260818/` |

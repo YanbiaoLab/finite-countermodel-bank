@@ -1,0 +1,110 @@
+{
+  "action_counts": {
+    "add": 102
+  },
+  "bank": {
+    "canonical_id_vector_sha256": "5d01182a23f44581058be2917700806f1461cc66a4176335ba3e516a40b1de90",
+    "historical_id_vector_sha256": "4f40e2b592b9346b25619b55d5f33749ab3a8e2554340b31dc08cec6b5ef6dc8",
+    "order_distribution": {
+      "10": 146,
+      "11": 104,
+      "12": 359,
+      "13": 16,
+      "16": 4,
+      "17": 13,
+      "19": 1,
+      "2": 10,
+      "20": 3,
+      "25": 2,
+      "3": 111,
+      "32": 1,
+      "4": 6180,
+      "41": 1,
+      "43": 1,
+      "5": 207,
+      "6": 1256,
+      "7": 63,
+      "8": 809,
+      "9": 772
+    },
+    "raw_bytes": 371494,
+    "raw_sha256": "fcb18adf3ff344e51a8f46d3e8eb92f7bb5487f4a3ee5ef74836076d51f3c3d4",
+    "table_count": 10059
+  },
+  "batches": [
+    {
+      "generated_at": "2026-08-05T17:38:49+00:00",
+      "order_distribution": {
+        "4": 1,
+        "5": 39,
+        "6": 9,
+        "7": 1
+      },
+      "report": "交付.md",
+      "report_bytes": 74851,
+      "report_sha256": "64aed2f2161ab9793cd237b4754514ad5dcc6f2e4c83187fe14500de52d0004c",
+      "source_assignments": 14606,
+      "table_count": 50,
+      "target_assignments": 23932,
+      "target_failures": 12062
+    },
+    {
+      "generated_at": "2026-08-05T23:38:59+00:00",
+      "order_distribution": {
+        "5": 2,
+        "6": 23,
+        "7": 14,
+        "8": 10,
+        "9": 3
+      },
+      "report": "剩余252题_false挖掘交付_52题.md",
+      "report_bytes": 110090,
+      "report_sha256": "2107f47f7bb7e70de04946a284620931862def65c68f203b78f9640d4b170a15",
+      "source_assignments": 18115,
+      "table_count": 52,
+      "target_assignments": 9823,
+      "target_failures": 1368
+    }
+  ],
+  "delivery": {
+    "order_distribution": {
+      "4": 1,
+      "5": 41,
+      "6": 32,
+      "7": 15,
+      "8": 10,
+      "9": 3
+    },
+    "overlap_with_9957": 0,
+    "raw_bytes": 3913,
+    "raw_sha256": "2ab611ed7f0626291f6ebdcbd6d365f7509e497f85f2e3cc5529f71bf402b5f9",
+    "table_count": 102,
+    "verification": "independent exhaustive source/target assignment enumeration"
+  },
+  "historical_payload_check": {
+    "d11_raw_bytes": 371494,
+    "d11_raw_sha256": "fcb18adf3ff344e51a8f46d3e8eb92f7bb5487f4a3ee5ef74836076d51f3c3d4",
+    "d11_xz_bytes": 83188,
+    "d11_xz_sha256": "865ac41a38f8ba71d372bae3aa0a04ea5b9f839ee48f84857608119a7a395f29"
+  },
+  "known_gaps": [
+    "The original miss.md, solver journals, CNF files, and CaDiCaL event logs named by the reports were not captured beside d11.",
+    "The explicit report tables and formulas permit independent mathematical rechecking, but not replay of the original SAT mining run."
+  ],
+  "metrics": {
+    "bank.10059": 10059,
+    "delivery.distinct_equations": 195,
+    "delivery.equation_references": 204,
+    "delivery.input": 102,
+    "delivery.overlap": 0
+  },
+  "official_equation_mapping": {
+    "distinct_equation_count": 195,
+    "mismatch_count": 0,
+    "normalization": "diamond-to-asterisk-and-remove-whitespace",
+    "reference_count": 204
+  },
+  "ordering": "the 9,957-table d6 order followed by report 1 records 1..50 and report 2 records 1..52",
+  "schema_version": "1.0.0",
+  "stage_id": "40-delivery-10059"
+}

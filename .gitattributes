@@ -13,3 +13,8 @@ reproduction/**/raw/** -text -eol
 # The submitted solvers contain very long Base85 payload lines. Preserve their
 # exact bytes while keeping GitHub reviews focused on hashes and manifests.
 reproduction/00-submission-anchor/raw/*.py -text -diff -merge -eol linguist-generated=true
+
+# PR 1 stores thousands of historical members in deterministic archives and
+# publishes machine-generated compressed indexes plus canonical binary banks.
+reproduction/**/*.gz -text -diff -merge -eol linguist-generated=true
+reproduction/**/*.bin -text -diff -merge -eol linguist-generated=true

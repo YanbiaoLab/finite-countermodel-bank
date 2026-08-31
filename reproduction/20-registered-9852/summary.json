@@ -1,0 +1,48 @@
+{
+  "action_counts": {
+    "add": 402,
+    "duplicate": 73
+  },
+  "bank": {
+    "canonical_id_vector_sha256": "1b49b90de093fe54aa0ab3a30e1c7ef1f3e7d44129d66293efd2fe2ca6e20ca1",
+    "historical_id_vector_sha256": "0e39adb599a9c7162bede403a32ae3901c5b87f6c33d1a5d2108a5a2a4cc32f4",
+    "order_distribution": {
+      "10": 146,
+      "11": 104,
+      "12": 359,
+      "17": 8,
+      "2": 10,
+      "3": 111,
+      "4": 6179,
+      "5": 135,
+      "6": 1208,
+      "7": 36,
+      "8": 792,
+      "9": 764
+    },
+    "raw_bytes": 352146,
+    "raw_sha256": "a1135cff6df0d55f714401ae90b9cba2e385c33ce2e3c31ae623130e0124cda8",
+    "table_count": 9852
+  },
+  "input_classification": {
+    "manifest_count": 476,
+    "no_table_manifest_count": 1,
+    "primary_registered_overlap_count": 0,
+    "registered_unique_table_count": 402,
+    "selected_root_new_table_count": 0,
+    "selected_root_representative_count": 6,
+    "table_bearing_manifest_count": 475
+  },
+  "metrics": {
+    "bank.9852": 9852,
+    "registry.input": 402
+  },
+  "ordering": "9,450 primary script paths in lexicographic order, followed by the first occurrence of each registered table in lexicographic manifest-path order",
+  "schema_version": "1.0.0",
+  "source_audit": {
+    "manifest_vector_sha256": "84d6a43b1f180aac0e9591c53740186f7aed0f10673b7ce702334f2b4244e10e",
+    "registered_rule_vector_sha256": "fb0e6eea56051baa6c0f695fbbb820f76c2e3a9699cfae5f1911866d1766f769",
+    "selected_root_vector_sha256": "cf3a6350d73a6fd8cc47bf784c0c5570c08ff6371f48bed62c43d84bf503bddf"
+  },
+  "stage_id": "20-registered-9852"
+}

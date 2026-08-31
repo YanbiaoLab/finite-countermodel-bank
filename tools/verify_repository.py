@@ -9,14 +9,17 @@ into memory.
 from __future__ import annotations
 
 import argparse
+import codecs
 import csv
+import gzip
 import hashlib
 import json
 import re
 import sys
+import tarfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator, TextIO
 from urllib.parse import urlparse
 
 
@@ -40,10 +43,25 @@ SOURCE_KINDS = {
 }
 TRACKS = {"solo", "marathon"}
 CHUNK_SIZE = 1024 * 1024
+MAX_TEXT_LINE_CHARS = 1024 * 1024
 
 
 class VerificationError(RuntimeError):
     """Raised when committed evidence violates the repository contract."""
+
+
+def iter_bounded_text_lines(
+    handle: TextIO, context: str, *, limit: int = MAX_TEXT_LINE_CHARS
+) -> Iterator[str]:
+    """Yield physical text lines without allowing an unbounded readline."""
+
+    while True:
+        line = handle.readline(limit + 1)
+        if not line:
+            return
+        if len(line) > limit:
+            raise VerificationError(f"text line exceeds {limit} characters in {context}")
+        yield line
 
 
 def sha256_file(path: Path) -> str:
@@ -73,6 +91,16 @@ def canonical_table_bytes(order: int, entries: Iterable[int]) -> bytes:
 
 def canonical_table_id(order: int, entries: Iterable[int]) -> str:
     return "sha256:" + hashlib.sha256(canonical_table_bytes(order, entries)).hexdigest()
+
+
+def historical_table_id(order: int, entries: Iterable[int]) -> str:
+    values = list(entries)
+    canonical_table_bytes(order, values)
+    nested = [values[index : index + order] for index in range(0, len(values), order)]
+    payload = json.dumps(
+        nested, ensure_ascii=False, separators=(",", ":")
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -368,7 +396,9 @@ def validate_submission_record(record: dict[str, Any], context: str) -> None:
 def parse_checksums(path: Path, stage_dir: Path) -> dict[str, str]:
     entries: dict[str, str] = {}
     with path.open("r", encoding="utf-8") as handle:
-        for line_number, raw_line in enumerate(handle, start=1):
+        for line_number, raw_line in enumerate(
+            iter_bounded_text_lines(handle, str(path)), start=1
+        ):
             line = raw_line.rstrip("\n")
             if not line:
                 continue
@@ -398,7 +428,9 @@ def verify_submission_index(
     count = 0
 
     with index_path.open("r", encoding="utf-8") as handle:
-        for line_number, raw_line in enumerate(handle, start=1):
+        for line_number, raw_line in enumerate(
+            iter_bounded_text_lines(handle, str(index_path)), start=1
+        ):
             if not raw_line.strip():
                 continue
             try:
@@ -485,6 +517,587 @@ def verify_submission_index(
     }
 
 
+def validate_table_record(record: dict[str, Any], context: str) -> bytes:
+    require_exact_fields(
+        record,
+        [
+            "schema_version",
+            "table_id",
+            "encoding",
+            "order",
+            "entries",
+            "first_seen_stage",
+            "record_kind",
+            "provenance",
+        ],
+        ["identifiers", "verification", "notes"],
+        context,
+    )
+    if record["schema_version"] != SCHEMA_VERSION:
+        raise VerificationError(f"unsupported table schema in {context}")
+    if record["encoding"] != "uint8-order-row-major-v1":
+        raise VerificationError(f"unexpected table encoding in {context}")
+    order = require_integer(record["order"], f"{context}.order", minimum=1)
+    if order > 255:
+        raise VerificationError(f"{context}.order exceeds 255")
+    entries = record["entries"]
+    if not isinstance(entries, list):
+        raise VerificationError(f"{context}.entries must be a list")
+    encoded = canonical_table_bytes(order, entries)
+    expected_id = "sha256:" + hashlib.sha256(encoded).hexdigest()
+    if record["table_id"] != expected_id:
+        raise VerificationError(f"canonical table_id mismatch in {context}")
+    if not isinstance(record["first_seen_stage"], str) or not STAGE_RE.fullmatch(
+        record["first_seen_stage"]
+    ):
+        raise VerificationError(f"invalid first_seen_stage in {context}")
+    if record["record_kind"] not in {
+        "exact-explicit",
+        "derived-transpose",
+        "verified-substitute",
+    }:
+        raise VerificationError(f"invalid record_kind in {context}")
+
+    provenance = record["provenance"]
+    if not isinstance(provenance, list) or not provenance:
+        raise VerificationError(f"{context}.provenance must be nonempty")
+    for index, source in enumerate(provenance):
+        source_context = f"{context}.provenance[{index}]"
+        if not isinstance(source, dict):
+            raise VerificationError(f"{source_context} must be an object")
+        require_exact_fields(
+            source,
+            ["source_id", "source_path"],
+            ["source_record", "notes"],
+            source_context,
+        )
+        source_id = require_nonempty_string(source["source_id"], f"{source_context}.source_id")
+        if not CLAIM_RE.fullmatch(source_id):
+            raise VerificationError(f"invalid source_id in {source_context}")
+        require_nonempty_string(source["source_path"], f"{source_context}.source_path")
+        if "source_record" in source and not isinstance(
+            source["source_record"], (str, int)
+        ):
+            raise VerificationError(f"invalid source_record in {source_context}")
+        if "notes" in source and not isinstance(source["notes"], str):
+            raise VerificationError(f"invalid notes in {source_context}")
+
+    identifiers = record.get("identifiers", [])
+    if not isinstance(identifiers, list):
+        raise VerificationError(f"{context}.identifiers must be a list")
+    seen_schemes: set[str] = set()
+    for index, identifier in enumerate(identifiers):
+        identifier_context = f"{context}.identifiers[{index}]"
+        if not isinstance(identifier, dict):
+            raise VerificationError(f"{identifier_context} must be an object")
+        require_exact_fields(identifier, ["scheme", "value"], [], identifier_context)
+        if identifier["scheme"] != "sha256-compact-json-table-v1":
+            raise VerificationError(f"unsupported identifier scheme in {identifier_context}")
+        if identifier["scheme"] in seen_schemes:
+            raise VerificationError(f"duplicate identifier scheme in {context}")
+        seen_schemes.add(identifier["scheme"])
+        expected_alias = historical_table_id(order, entries)
+        if identifier["value"] != expected_alias:
+            raise VerificationError(f"historical table alias mismatch in {context}")
+
+    verification = record.get("verification")
+    if verification is not None:
+        if not isinstance(verification, dict):
+            raise VerificationError(f"{context}.verification must be an object")
+        require_exact_fields(
+            verification,
+            [],
+            ["shape_checked", "entry_range_checked", "task_check_paths"],
+            f"{context}.verification",
+        )
+        for field in ("shape_checked", "entry_range_checked"):
+            if field in verification and not isinstance(verification[field], bool):
+                raise VerificationError(f"{context}.verification.{field} must be boolean")
+        if "task_check_paths" in verification:
+            require_string_list(
+                verification["task_check_paths"],
+                f"{context}.verification.task_check_paths",
+            )
+    if "notes" in record:
+        require_string_list(record["notes"], f"{context}.notes")
+    return encoded
+
+
+def validate_delta_record(record: dict[str, Any], context: str) -> None:
+    require_exact_fields(
+        record,
+        [
+            "schema_version",
+            "stage_id",
+            "sequence",
+            "action",
+            "table_id",
+            "reason_code",
+            "evidence_paths",
+        ],
+        ["source_stage_id", "source_table_id", "notes"],
+        context,
+    )
+    if record["schema_version"] != SCHEMA_VERSION:
+        raise VerificationError(f"unsupported delta schema in {context}")
+    if not isinstance(record["stage_id"], str) or not STAGE_RE.fullmatch(record["stage_id"]):
+        raise VerificationError(f"invalid delta stage_id in {context}")
+    require_integer(record["sequence"], f"{context}.sequence")
+    if record["action"] not in {"add", "duplicate", "retain", "remove", "replace", "derive"}:
+        raise VerificationError(f"invalid delta action in {context}")
+    if not isinstance(record["table_id"], str) or not re.fullmatch(
+        r"sha256:[a-f0-9]{64}", record["table_id"]
+    ):
+        raise VerificationError(f"invalid delta table_id in {context}")
+    if not isinstance(record["reason_code"], str) or not CLAIM_RE.fullmatch(
+        record["reason_code"]
+    ):
+        raise VerificationError(f"invalid reason_code in {context}")
+    require_string_list(record["evidence_paths"], f"{context}.evidence_paths", minimum_items=1)
+    if "source_stage_id" in record:
+        if not isinstance(record["source_stage_id"], str) or not STAGE_RE.fullmatch(
+            record["source_stage_id"]
+        ):
+            raise VerificationError(f"invalid source_stage_id in {context}")
+    if "source_table_id" in record:
+        if not isinstance(record["source_table_id"], str) or not re.fullmatch(
+            r"sha256:[a-f0-9]{64}", record["source_table_id"]
+        ):
+            raise VerificationError(f"invalid source_table_id in {context}")
+    if ("source_stage_id" in record) != ("source_table_id" in record):
+        raise VerificationError(f"source stage/table fields must occur together in {context}")
+    if "notes" in record and not isinstance(record["notes"], str):
+        raise VerificationError(f"delta notes must be a string in {context}")
+
+
+def open_text_artifact(path: Path):
+    if path.name.endswith(".gz"):
+        return gzip.open(path, "rt", encoding="utf-8", newline="")
+    return path.open("r", encoding="utf-8", newline="")
+
+
+def count_nonempty_lines(path: Path) -> int:
+    count = 0
+    with open_text_artifact(path) as handle:
+        for line in iter_bounded_text_lines(handle, str(path)):
+            if line.strip():
+                count += 1
+    return count
+
+
+def verify_raw_snapshot(path: Path, declared_count: int) -> None:
+    count = 0
+    seen: set[str] = set()
+    previous_name: str | None = None
+    try:
+        with tarfile.open(path, mode="r|gz") as archive:
+            for member in archive:
+                name = member.name
+                if (
+                    not name
+                    or name.startswith("/")
+                    or ".." in Path(name).parts
+                    or name in seen
+                    or not member.isfile()
+                ):
+                    raise VerificationError(f"unsafe raw archive member: {path}#{name}")
+                if previous_name is not None and name <= previous_name:
+                    raise VerificationError(
+                        f"raw archive members are not strictly sorted: {path}#{name}"
+                    )
+                if (
+                    member.mtime != 0
+                    or member.uid != 0
+                    or member.gid != 0
+                    or member.mode != 0o644
+                ):
+                    raise VerificationError(f"noncanonical raw archive metadata: {path}#{name}")
+                extracted = archive.extractfile(member)
+                if extracted is None:
+                    raise VerificationError(f"cannot read raw archive member: {path}#{name}")
+                remaining = member.size
+                while remaining:
+                    chunk = extracted.read(min(CHUNK_SIZE, remaining))
+                    if not chunk:
+                        raise VerificationError(f"truncated raw archive member: {path}#{name}")
+                    remaining -= len(chunk)
+                if extracted.read(1):
+                    raise VerificationError(f"oversized raw archive member: {path}#{name}")
+                seen.add(name)
+                previous_name = name
+                count += 1
+    except (tarfile.TarError, OSError) as exc:
+        raise VerificationError(f"cannot read raw snapshot {path}: {exc}") from exc
+    if count != declared_count:
+        raise VerificationError(
+            f"raw snapshot has {count} members; manifest declares {declared_count}"
+        )
+
+
+def normalized_equation_text(text: str) -> str:
+    return "".join(text.replace("◇", "*").split())
+
+
+def load_official_equations(root: Path, wanted_ids: set[int]) -> dict[int, str]:
+    stage10_dir = root / "reproduction" / "10-primary-9450"
+    manifest = load_json(stage10_dir / "stage.json")
+    candidates = [
+        artifact
+        for artifact in manifest.get("artifacts", [])
+        if isinstance(artifact, dict)
+        and artifact.get("path") == "raw/primary-recovery-snapshot.tar.gz"
+    ]
+    if len(candidates) != 1:
+        raise VerificationError("Stage10 manifest lacks a unique equation snapshot")
+    declared = candidates[0]
+    archive_path = safe_stage_path(stage10_dir, declared["path"])
+    if (
+        archive_path.stat().st_size != declared.get("bytes")
+        or sha256_file(archive_path) != declared.get("sha256")
+    ):
+        raise VerificationError("Stage10 equation snapshot disagrees with its manifest")
+    found: dict[int, str] = {}
+    member_count = 0
+    row_count = 0
+    try:
+        with tarfile.open(archive_path, mode="r|gz") as archive:
+            for member in archive:
+                if not member.name.endswith("/order5_equations.csv"):
+                    continue
+                member_count += 1
+                extracted = archive.extractfile(member)
+                if extracted is None:
+                    raise VerificationError(
+                        f"cannot read official equation index: {archive_path}#{member.name}"
+                    )
+                text = codecs.getreader("utf-8")(extracted)
+                reader = csv.DictReader(
+                    iter_bounded_text_lines(text, f"{archive_path}#{member.name}")
+                )
+                expected_header = [
+                    "equation_id",
+                    "equation_text",
+                    "variable_count",
+                    "lhs_operation_count",
+                    "rhs_operation_count",
+                    "total_operation_count",
+                ]
+                if reader.fieldnames != expected_header:
+                    raise VerificationError("official equation index header drift")
+                for row_count, row in enumerate(reader, start=1):
+                    equation_id = int(row["equation_id"])
+                    if equation_id != row_count:
+                        raise VerificationError(
+                            "official equation IDs are not contiguous"
+                        )
+                    if equation_id in wanted_ids:
+                        found[equation_id] = row["equation_text"]
+    except (OSError, tarfile.TarError, UnicodeError, ValueError, csv.Error) as exc:
+        raise VerificationError(f"cannot read official equation snapshot: {exc}") from exc
+    if member_count != 1 or row_count != 62_576:
+        raise VerificationError(
+            f"official equation index shape drift: members={member_count}, rows={row_count}"
+        )
+    if set(found) != wanted_ids:
+        raise VerificationError("task evidence references an unknown official equation ID")
+    return found
+
+
+def verify_task_evidence(stage_dir: Path, artifact: dict[str, Any]) -> dict[str, Any]:
+    path = safe_stage_path(stage_dir, artifact["path"])
+    rows: list[dict[str, Any]] = []
+    references: list[tuple[int, str, str]] = []
+    problem_ids: set[str] = set()
+    directions: set[tuple[int, int]] = set()
+    table_ids: set[str] = set()
+    with open_text_artifact(path) as handle:
+        for line_number, raw_line in enumerate(
+            iter_bounded_text_lines(handle, str(path)), start=1
+        ):
+            if not raw_line.strip():
+                continue
+            try:
+                row = json.loads(raw_line)
+            except json.JSONDecodeError as exc:
+                raise VerificationError(
+                    f"invalid task evidence {path}:{line_number}: {exc}"
+                ) from exc
+            if not isinstance(row, dict):
+                raise VerificationError(f"non-object task evidence {path}:{line_number}")
+            problem_id = row.get("problem_id")
+            table_id = row.get("table_id")
+            if not isinstance(problem_id, str) or not problem_id:
+                raise VerificationError(f"invalid problem ID at {path}:{line_number}")
+            if not isinstance(table_id, str) or not re.fullmatch(
+                r"sha256:[a-f0-9]{64}", table_id
+            ):
+                raise VerificationError(f"invalid table ID at {path}:{line_number}")
+            problem_ids.add(problem_id)
+            table_ids.add(table_id)
+            for side in ("source", "target"):
+                equation_id = row.get(f"{side}_equation_id")
+                formula = row.get(f"{side}_formula")
+                if (
+                    isinstance(equation_id, bool)
+                    or not isinstance(equation_id, int)
+                    or not 1 <= equation_id <= 62_576
+                    or not isinstance(formula, str)
+                    or not formula
+                    or row.get(f"official_{side}_formula_match") is not True
+                ):
+                    raise VerificationError(
+                        f"invalid official equation reference at {path}:{line_number}"
+                    )
+                references.append((equation_id, formula, side))
+            directions.add((row["source_equation_id"], row["target_equation_id"]))
+            rows.append(row)
+    if artifact.get("record_count") != len(rows):
+        raise VerificationError(f"task evidence record_count drift in {stage_dir.name}")
+    wanted_ids = {equation_id for equation_id, _formula, _side in references}
+    official = load_official_equations(stage_dir.parents[1], wanted_ids)
+    mismatches = [
+        (equation_id, side)
+        for equation_id, formula, side in references
+        if normalized_equation_text(formula)
+        != normalized_equation_text(official[equation_id])
+    ]
+    if mismatches:
+        raise VerificationError(
+            f"task formulas disagree with official equation IDs: {mismatches[:5]}"
+        )
+    if len(references) != 204 or len(wanted_ids) != 195:
+        raise VerificationError(
+            "unexpected delivery equation-reference cardinality: "
+            f"references={len(references)}, distinct={len(wanted_ids)}"
+        )
+    if len(problem_ids) != 102 or len(directions) != 102 or len(table_ids) != 102:
+        raise VerificationError(
+            "delivery task identities are not unique: "
+            f"problems={len(problem_ids)}, directions={len(directions)}, "
+            f"tables={len(table_ids)}"
+        )
+    return {
+        "official_equation_mapping": {
+            "reference_count": len(references),
+            "distinct_equation_count": len(wanted_ids),
+            "mismatch_count": 0,
+            "normalization": "diamond-to-asterisk-and-remove-whitespace",
+        },
+        "table_ids": [row["table_id"] for row in rows],
+    }
+
+
+def verify_table_index(
+    stage_dir: Path,
+    index_artifact: dict[str, Any],
+    binary_artifact: dict[str, Any],
+) -> dict[str, Any]:
+    index_path = safe_stage_path(stage_dir, index_artifact["path"])
+    binary_path = safe_stage_path(stage_dir, binary_artifact["path"])
+    table_ids: list[str] = []
+    table_set: set[str] = set()
+    historical_ids: list[str] = []
+    first_seen: dict[str, str] = {}
+    provenance_source_ids: set[str] = set()
+    order_counts: dict[str, int] = {}
+    raw_digest = hashlib.sha256()
+    raw_bytes = 0
+    with open_text_artifact(index_path) as index_handle, binary_path.open("rb") as binary:
+        for line_number, raw_line in enumerate(
+            iter_bounded_text_lines(index_handle, str(index_path)), start=1
+        ):
+            if not raw_line.strip():
+                continue
+            try:
+                record = json.loads(raw_line)
+            except json.JSONDecodeError as exc:
+                raise VerificationError(
+                    f"invalid table JSONL {index_path}:{line_number}: {exc}"
+                ) from exc
+            if not isinstance(record, dict):
+                raise VerificationError(f"non-object table record {index_path}:{line_number}")
+            encoded = validate_table_record(record, f"{index_path}:{line_number}")
+            table_id = record["table_id"]
+            if table_id in table_set:
+                raise VerificationError(f"duplicate canonical table_id in {index_path}: {table_id}")
+            table_set.add(table_id)
+            table_ids.append(table_id)
+            first_seen[table_id] = record["first_seen_stage"]
+            provenance_source_ids.update(
+                source["source_id"] for source in record["provenance"]
+            )
+            aliases = record.get("identifiers", [])
+            historical = next(
+                (
+                    item["value"]
+                    for item in aliases
+                    if item["scheme"] == "sha256-compact-json-table-v1"
+                ),
+                None,
+            )
+            if historical is None:
+                raise VerificationError(f"PR 1 table lacks historical alias: {index_path}:{line_number}")
+            historical_ids.append(historical)
+            order_key = str(record["order"])
+            order_counts[order_key] = order_counts.get(order_key, 0) + 1
+            actual = binary.read(len(encoded))
+            if actual != encoded:
+                raise VerificationError(
+                    f"table binary disagrees with JSONL at record {len(table_ids) - 1}"
+                )
+            raw_digest.update(encoded)
+            raw_bytes += len(encoded)
+        if binary.read(1):
+            raise VerificationError(f"table binary has trailing bytes: {binary_path}")
+    declared = index_artifact.get("record_count")
+    if declared != len(table_ids) or binary_artifact.get("record_count") != len(table_ids):
+        raise VerificationError(f"table artifact record_count drift in {stage_dir.name}")
+    return {
+        "ids": table_ids,
+        "id_set": table_set,
+        "historical_ids": historical_ids,
+        "first_seen": first_seen,
+        "provenance_source_ids": provenance_source_ids,
+        "count": len(table_ids),
+        "raw_bytes": raw_bytes,
+        "raw_sha256": raw_digest.hexdigest(),
+        "canonical_id_vector_sha256": hashlib.sha256(
+            "".join(f"{value.removeprefix('sha256:')}\n" for value in table_ids).encode("ascii")
+        ).hexdigest(),
+        "historical_id_vector_sha256": hashlib.sha256(
+            "".join(f"{value.removeprefix('sha256:')}\n" for value in historical_ids).encode("ascii")
+        ).hexdigest(),
+        "order_distribution": {
+            key: order_counts[key] for key in sorted(order_counts, key=int)
+        },
+    }
+
+
+def verify_delta_index(stage_dir: Path, artifact: dict[str, Any]) -> dict[str, Any]:
+    path = safe_stage_path(stage_dir, artifact["path"])
+    rows: list[dict[str, Any]] = []
+    counts: dict[str, int] = {}
+    with open_text_artifact(path) as handle:
+        for line_number, raw_line in enumerate(
+            iter_bounded_text_lines(handle, str(path)), start=1
+        ):
+            if not raw_line.strip():
+                continue
+            try:
+                record = json.loads(raw_line)
+            except json.JSONDecodeError as exc:
+                raise VerificationError(f"invalid delta JSONL {path}:{line_number}: {exc}") from exc
+            if not isinstance(record, dict):
+                raise VerificationError(f"non-object delta record {path}:{line_number}")
+            validate_delta_record(record, f"{path}:{line_number}")
+            if record["stage_id"] != stage_dir.name:
+                raise VerificationError(f"delta stage mismatch at {path}:{line_number}")
+            if record["sequence"] != len(rows):
+                raise VerificationError(f"noncontiguous delta sequence at {path}:{line_number}")
+            rows.append(record)
+            counts[record["action"]] = counts.get(record["action"], 0) + 1
+    if artifact.get("record_count") != len(rows):
+        raise VerificationError(f"delta record_count drift in {stage_dir.name}")
+    return {"rows": rows, "action_counts": counts}
+
+
+def verify_stage_summary(
+    stage_dir: Path,
+    artifact: dict[str, Any],
+    manifest_claims: set[str],
+    claims_by_id: dict[str, dict[str, str]],
+    bank: dict[str, Any] | None,
+    delta: dict[str, Any] | None,
+) -> dict[str, Any]:
+    summary = load_json(safe_stage_path(stage_dir, artifact["path"]))
+    require_fields(
+        summary,
+        ["schema_version", "stage_id", "metrics", "action_counts", "bank"],
+        f"summary in {stage_dir.name}",
+    )
+    if summary["schema_version"] != SCHEMA_VERSION or summary["stage_id"] != stage_dir.name:
+        raise VerificationError(f"summary identity drift in {stage_dir.name}")
+    metrics = summary["metrics"]
+    if not isinstance(metrics, dict) or set(metrics) != manifest_claims:
+        raise VerificationError(f"summary metrics do not match manifest claims in {stage_dir.name}")
+    for claim_id, actual in metrics.items():
+        if isinstance(actual, bool) or not isinstance(actual, int):
+            raise VerificationError(f"summary metric is not integer: {claim_id}")
+        expected = claim_expected_integer(claims_by_id, claim_id, stage_dir.name)
+        if actual != expected:
+            raise VerificationError(f"claim {claim_id} says {expected}; summary computed {actual}")
+    if bank is not None:
+        bank_summary = summary["bank"]
+        if not isinstance(bank_summary, dict):
+            raise VerificationError(f"summary bank must be an object in {stage_dir.name}")
+        for field in (
+            "table_count",
+            "raw_bytes",
+            "raw_sha256",
+            "canonical_id_vector_sha256",
+            "historical_id_vector_sha256",
+            "order_distribution",
+        ):
+            if bank_summary.get(field) != bank[field if field != "table_count" else "count"]:
+                raise VerificationError(f"summary bank.{field} drift in {stage_dir.name}")
+    if delta is not None and summary["action_counts"] != delta["action_counts"]:
+        raise VerificationError(f"summary action counts drift in {stage_dir.name}")
+    return summary
+
+
+def verify_identity_map(
+    stage_dir: Path, artifact: dict[str, Any], bank: dict[str, Any]
+) -> None:
+    path = safe_stage_path(stage_dir, artifact["path"])
+    with open_text_artifact(path) as handle:
+        reader = csv.DictReader(iter_bounded_text_lines(handle, str(path)))
+        if reader.fieldnames != [
+            "position",
+            "table_id",
+            "historical_json_table_id",
+            "first_seen_stage",
+        ]:
+            raise VerificationError(f"identity-map header drift in {stage_dir.name}")
+        count = 0
+        for count, row in enumerate(reader, start=1):
+            position = count - 1
+            if int(row["position"]) != position:
+                raise VerificationError(f"identity-map position drift at {path}:{count + 1}")
+            if row["table_id"] != bank["ids"][position]:
+                raise VerificationError(f"identity-map canonical ID drift at {path}:{count + 1}")
+            if row["historical_json_table_id"] != bank["historical_ids"][position]:
+                raise VerificationError(f"identity-map historical ID drift at {path}:{count + 1}")
+            if row["first_seen_stage"] != bank["first_seen"][row["table_id"]]:
+                raise VerificationError(
+                    f"identity-map first_seen_stage drift at {path}:{count + 1}"
+                )
+    if count != bank["count"] or artifact.get("record_count") != count:
+        raise VerificationError(f"identity-map count drift in {stage_dir.name}")
+
+
+def table_binary_ids(path: Path) -> list[str]:
+    table_ids: list[str] = []
+    with path.open("rb") as handle:
+        while True:
+            first = handle.read(1)
+            if not first:
+                break
+            order = first[0]
+            if order == 0:
+                raise VerificationError(f"zero-order table in {path}")
+            entries = handle.read(order * order)
+            if len(entries) != order * order:
+                raise VerificationError(f"truncated table binary in {path}")
+            if any(value >= order for value in entries):
+                raise VerificationError(f"out-of-range table entry in {path}")
+            table_ids.append("sha256:" + hashlib.sha256(first + entries).hexdigest())
+    return table_ids
+
+
+def count_table_binary(path: Path) -> int:
+    return len(table_binary_ids(path))
+
+
 def claim_expected_integer(
     claims_by_id: dict[str, dict[str, str]],
     claim_id: str,
@@ -534,7 +1147,7 @@ def verify_submission_claims(
 
 def verify_stage(
     stage_dir: Path, claims_by_id: dict[str, dict[str, str]]
-) -> tuple[int, int, set[str]]:
+) -> tuple[int, int, set[str], dict[str, Any]]:
     manifest_path = stage_dir / "stage.json"
     manifest = load_json(manifest_path)
     validate_stage_manifest_structure(manifest, str(manifest_path))
@@ -604,6 +1217,115 @@ def verify_stage(
     if checksum_entries != manifest_entries:
         raise VerificationError(f"SHA256SUMS and manifest disagree in {stage_dir.name}")
 
+    raw_snapshots = [artifact for artifact in artifacts if artifact["role"] == "raw-snapshot"]
+    for artifact in raw_snapshots:
+        if "record_count" not in artifact:
+            raise VerificationError(f"raw snapshot lacks record_count in {stage_dir.name}")
+        verify_raw_snapshot(
+            safe_stage_path(stage_dir, artifact["path"]), artifact["record_count"]
+        )
+
+    table_indexes = [artifact for artifact in artifacts if artifact["role"] == "table-index"]
+    table_binaries = [artifact for artifact in artifacts if artifact["role"] == "table-binary"]
+    bank = None
+    if table_indexes or table_binaries:
+        if len(table_indexes) != 1 or len(table_binaries) != 1:
+            raise VerificationError(
+                f"stage must pair one table-index with one table-binary: {stage_dir.name}"
+            )
+        bank = verify_table_index(stage_dir, table_indexes[0], table_binaries[0])
+        attributes = table_binaries[0].get("attributes", {})
+        for field, value in (
+            ("table_count", bank["count"]),
+            ("raw_bytes", bank["raw_bytes"]),
+            ("raw_sha256", bank["raw_sha256"]),
+            ("canonical_id_vector_sha256", bank["canonical_id_vector_sha256"]),
+            ("historical_id_vector_sha256", bank["historical_id_vector_sha256"]),
+            ("order_distribution", bank["order_distribution"]),
+        ):
+            if attributes.get(field) != value:
+                raise VerificationError(
+                    f"table-binary attribute {field} drift in {stage_dir.name}"
+                )
+
+    delta_artifacts = [
+        artifact for artifact in artifacts if artifact["role"] == "membership-delta"
+    ]
+    delta = None
+    if delta_artifacts:
+        if len(delta_artifacts) != 1:
+            raise VerificationError(f"expected one membership delta in {stage_dir.name}")
+        delta = verify_delta_index(stage_dir, delta_artifacts[0])
+
+    identity_maps = [artifact for artifact in artifacts if artifact["role"] == "identity-map"]
+    if identity_maps:
+        if len(identity_maps) != 1 or bank is None:
+            raise VerificationError(f"identity map lacks a unique table bank in {stage_dir.name}")
+        verify_identity_map(stage_dir, identity_maps[0], bank)
+
+    line_count_roles = {
+        "primary-model-index",
+        "skipped-model-index",
+        "input-classification",
+    }
+    delivery_binaries: dict[str, list[str]] = {}
+    for artifact in artifacts:
+        if artifact["role"] in line_count_roles:
+            actual_count = count_nonempty_lines(safe_stage_path(stage_dir, artifact["path"]))
+            if artifact.get("record_count") != actual_count:
+                raise VerificationError(
+                    f"record_count drift for {artifact['path']} in {stage_dir.name}"
+                )
+        if artifact["role"] == "delivery-binary":
+            ids = table_binary_ids(safe_stage_path(stage_dir, artifact["path"]))
+            delivery_binaries[artifact["path"]] = ids
+            if artifact.get("record_count") != len(ids):
+                raise VerificationError(
+                    f"delivery binary count drift for {artifact['path']}"
+                )
+
+    task_artifacts = [
+        artifact for artifact in artifacts if artifact["role"] == "task-verification"
+    ]
+    task_verification = None
+    if task_artifacts:
+        if stage_dir.name != "40-delivery-10059" or len(task_artifacts) != 1:
+            raise VerificationError(
+                f"unexpected task-verification artifacts in {stage_dir.name}"
+            )
+        task_verification = verify_task_evidence(stage_dir, task_artifacts[0])
+        delivery_ids = delivery_binaries.get("normalized/delivery-102.bin")
+        if delivery_ids != task_verification["table_ids"]:
+            raise VerificationError(
+                "task evidence table order disagrees with delivery-102.bin"
+            )
+        if bank is None or bank["ids"][-len(delivery_ids) :] != delivery_ids:
+            raise VerificationError(
+                "delivery-102.bin does not match the Stage40 bank suffix"
+            )
+
+    summary_artifacts = [artifact for artifact in artifacts if artifact["role"] == "stage-summary"]
+    summary = None
+    if summary_artifacts:
+        if len(summary_artifacts) != 1:
+            raise VerificationError(f"expected one stage summary in {stage_dir.name}")
+        summary = verify_stage_summary(
+            stage_dir,
+            summary_artifacts[0],
+            manifest_claims,
+            claims_by_id,
+            bank,
+            delta,
+        )
+        if (
+            task_verification is not None
+            and summary.get("official_equation_mapping")
+            != task_verification["official_equation_mapping"]
+        ):
+            raise VerificationError(
+                f"official equation mapping summary drift in {stage_dir.name}"
+            )
+
     submission_indexes = [
         artifact for artifact in artifacts if artifact["role"] == "submission-index"
     ]
@@ -626,7 +1348,12 @@ def verify_stage(
             submission_summary,
         )
 
-    return len(artifacts), submission_count, manifest_claims
+    return len(artifacts), submission_count, manifest_claims, {
+        "manifest": manifest,
+        "bank": bank,
+        "delta": delta,
+        "summary": summary,
+    }
 
 
 def verify_claims(root: Path) -> dict[str, dict[str, str]]:
@@ -642,7 +1369,7 @@ def verify_claims(root: Path) -> dict[str, dict[str, str]]:
         "evidence_path",
     ]
     with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
+        reader = csv.DictReader(iter_bounded_text_lines(handle, str(path)))
         if reader.fieldnames != required_headers:
             raise VerificationError(f"unexpected CLAIMS.csv header: {reader.fieldnames}")
         claims_by_id: dict[str, dict[str, str]] = {}
@@ -707,6 +1434,106 @@ def verify_schema_documents(root: Path) -> int:
     return len(expected)
 
 
+def verify_stage_transitions(
+    results: dict[str, dict[str, Any]], *, allow_missing_dependencies: bool = False
+) -> None:
+    pipeline_orders: dict[int, str] = {}
+    global_source_ids: set[str] = set()
+    for stage_id, result in results.items():
+        manifest = result["manifest"]
+        for source in manifest["sources"]:
+            source_id = source["source_id"]
+            if source_id in global_source_ids:
+                raise VerificationError(f"source_id is not globally unique: {source_id}")
+            global_source_ids.add(source_id)
+        order = manifest["pipeline_order"]
+        if order in pipeline_orders:
+            raise VerificationError(
+                f"duplicate pipeline_order {order}: {pipeline_orders[order]} and {stage_id}"
+            )
+        pipeline_orders[order] = stage_id
+        for dependency in manifest["depends_on"]:
+            if dependency not in results:
+                if allow_missing_dependencies:
+                    continue
+                raise VerificationError(
+                    f"stage dependency is missing from full verification: "
+                    f"{dependency} -> {stage_id}"
+                )
+            dependency_order = results[dependency]["manifest"]["pipeline_order"]
+            if dependency_order >= order:
+                raise VerificationError(
+                    f"dependency does not precede stage: {dependency} -> {stage_id}"
+                )
+
+    for stage_id, result in results.items():
+        bank = result["bank"]
+        if bank is None:
+            continue
+        if set(bank["first_seen"].values()).issubset(results):
+            unknown_provenance = bank["provenance_source_ids"] - global_source_ids
+            if unknown_provenance:
+                raise VerificationError(
+                    f"table provenance references unknown sources in {stage_id}: "
+                    f"{', '.join(sorted(unknown_provenance))}"
+                )
+        delta = result["delta"]
+        if delta is None:
+            raise VerificationError(f"table stage lacks membership delta: {stage_id}")
+        dependencies = result["manifest"]["depends_on"]
+        available_dependencies = [value for value in dependencies if value in results]
+        if dependencies and len(available_dependencies) != len(dependencies):
+            if allow_missing_dependencies:
+                # A --stage selection intentionally verifies one stage in isolation.
+                continue
+            raise VerificationError(f"cannot reconstruct missing dependency for {stage_id}")
+        if len(dependencies) > 1:
+            raise VerificationError(f"table stage has multiple bank dependencies: {stage_id}")
+        previous = results[dependencies[0]]["bank"] if dependencies else None
+        if dependencies and previous is None:
+            raise VerificationError(f"bank dependency has no table bank: {stage_id}")
+        working = set(previous["id_set"] if previous is not None else set())
+        previous_first_seen = previous["first_seen"] if previous is not None else {}
+        for row in delta["rows"]:
+            table_id = row["table_id"]
+            action = row["action"]
+            if action in {"add", "derive"}:
+                if table_id in working:
+                    raise VerificationError(
+                        f"delta {action} targets an existing table in {stage_id}: {table_id}"
+                    )
+                working.add(table_id)
+            elif action in {"duplicate", "retain"}:
+                if table_id not in working:
+                    raise VerificationError(
+                        f"delta {action} targets a missing table in {stage_id}: {table_id}"
+                    )
+            elif action == "remove":
+                if table_id not in working:
+                    raise VerificationError(
+                        f"delta remove targets a missing table in {stage_id}: {table_id}"
+                    )
+                working.remove(table_id)
+            elif action == "replace":
+                source_table_id = row.get("source_table_id")
+                if source_table_id not in working or table_id in working:
+                    raise VerificationError(f"invalid replace transition in {stage_id}")
+                working.remove(source_table_id)
+                working.add(table_id)
+        if working != bank["id_set"]:
+            raise VerificationError(f"delta does not reconstruct table membership in {stage_id}")
+        for table_id, first_stage in bank["first_seen"].items():
+            if table_id in previous_first_seen:
+                if first_stage != previous_first_seen[table_id]:
+                    raise VerificationError(
+                        f"first_seen_stage changed for {table_id} in {stage_id}"
+                    )
+            elif first_stage != stage_id:
+                raise VerificationError(
+                    f"new table has wrong first_seen_stage in {stage_id}: {table_id}"
+                )
+
+
 def verify_repository(
     root: Path, selected_stages: list[str] | None = None
 ) -> tuple[int, int]:
@@ -722,15 +1549,17 @@ def verify_repository(
 
     total_artifacts = 0
     manifested_claims: set[str] = set()
+    stage_results: dict[str, dict[str, Any]] = {}
     selected_stage_ids = {stage_dir.name for stage_dir in stage_dirs}
     for stage_dir in stage_dirs:
         if not stage_dir.is_dir():
             raise VerificationError(f"stage directory does not exist: {stage_dir.name}")
-        artifact_count, submission_count, stage_claims = verify_stage(
+        artifact_count, submission_count, stage_claims, stage_result = verify_stage(
             stage_dir, claims_by_id
         )
         total_artifacts += artifact_count
         manifested_claims.update(stage_claims)
+        stage_results[stage_dir.name] = stage_result
         suffix = f", {submission_count} submission records" if submission_count else ""
         print(f"OK {stage_dir.name}: {artifact_count} artifacts{suffix}")
 
@@ -743,6 +1572,10 @@ def verify_repository(
             raise VerificationError(
                 f"non-planned claim is missing from its stage manifest: {claim_id}"
             )
+
+    verify_stage_transitions(
+        stage_results, allow_missing_dependencies=bool(selected_stages)
+    )
 
     print(f"OK schemas: {schema_count} documents")
     print(f"OK CLAIMS.csv: {len(claims_by_id)} claims")

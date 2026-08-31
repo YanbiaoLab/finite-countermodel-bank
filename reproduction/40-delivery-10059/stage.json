@@ -1,0 +1,217 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "attributes": {
+        "archive_format": "deterministic-tar-gzip-v1",
+        "uncompressed_source_bytes": 505277
+      },
+      "bytes": 192724,
+      "media_type": "application/gzip",
+      "path": "raw/jiaming-d11-snapshot.tar.gz",
+      "record_count": 7,
+      "role": "raw-snapshot",
+      "sha256": "512690db8218fd2f4a0b7a2df86c46069b8ad4bd90826af4487f02d2f7540f3c",
+      "source_ids": [
+        "stage40-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 3189,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "8d2d0df38f087d00c3e060093474c55302a7ef1d2918553144c52eec9a38d170",
+      "source_ids": [
+        "stage30-bank",
+        "stage40-local-snapshot",
+        "stage10-equation-index"
+      ]
+    },
+    {
+      "bytes": 1275836,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/tables.jsonl.gz",
+      "record_count": 10059,
+      "role": "table-index",
+      "sha256": "7570194d63d7825f40c5a8cfd8c11130bf0a62aa39bd24123d2207bfb43cca4f",
+      "source_ids": [
+        "stage30-bank",
+        "stage40-local-snapshot"
+      ]
+    },
+    {
+      "attributes": {
+        "canonical_id_vector_sha256": "5d01182a23f44581058be2917700806f1461cc66a4176335ba3e516a40b1de90",
+        "encoding": "uint8-order-row-major-v1",
+        "historical_id_vector_sha256": "4f40e2b592b9346b25619b55d5f33749ab3a8e2554340b31dc08cec6b5ef6dc8",
+        "order_distribution": {
+          "10": 146,
+          "11": 104,
+          "12": 359,
+          "13": 16,
+          "16": 4,
+          "17": 13,
+          "19": 1,
+          "2": 10,
+          "20": 3,
+          "25": 2,
+          "3": 111,
+          "32": 1,
+          "4": 6180,
+          "41": 1,
+          "43": 1,
+          "5": 207,
+          "6": 1256,
+          "7": 63,
+          "8": 809,
+          "9": 772
+        },
+        "raw_bytes": 371494,
+        "raw_sha256": "fcb18adf3ff344e51a8f46d3e8eb92f7bb5487f4a3ee5ef74836076d51f3c3d4",
+        "table_count": 10059
+      },
+      "bytes": 371494,
+      "media_type": "application/octet-stream",
+      "path": "normalized/tables.bin",
+      "record_count": 10059,
+      "role": "table-binary",
+      "sha256": "fcb18adf3ff344e51a8f46d3e8eb92f7bb5487f4a3ee5ef74836076d51f3c3d4",
+      "source_ids": [
+        "stage30-bank",
+        "stage40-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 810458,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/table-id-map.csv.gz",
+      "record_count": 10059,
+      "role": "identity-map",
+      "sha256": "a7d3003d2adcb5c3d4f847e60e5c3f3a8a96c91e5ece534602e5bcbff3bc3683",
+      "source_ids": [
+        "stage30-bank",
+        "stage40-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 1414,
+      "media_type": "application/octet-stream",
+      "path": "normalized/delivery-batch-50.bin",
+      "record_count": 50,
+      "role": "delivery-binary",
+      "sha256": "405e6daacfa8af4390a5cdb7ac97c8fd3e63c8bf8eb7748f01139131e49f8abe",
+      "source_ids": [
+        "stage40-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 2499,
+      "media_type": "application/octet-stream",
+      "path": "normalized/delivery-batch-52.bin",
+      "record_count": 52,
+      "role": "delivery-binary",
+      "sha256": "4aff0008fca0cb1db268b578f4c95afdf38ec24692f4bdf1f15ce3a46dce50c5",
+      "source_ids": [
+        "stage40-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 3913,
+      "media_type": "application/octet-stream",
+      "path": "normalized/delivery-102.bin",
+      "record_count": 102,
+      "role": "delivery-binary",
+      "sha256": "2ab611ed7f0626291f6ebdcbd6d365f7509e497f85f2e3cc5529f71bf402b5f9",
+      "source_ids": [
+        "stage40-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 15206,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "verification/task-evidence.jsonl.gz",
+      "record_count": 102,
+      "role": "task-verification",
+      "sha256": "1f2c7893e1d4b7e9fcf5fc2182a4dd80a352a7a2bf7daf6a59add7cdf2e4f684",
+      "source_ids": [
+        "stage40-local-snapshot",
+        "stage10-equation-index"
+      ]
+    },
+    {
+      "bytes": 5167,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 102,
+      "role": "membership-delta",
+      "sha256": "7dfe592a20614d2ca51538321bbf8ea93068652cc31ae1227074fea7d4784236",
+      "source_ids": [
+        "stage30-bank",
+        "stage40-local-snapshot"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T14:40:52+08:00",
+  "claims": [
+    "delivery.input",
+    "delivery.overlap",
+    "delivery.equation_references",
+    "delivery.distinct_equations",
+    "bank.10059"
+  ],
+  "depends_on": [
+    "30-early-deltas-9957"
+  ],
+  "notes": [
+    "Each of the 102 report tables is rechecked by exhaustive source and target assignment enumeration, including the reported failure count and lexicographically first witness.",
+    "The later 107-table report is outside this historical stage and is intentionally excluded.",
+    "Missing SAT journals prevent replay of discovery; explicit countermodels remain independently verifiable."
+  ],
+  "pipeline_order": 40,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T14:40:52+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/30-early-deltas-9957/normalized/tables.bin",
+      "notes": [
+        "Committed evidence from an earlier reproduction stage."
+      ],
+      "source_id": "stage30-bank"
+    },
+    {
+      "captured_at": "2026-08-31T14:40:52+08:00",
+      "kind": "repository-snapshot",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/10-primary-9450/raw/primary-recovery-snapshot.tar.gz#members/wubing/data/324M_remaining_pairs/order5_equations.csv",
+      "notes": [
+        "Committed evidence from an earlier reproduction stage."
+      ],
+      "source_id": "stage10-equation-index"
+    },
+    {
+      "captured_at": "2026-08-31T14:40:52+08:00",
+      "kind": "local-filesystem-snapshot",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "math-distill-equational-stage2: two JiaMing delivery reports and d11 integration evidence",
+      "notes": [
+        "The members/wubing tree was ignored by the source repository. The revision is context only; archive and member hashes identify the captured bytes."
+      ],
+      "revision": "6d8b449071a9168b3ddb35f77533e093833c70a4",
+      "source_id": "stage40-local-snapshot"
+    }
+  ],
+  "stage_id": "40-delivery-10059",
+  "status": "verified",
+  "title": "Two JiaMing deliveries: 9,957 + 50 + 52 = 10,059",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 tools/verify_repository.py --stage 40-delivery-10059",
+    "notes": [
+      "Run python3 tools/rebuild_pr1.py first to regenerate normalized outputs from committed raw snapshots.",
+      "All archive and data processing is bounded or forward-only; historical Python is never executed."
+    ]
+  }
+}
