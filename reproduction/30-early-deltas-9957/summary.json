@@ -1,0 +1,82 @@
+{
+  "action_counts": {
+    "add": 105,
+    "duplicate": 106
+  },
+  "bank": {
+    "canonical_id_vector_sha256": "0ed41f59218ff5ab597b56eee3dcd3766ef7c866d51bfa99a4ace900a2ebf91e",
+    "historical_id_vector_sha256": "094743ce81e80958039b285c2451f5415cfbe979b016842b861b60b606807657",
+    "order_distribution": {
+      "10": 146,
+      "11": 104,
+      "12": 359,
+      "13": 16,
+      "16": 4,
+      "17": 13,
+      "19": 1,
+      "2": 10,
+      "20": 3,
+      "25": 2,
+      "3": 111,
+      "32": 1,
+      "4": 6179,
+      "41": 1,
+      "43": 1,
+      "5": 166,
+      "6": 1224,
+      "7": 48,
+      "8": 799,
+      "9": 769
+    },
+    "raw_bytes": 367581,
+    "raw_sha256": "c032654b7674ed3386b7700ccf7f4ed7344d1e0791c851d2bf5a5cf16ce8902c",
+    "table_count": 9957
+  },
+  "batch_counts": {
+    "d1": {
+      "add": 11,
+      "duplicate": 55,
+      "input": 66
+    },
+    "d2": {
+      "add": 94,
+      "duplicate": 51,
+      "input": 145
+    }
+  },
+  "historical_payload_checks": {
+    "d4_false9852": {
+      "raw_bytes": 352146,
+      "raw_sha256": "a1135cff6df0d55f714401ae90b9cba2e385c33ce2e3c31ae623130e0124cda8",
+      "xz_bytes": 83360,
+      "xz_sha256": "3664d6a99eafb38aa3b91d2f374cc3d1e48bbcd4f46ec56fb752069db2fad88b"
+    },
+    "d6": {
+      "raw_bytes": 367581,
+      "raw_sha256": "c032654b7674ed3386b7700ccf7f4ed7344d1e0791c851d2bf5a5cf16ce8902c",
+      "xz_bytes": 81788,
+      "xz_sha256": "36841036d9464b4121ab578d431c9784d873349e65aa87f4598113abb0a6e1e1"
+    },
+    "d8": {
+      "raw_bytes": 367581,
+      "raw_sha256": "c032654b7674ed3386b7700ccf7f4ed7344d1e0791c851d2bf5a5cf16ce8902c",
+      "xz_bytes": 81788,
+      "xz_sha256": "36841036d9464b4121ab578d431c9784d873349e65aa87f4598113abb0a6e1e1"
+    }
+  },
+  "metrics": {
+    "bank.9957": 9957,
+    "d1.delta": 11,
+    "d1.input": 66,
+    "d1.overlap": 55,
+    "d2.delta": 94,
+    "d2.input": 145,
+    "d2.overlap": 51
+  },
+  "ordering": {
+    "bank_payload": "ascending (order, historical compact-JSON SHA-256)",
+    "delta": "d1 portfolio order, then d2 frozen-dictionary order"
+  },
+  "schema_version": "1.0.0",
+  "stage_id": "30-early-deltas-9957"
+}

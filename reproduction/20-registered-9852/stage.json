@@ -1,0 +1,160 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "attributes": {
+        "archive_format": "deterministic-tar-gzip-v1",
+        "uncompressed_source_bytes": 4661322
+      },
+      "bytes": 612248,
+      "media_type": "application/gzip",
+      "path": "raw/registry-and-d3-snapshot.tar.gz",
+      "record_count": 962,
+      "role": "raw-snapshot",
+      "sha256": "8baf705ea54315c2ec07d54f9d17d2b01266bae7a7c5657520c2a171a9b35fc6",
+      "source_ids": [
+        "stage20-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 1581,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "4d0633a2cd6067e261ce462ea07e7a18e2564fa2288352368a125d5189fb366f",
+      "source_ids": [
+        "stage10-bank",
+        "stage20-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 1239692,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/tables.jsonl.gz",
+      "record_count": 9852,
+      "role": "table-index",
+      "sha256": "2edc147d687e7e27054ea42feb48d97fd8933746a39caa5f79889bc07927def9",
+      "source_ids": [
+        "stage10-bank",
+        "stage20-local-snapshot"
+      ]
+    },
+    {
+      "attributes": {
+        "canonical_id_vector_sha256": "1b49b90de093fe54aa0ab3a30e1c7ef1f3e7d44129d66293efd2fe2ca6e20ca1",
+        "encoding": "uint8-order-row-major-v1",
+        "historical_id_vector_sha256": "0e39adb599a9c7162bede403a32ae3901c5b87f6c33d1a5d2108a5a2a4cc32f4",
+        "order_distribution": {
+          "10": 146,
+          "11": 104,
+          "12": 359,
+          "17": 8,
+          "2": 10,
+          "3": 111,
+          "4": 6179,
+          "5": 135,
+          "6": 1208,
+          "7": 36,
+          "8": 792,
+          "9": 764
+        },
+        "raw_bytes": 352146,
+        "raw_sha256": "a1135cff6df0d55f714401ae90b9cba2e385c33ce2e3c31ae623130e0124cda8",
+        "table_count": 9852
+      },
+      "bytes": 352146,
+      "media_type": "application/octet-stream",
+      "path": "normalized/tables.bin",
+      "record_count": 9852,
+      "role": "table-binary",
+      "sha256": "a1135cff6df0d55f714401ae90b9cba2e385c33ce2e3c31ae623130e0124cda8",
+      "source_ids": [
+        "stage10-bank",
+        "stage20-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 796464,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/table-id-map.csv.gz",
+      "record_count": 9852,
+      "role": "identity-map",
+      "sha256": "f72807d79911663baeac59dc4dbff54ffa9b022b29783d00c09b214669730777",
+      "source_ids": [
+        "stage10-bank",
+        "stage20-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 46042,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/input-decisions.jsonl.gz",
+      "record_count": 476,
+      "role": "input-classification",
+      "sha256": "d07fd348795f44a725a662b4d5a2583ab5d6c35b760b80b1ee04d451f66b56e3",
+      "source_ids": [
+        "stage20-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 25822,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 475,
+      "role": "membership-delta",
+      "sha256": "d27dbba28325a812320cbe0ee847099f42b0bbbd79d31f1055213fb4edd4b126",
+      "source_ids": [
+        "stage10-bank",
+        "stage20-local-snapshot"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T14:40:52+08:00",
+  "claims": [
+    "registry.input",
+    "bank.9852"
+  ],
+  "depends_on": [
+    "10-primary-9450"
+  ],
+  "notes": [
+    "One of 476 manifests has a null model_table and is represented only in input-decisions, because a delta record requires a real table_id.",
+    "Historical compact-JSON SHA-256 identifiers are aliases; canonical table_id values hash order-byte plus row-major entries."
+  ],
+  "pipeline_order": 20,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T14:40:52+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/10-primary-9450/normalized/tables.bin",
+      "notes": [
+        "Committed evidence from an earlier reproduction stage."
+      ],
+      "source_id": "stage10-bank"
+    },
+    {
+      "captured_at": "2026-08-31T14:40:52+08:00",
+      "kind": "local-filesystem-snapshot",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "math-distill-equational-stage2: false registry and d3 audit/build snapshot",
+      "notes": [
+        "The members/wubing tree was ignored by the source repository. The revision is context only; archive and member hashes identify the captured bytes."
+      ],
+      "revision": "6d8b449071a9168b3ddb35f77533e093833c70a4",
+      "source_id": "stage20-local-snapshot"
+    }
+  ],
+  "stage_id": "20-registered-9852",
+  "status": "verified",
+  "title": "Registered exact tables: 9,450 + 402 = 9,852",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 tools/verify_repository.py --stage 20-registered-9852",
+    "notes": [
+      "Run python3 tools/rebuild_pr1.py first to regenerate normalized outputs from committed raw snapshots.",
+      "All archive and data processing is bounded or forward-only; historical Python is never executed."
+    ]
+  }
+}

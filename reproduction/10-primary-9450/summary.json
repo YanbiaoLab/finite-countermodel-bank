@@ -1,0 +1,69 @@
+{
+  "action_counts": {
+    "add": 9450
+  },
+  "bank": {
+    "canonical_id_vector_sha256": "2d5fc3e0f1421dc49acce71887ac5e050a4d4f669105610698ec31655dae0514",
+    "historical_id_vector_sha256": "8ac7512e31612fb6353f569bef95c24dc534e6792aaf53fdf40d1102d7ac0eaf",
+    "order_distribution": {
+      "10": 146,
+      "11": 93,
+      "12": 359,
+      "3": 9,
+      "4": 6019,
+      "5": 79,
+      "6": 1192,
+      "7": 18,
+      "8": 781,
+      "9": 754
+    },
+    "raw_bytes": 340211,
+    "raw_sha256": "66c2f19b5c59f359f14524cee5ec9cfc7d527ff09e4aeb84cac13666cd5cf9e3",
+    "table_count": 9450
+  },
+  "known_gaps": [
+    "The historical models.jsonl.gz and generator that created the 9,450 scripts are not present.",
+    "The historical directed_unique_false_pairs_9715951.csv and out*/false_pairs.csv.gz witness inputs are not present.",
+    "This stage reproduces normalization and validation from frozen scripts, not the original mining campaign."
+  ],
+  "metrics": {
+    "input.equations": 62576,
+    "mining.model_identities": 229666,
+    "primary.nonzero_contributors": 9452,
+    "primary.recoverable": 9450
+  },
+  "schema_version": "1.0.0",
+  "source_audit": {
+    "coverage_rankings": {
+      "coverage_ranking": {
+        "maximum": 1344197,
+        "minimum": 1,
+        "nonzero": 229666,
+        "ordered_key_sha256": "be53f11ba25f95f7f87613e22a5cdbbcc9b56c7e59317746a4b0587059f332f6",
+        "rows": 229666,
+        "sum": 181011287
+      },
+      "equal_pair_count_count": 3694,
+      "joint_coverage_primary_vector_sha256": "f06f25843e6273249844b1acab6932d8b83d4c99bb0b4adc9ba36d7097500e46",
+      "metadata_mismatch_count": 0,
+      "primary_exceeds_coverage_count": 0,
+      "primary_ranking": {
+        "maximum": 1343256,
+        "minimum": 0,
+        "nonzero": 9452,
+        "ordered_key_sha256": "46084f1b54c11f4da2b7998240d6a338aaaacae2a6afe2ff9eebe030195d17b5",
+        "rows": 229666,
+        "sum": 9722317
+      },
+      "shared_model_key_count": 229666,
+      "sorted_model_key_set_sha256": "2975062d556650566f06d21a05f9c3235cbc3772ca8b8fcdff376caf9c5ad9e5"
+    },
+    "primary_coverage_sum": 9722317,
+    "primary_script_bytes": 52840787,
+    "primary_script_count": 9450,
+    "primary_script_vector_sha256": "adb9a620da8c2ef707fe1e8a65bd34683855043477db1ed1a7b01a9e2a95ab28",
+    "recovered_primary_coverage_sum": 9722302,
+    "skipped_primary_coverage_sum": 15
+  },
+  "stage_id": "10-primary-9450"
+}

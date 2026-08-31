@@ -1,0 +1,173 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "attributes": {
+        "archive_format": "deterministic-tar-gzip-v1",
+        "uncompressed_source_bytes": 6492430
+      },
+      "bytes": 754529,
+      "media_type": "application/gzip",
+      "path": "raw/d1-d2-d4-d6-d8-snapshot.tar.gz",
+      "record_count": 21,
+      "role": "raw-snapshot",
+      "sha256": "d7eac6a943a037f76ca85b8c65722eddcb0074ba1e57248ccca9cde29914a6a4",
+      "source_ids": [
+        "stage30-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 2130,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "c00573003ae3d735cc1499c918775a2e1e13f3be6a2b326bf0375c5f31ac3512",
+      "source_ids": [
+        "stage20-bank",
+        "stage30-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 1263928,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/tables.jsonl.gz",
+      "record_count": 9957,
+      "role": "table-index",
+      "sha256": "1aa2a43b8b0642238ba9e71094154fe86550e3f5910712782a6ccb5c309fab72",
+      "source_ids": [
+        "stage20-bank",
+        "stage30-local-snapshot"
+      ]
+    },
+    {
+      "attributes": {
+        "canonical_id_vector_sha256": "0ed41f59218ff5ab597b56eee3dcd3766ef7c866d51bfa99a4ace900a2ebf91e",
+        "encoding": "uint8-order-row-major-v1",
+        "historical_id_vector_sha256": "094743ce81e80958039b285c2451f5415cfbe979b016842b861b60b606807657",
+        "order_distribution": {
+          "10": 146,
+          "11": 104,
+          "12": 359,
+          "13": 16,
+          "16": 4,
+          "17": 13,
+          "19": 1,
+          "2": 10,
+          "20": 3,
+          "25": 2,
+          "3": 111,
+          "32": 1,
+          "4": 6179,
+          "41": 1,
+          "43": 1,
+          "5": 166,
+          "6": 1224,
+          "7": 48,
+          "8": 799,
+          "9": 769
+        },
+        "raw_bytes": 367581,
+        "raw_sha256": "c032654b7674ed3386b7700ccf7f4ed7344d1e0791c851d2bf5a5cf16ce8902c",
+        "table_count": 9957
+      },
+      "bytes": 367581,
+      "media_type": "application/octet-stream",
+      "path": "normalized/tables.bin",
+      "record_count": 9957,
+      "role": "table-binary",
+      "sha256": "c032654b7674ed3386b7700ccf7f4ed7344d1e0791c851d2bf5a5cf16ce8902c",
+      "source_ids": [
+        "stage20-bank",
+        "stage30-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 802161,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/table-id-map.csv.gz",
+      "record_count": 9957,
+      "role": "identity-map",
+      "sha256": "50c73b411caf102968e7e2be6b10b3712cffda25c2ed018c1d2ea92cb0ef8f7d",
+      "source_ids": [
+        "stage20-bank",
+        "stage30-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 20254,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/input-tables.jsonl.gz",
+      "record_count": 211,
+      "role": "input-classification",
+      "sha256": "fc01fbc7a2d6fa4c08512af1f53bb02da542bb84f8bdbfecd8cc8adc71ac74a7",
+      "source_ids": [
+        "stage30-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 17275,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 211,
+      "role": "membership-delta",
+      "sha256": "a0adc917062745cdcecd3f932f49e7fa9be157fa6fe793b95804a3da5ee5038e",
+      "source_ids": [
+        "stage20-bank",
+        "stage30-local-snapshot"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T14:40:52+08:00",
+  "claims": [
+    "d1.input",
+    "d1.overlap",
+    "d1.delta",
+    "d2.input",
+    "d2.overlap",
+    "d2.delta",
+    "bank.9957"
+  ],
+  "depends_on": [
+    "20-registered-9852"
+  ],
+  "notes": [
+    "delta.jsonl.gz preserves the narrative ingestion order d1 then d2.",
+    "The final bank preserves the historical d6/d8 payload order sorted by (order, compact-JSON SHA-256); these are intentionally different orders."
+  ],
+  "pipeline_order": 30,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T14:40:52+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/20-registered-9852/normalized/tables.bin",
+      "notes": [
+        "Committed evidence from an earlier reproduction stage."
+      ],
+      "source_id": "stage20-bank"
+    },
+    {
+      "captured_at": "2026-08-31T14:40:52+08:00",
+      "kind": "local-filesystem-snapshot",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "math-distill-equational-stage2: false solver drafts d1, d2, d4, d6, and d8",
+      "notes": [
+        "The members/wubing tree was ignored by the source repository. The revision is context only; archive and member hashes identify the captured bytes."
+      ],
+      "revision": "6d8b449071a9168b3ddb35f77533e093833c70a4",
+      "source_id": "stage30-local-snapshot"
+    }
+  ],
+  "stage_id": "30-early-deltas-9957",
+  "status": "verified",
+  "title": "Early d1/d2 additions: 9,852 + 11 + 94 = 9,957",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 tools/verify_repository.py --stage 30-early-deltas-9957",
+    "notes": [
+      "Run python3 tools/rebuild_pr1.py first to regenerate normalized outputs from committed raw snapshots.",
+      "All archive and data processing is bounded or forward-only; historical Python is never executed."
+    ]
+  }
+}

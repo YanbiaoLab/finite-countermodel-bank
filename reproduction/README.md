@@ -37,3 +37,28 @@ without losing the original evidence.
 
 Large files should be processed as streams or bounded chunks. Compressed future
 artifacts should use deterministic settings documented in the stage README.
+
+## PR 1 capture and rebuild
+
+PR 1 deliberately separates the one-time local capture from the portable rebuild.
+If the matching historical sibling checkout is available, recreate the four raw
+archives with:
+
+```bash
+python3 tools/capture_pr1_snapshots.py \
+  --source-root ../math-distill-equational-stage2
+```
+
+The capture command selects an explicit file list, sorts archive paths, streams
+file bytes, and normalizes tar ownership, modes, and timestamps plus the gzip
+header. It does not edit the sibling checkout. Normal reviewers do not need that
+checkout; they reproduce all normalized data from the committed archives:
+
+```bash
+python3 tools/rebuild_pr1.py
+python3 tools/verify_repository.py
+```
+
+PR 1 uses deterministic `tar.gz`, JSONL gzip (`mtime=0`), and uncompressed
+canonical table binaries so the workflow depends only on the Python standard
+library. Historical `.py` inputs are parsed as data and never imported or run.

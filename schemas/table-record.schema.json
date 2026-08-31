@@ -17,6 +17,18 @@
   "properties": {
     "schema_version": { "const": "1.0.0" },
     "table_id": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "identifiers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scheme", "value"],
+        "properties": {
+          "scheme": { "enum": ["sha256-compact-json-table-v1"] },
+          "value": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        }
+      }
+    },
     "encoding": { "const": "uint8-order-row-major-v1" },
     "order": { "type": "integer", "minimum": 1, "maximum": 255 },
     "entries": {

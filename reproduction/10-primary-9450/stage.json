@@ -1,0 +1,154 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "attributes": {
+        "archive_format": "deterministic-tar-gzip-v1",
+        "uncompressed_source_bytes": 91297610
+      },
+      "bytes": 11874503,
+      "media_type": "application/gzip",
+      "path": "raw/primary-recovery-snapshot.tar.gz",
+      "record_count": 9457,
+      "role": "raw-snapshot",
+      "sha256": "0d47b49df24bfe530ac3e566bfc5fa17994594da94bfbf6ab407cb6c39e6879f",
+      "source_ids": [
+        "stage10-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 2428,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "14bb8674004e1118133a0d15b0d301cc2c5ffca479078bfb04d258b6bec253f4",
+      "source_ids": [
+        "stage10-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 1191539,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/tables.jsonl.gz",
+      "record_count": 9450,
+      "role": "table-index",
+      "sha256": "529aa32feefe608dddc67c72f452fb68d54f506e67e7facb377a74405c87f299",
+      "source_ids": [
+        "stage10-local-snapshot"
+      ]
+    },
+    {
+      "attributes": {
+        "canonical_id_vector_sha256": "2d5fc3e0f1421dc49acce71887ac5e050a4d4f669105610698ec31655dae0514",
+        "encoding": "uint8-order-row-major-v1",
+        "historical_id_vector_sha256": "8ac7512e31612fb6353f569bef95c24dc534e6792aaf53fdf40d1102d7ac0eaf",
+        "order_distribution": {
+          "10": 146,
+          "11": 93,
+          "12": 359,
+          "3": 9,
+          "4": 6019,
+          "5": 79,
+          "6": 1192,
+          "7": 18,
+          "8": 781,
+          "9": 754
+        },
+        "raw_bytes": 340211,
+        "raw_sha256": "66c2f19b5c59f359f14524cee5ec9cfc7d527ff09e4aeb84cac13666cd5cf9e3",
+        "table_count": 9450
+      },
+      "bytes": 340211,
+      "media_type": "application/octet-stream",
+      "path": "normalized/tables.bin",
+      "record_count": 9450,
+      "role": "table-binary",
+      "sha256": "66c2f19b5c59f359f14524cee5ec9cfc7d527ff09e4aeb84cac13666cd5cf9e3",
+      "source_ids": [
+        "stage10-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 763897,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/table-id-map.csv.gz",
+      "record_count": 9450,
+      "role": "identity-map",
+      "sha256": "ead91b7621fe01c09f9de74ae4fe3e8600cbdc093843c4f59c4bf655f1324d96",
+      "source_ids": [
+        "stage10-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 1551924,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/primary-models.jsonl.gz",
+      "record_count": 9450,
+      "role": "primary-model-index",
+      "sha256": "344d6e9d8d0f5bca28c50111f05504559876afbda8cf97992b210400f2b230d2",
+      "source_ids": [
+        "stage10-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 649,
+      "media_type": "application/x-ndjson",
+      "path": "normalized/skipped-models.jsonl",
+      "record_count": 2,
+      "role": "skipped-model-index",
+      "sha256": "e33954eff0873d540c6891e21d2cc4e7b0990aea33d8e232f40cdd04b7a6dd36",
+      "source_ids": [
+        "stage10-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 604984,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 9450,
+      "role": "membership-delta",
+      "sha256": "7fdabe3f73a7a4c7d7e257d8dacf37694081c848752657428b58847b1f781cc8",
+      "source_ids": [
+        "stage10-local-snapshot"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T14:40:52+08:00",
+  "claims": [
+    "input.equations",
+    "mining.model_identities",
+    "primary.nonzero_contributors",
+    "primary.recoverable"
+  ],
+  "depends_on": [],
+  "notes": [
+    "The two unrecoverable contributors retain historical ranks 3496 and 8142; recovered records are not renumbered.",
+    "The missing historical models.jsonl.gz prevents replay of the original mining/first-witness selection, but every frozen recovered script is independently parsed and validated."
+  ],
+  "pipeline_order": 10,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T14:40:52+08:00",
+      "kind": "local-filesystem-snapshot",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "math-distill-equational-stage2: selected primary scripts, coverage/index files, and order5_equations.csv",
+      "notes": [
+        "The members/wubing tree was ignored by the source repository. The revision is context only; archive and member hashes identify the captured bytes."
+      ],
+      "revision": "6d8b449071a9168b3ddb35f77533e093833c70a4",
+      "source_id": "stage10-local-snapshot"
+    }
+  ],
+  "stage_id": "10-primary-9450",
+  "status": "verified",
+  "title": "Primary nonzero contributors: 9,452 selected, 9,450 recoverable tables",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 tools/verify_repository.py --stage 10-primary-9450",
+    "notes": [
+      "Run python3 tools/rebuild_pr1.py first to regenerate normalized outputs from committed raw snapshots.",
+      "All archive and data processing is bounded or forward-only; historical Python is never executed."
+    ]
+  }
+}

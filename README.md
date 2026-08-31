@@ -12,11 +12,14 @@ False Solver.
 ### Current status
 
 PR 0 establishes the repository contract and captures the four solver files that
-were actually submitted to SAIR. Those immutable files are the final comparison
-anchors for later reconstruction work; they are not, by themselves, a reproduction
-of the table-generation process or a proof of mathematical correctness.
+were actually submitted to SAIR. PR 1 reconstructs the historical finite-table
+accumulation as four separately reviewable stages: 9,450 primary tables, 9,852
+after registry deduplication, 9,957 after the d1/d2 deltas, and 10,059 after the two
+JiaMing deliveries. The final 102 explicit report countermodels are independently
+rechecked by exhaustive assignment enumeration.
 
-The remaining evidence will be added in chronological, reviewable stages. See
+Later pruning, residual-coverage selection, finite149 augmentation, and payload
+integration will be added in chronological, reviewable stages. See
 [TIMELINE.md](TIMELINE.md) for the planned sequence and [CLAIMS.csv](CLAIMS.csv)
 for the claim ledger.
 
@@ -28,6 +31,14 @@ chunks:
 ```bash
 python3 tools/verify_repository.py
 python3 -m unittest discover -s tests -v
+```
+
+To regenerate every PR 1 normalized bank, delta, summary, manifest, and checksum
+from the committed raw snapshots:
+
+```bash
+python3 tools/rebuild_pr1.py
+git diff --exit-code
 ```
 
 ### Repository layout
@@ -64,10 +75,11 @@ False Solver 的复现记录。
 
 ### 当前状态
 
-PR 0 先固定仓库规范，并保存从 SAIR 实际下载的四份提交文件。它们是后续重建结果的最终
-逐字节比对锚点；仅有这些文件并不等于已经复现表生成过程，也不构成数学正确性证明。
+PR 0 固定仓库规范，并保存从 SAIR 实际下载的四份提交文件。PR 1 按四个独立阶段复现
+历史表库累积：9,450 → 9,852 → 9,957 → 10,059；其中最后两批 102 个显式反模型还会
+逐题穷举复核 source 与 target。
 
-后续证据将严格按时间顺序、一次一个 PR 加入。阶段安排见
+后续精简、残余覆盖筛选、finite149 增补及 payload 集成仍按时间顺序、一次一个 PR 加入。阶段安排见
 [TIMELINE.md](TIMELINE.md)，各项数字及其验证状态见 [CLAIMS.csv](CLAIMS.csv)。
 
 ### 校验当前 checkout
@@ -77,6 +89,13 @@ PR 0 先固定仓库规范，并保存从 SAIR 实际下载的四份提交文件
 ```bash
 python3 tools/verify_repository.py
 python3 -m unittest discover -s tests -v
+```
+
+从已提交 raw 快照重建 PR 1 的全部规范表、delta、summary、manifest 与校验和：
+
+```bash
+python3 tools/rebuild_pr1.py
+git diff --exit-code
 ```
 
 ### 证据规范

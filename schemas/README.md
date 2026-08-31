@@ -9,9 +9,11 @@ Schemas use JSON Schema draft 2020-12 and start at version `1.0.0`.
 
 JSON Schema cannot express every relational invariant. The repository verifier also
 checks path safety, file sizes, SHA-256 digests, uniqueness, and index/manifest
-agreement. When table records are introduced, the verifier will additionally check
-that the entry count is `order²`, every entry is below `order`, and `table_id`
-matches the canonical bytes.
+agreement. For table records, the verifier additionally checks that the entry count
+is `order²`, every entry is below `order`, and `table_id` matches the canonical
+bytes. PR 1 records also retain the historical compact-JSON table SHA-256 in the
+optional `identifiers` array. It is an alias for provenance and must never be used
+as the canonical `table_id`.
 
 Schema changes are additive within a major version. A breaking change requires a
 new major `schema_version` and an explicit migration note; historical raw files are

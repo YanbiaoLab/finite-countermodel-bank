@@ -3,22 +3,24 @@ submission.participations,00-submission-anchor,downloaded participation artifact
 submission.unique_blobs,00-submission-anchor,byte-distinct submitted solvers,2,SHA-256 digests,four files collapse to one Solo digest and one Marathon digest,verified,reproduction/00-submission-anchor/SHA256SUMS
 submission.solo_bytes,00-submission-anchor,reported and captured Solo solver size,490327,bytes,SAIR display equals downloaded file size,verified,reproduction/00-submission-anchor/submissions.jsonl
 submission.marathon_bytes,00-submission-anchor,reported and captured Marathon solver size,498047,bytes,SAIR display equals downloaded file size,verified,reproduction/00-submission-anchor/submissions.jsonl
-input.equations,10-primary-9450,order-at-most-5 equation universe,62576,equations,Equational Theories Project input snapshot,planned,
-mining.model_identities,10-primary-9450,historical model identities,229666,identities,identity count before first-witness attribution,planned,
-primary.nonzero_contributors,10-primary-9450,nonzero first-witness contributors,9452,tables,historical first-witness attribution,planned,
-primary.recoverable,10-primary-9450,recoverable primary tables,9450,tables,recovery from 9452 nonzero contributors,planned,
-registry.input,20-registered-9852,registered tables,402,tables,registry snapshot before exact deduplication,planned,
-bank.9852,20-registered-9852,accumulated exact tables,9852,tables,9450 + 402,planned,
-d1.input,30-early-deltas-9957,d1 input tables,66,tables,early d1 snapshot,planned,
-d1.overlap,30-early-deltas-9957,d1 exact overlaps,55,tables,exact byte identity against 9852 bank,planned,
-d1.delta,30-early-deltas-9957,d1 new exact tables,11,tables,66 - 55,planned,
-d2.input,30-early-deltas-9957,d2 input tables,145,tables,early d2 snapshot,planned,
-d2.overlap,30-early-deltas-9957,d2 exact overlaps,51,tables,exact byte identity against prior bank,planned,
-d2.delta,30-early-deltas-9957,d2 new exact tables,94,tables,145 - 51,planned,
-bank.9957,30-early-deltas-9957,accumulated exact tables,9957,tables,9852 + 11 + 94,planned,
-delivery.input,40-delivery-10059,later independently checked delivery,102,tables,later delivery snapshot,planned,
-delivery.overlap,40-delivery-10059,delivery exact overlaps,0,tables,exact byte identity against 9957 bank,planned,
-bank.10059,40-delivery-10059,accumulated exact tables,10059,tables,9957 + 102,planned,
+input.equations,10-primary-9450,order-at-most-5 equation universe,62576,equations,Equational Theories Project input snapshot,verified,reproduction/10-primary-9450/summary.json
+mining.model_identities,10-primary-9450,historical model identities,229666,identities,identity count before first-witness attribution,captured,reproduction/10-primary-9450/summary.json
+primary.nonzero_contributors,10-primary-9450,nonzero first-witness contributors,9452,models,historical first-witness attribution,verified,reproduction/10-primary-9450/summary.json
+primary.recoverable,10-primary-9450,recoverable primary tables,9450,tables,recovery from 9452 nonzero contributors,verified,reproduction/10-primary-9450/summary.json
+registry.input,20-registered-9852,unique registered tables,402,tables,475 table-bearing manifests exact-deduplicate to 402 unique tables,verified,reproduction/20-registered-9852/summary.json
+bank.9852,20-registered-9852,accumulated exact tables,9852,tables,9450 + 402,verified,reproduction/20-registered-9852/summary.json
+d1.input,30-early-deltas-9957,d1 input tables,66,tables,early d1 snapshot,verified,reproduction/30-early-deltas-9957/summary.json
+d1.overlap,30-early-deltas-9957,d1 exact overlaps,55,tables,exact byte identity against 9852 bank,verified,reproduction/30-early-deltas-9957/summary.json
+d1.delta,30-early-deltas-9957,d1 new exact tables,11,tables,66 - 55,verified,reproduction/30-early-deltas-9957/summary.json
+d2.input,30-early-deltas-9957,d2 input tables,145,tables,early d2 snapshot,verified,reproduction/30-early-deltas-9957/summary.json
+d2.overlap,30-early-deltas-9957,d2 exact overlaps,51,tables,exact byte identity against prior bank,verified,reproduction/30-early-deltas-9957/summary.json
+d2.delta,30-early-deltas-9957,d2 new exact tables,94,tables,145 - 51,verified,reproduction/30-early-deltas-9957/summary.json
+bank.9957,30-early-deltas-9957,accumulated exact tables,9957,tables,9852 + 11 + 94,verified,reproduction/30-early-deltas-9957/summary.json
+delivery.input,40-delivery-10059,later independently checked delivery,102,tables,later delivery snapshot,verified,reproduction/40-delivery-10059/summary.json
+delivery.overlap,40-delivery-10059,delivery exact overlaps,0,tables,exact byte identity against 9957 bank,verified,reproduction/40-delivery-10059/summary.json
+delivery.equation_references,40-delivery-10059,official equation formula references,204,references,102 source and 102 target formulas matched by Equation ID,verified,reproduction/40-delivery-10059/summary.json
+delivery.distinct_equations,40-delivery-10059,distinct official equations referenced,195,equations,distinct Equation IDs across both delivery reports,verified,reproduction/40-delivery-10059/summary.json
+bank.10059,40-delivery-10059,accumulated exact tables,10059,tables,9957 + 102,verified,reproduction/40-delivery-10059/summary.json
 delivery.order4,50-generator-prune-3535,order-4 tables in later delivery,1,tables,order audit of the 102-table delivery,planned,
 delivery.candidate_retained,50-generator-prune-3535,later-delivery tables retained in candidate pool,101,tables,102 - 1 order-4 table,planned,
 prune.scalar_affine,50-generator-prune-3535,scalar-affine regenerated removals,241,tables,regenerated by solver affine enumerator,planned,
