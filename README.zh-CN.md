@@ -20,14 +20,23 @@ PR 2 复现 10,059 → 3,535 的稳定精简，验证冻结的 Fin4
 PR 3 已保存并复现 finite149 增补：789 个无提交方向筛到 149 个有限反模型方向，由
 17 张稳定基表及 11 张必要转置覆盖（原方向使用 129 次，转置使用 20 次）；同时完成与
 前 1,470 张核心表的规范字节零重叠检查，并验证 Refutation934 官方 order-24 表的
-order-22 闭子表替代。累计 1,487 payload 与 2,901 张运行时 opposite closure 仍留给
-PR 4。阶段安排见 [TIMELINE.md](TIMELINE.md)，各项数字及其验证状态见 [CLAIMS.csv](CLAIMS.csv)。
+order-22 闭子表替代。累计 1,487 payload 与运行时 opposite closure 已在 PR 4 完成。
+阶段安排见 [TIMELINE.md](TIMELINE.md)，各项数字及其验证状态见 [CLAIMS.csv](CLAIMS.csv)。
 
 后继 `81-finite149-portable-verification` 阶段在不改动 PR 3 数据和数量的前提下修正
 复现路径：逐行流式扫描解压后 498,673,223 字节的 finite-outcomes JSON，解析并核对全部
 17 份已保存 Lean 运算表，明确记录 Refutation934 order-22 表的实际来源，并将 149 条
 ETP 路径准确标记为冻结清单而非已独立重放的证明图；同时继续重跑全部 149 项穷举检查、
 11 个转置推导、零重叠及提交 1,470-prefix/17-suffix 比较，不降低原有 CI 语义覆盖。
+
+PR 4 按提交顺序精确连接 Stage 70 核心与 Stage 80 增补，重建
+`1,470 + 17 = 1,487` 条、111,009 字节的内层有限表 payload，并逐字节复现提交中的
+XZ/Base85 表字面量。随后静态重放已固定的通用 opposite-closure 算法：1,487 条嵌入记录
+中有 1,414 条缺少严格转置，最终形成 2,901 条互异的运行时有向扫描记录。新增的 1,414
+张表是相对于 Stage 90 的运行时派生表，不是额外嵌入记录；其中 6 张规范字节记录曾在
+Stage 10 出现，另 11 张已作为 Stage 80 必要转置发布，故只有其余 1,397 张的历史
+`first_seen_stage` 为 Stage 100。本仓库也不声称从零重建完整的 498,047 字节外层 solver
+launcher。
 
 ## 校验当前 checkout
 
@@ -39,21 +48,25 @@ ETP 路径准确标记为冻结清单而非已独立重放的证明图；同时�
 ```bash
 python3 tools/verify_repository.py
 python3 reproduction/81-finite149-portable-verification/scripts/verify.py
+python3 tools/verify_pr4.py
 python3 -m unittest discover -s tests -v
 ```
 
-从已提交 raw 快照重建 PR 1、PR 2 的产物及修正后的 PR 3 校验层：
+从已提交输入重建 PR 1、PR 2、修正后的 PR 3 校验层及两个 PR 4 阶段：
 
 ```bash
 python3 tools/rebuild_pr1.py
 python3 tools/rebuild_pr2.py
 python3 reproduction/81-finite149-portable-verification/scripts/rebuild.py
+python3 tools/rebuild_pr4.py
 git diff --exit-code
 ```
 
 PR 2 重建器以有界流处理两份解压后各 489,598,720 字节的 pair bitset；修正后的 PR 3
 重建器以 256 KiB 应用层缓冲上限扫描全部 498,673,223 个 finite-outcomes 解压字节，
 只保留 789 个目标单元。两者都不会将大输入整体载入内存。
+PR 4 只处理 111,009 字节的嵌入流及 215,433 字节的运行时闭包；提交的 Python 文件
+始终作为数据静态解析，不会被导入或执行。
 
 ## 仓库结构
 

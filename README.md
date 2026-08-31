@@ -28,9 +28,9 @@ directions reduce to 149 finite-countermodel directions covered by 17 stable bas
 tables and 11 required transposes (129 direct uses and 20 transpose uses). It also
 verifies zero byte overlap with the 1,470-table core and the order-22 closed-subtable
 replacement for the official order-24 Refutation934 table. The cumulative 1,487
-payload and 2,901-table runtime opposite closure remain deferred to PR 4. See
-[TIMELINE.md](TIMELINE.md) for the planned sequence and [CLAIMS.csv](CLAIMS.csv)
-for the claim ledger.
+payload and runtime opposite closure are completed in PR 4. See
+[TIMELINE.md](TIMELINE.md) for the stage sequence and [CLAIMS.csv](CLAIMS.csv) for
+the claim ledger.
 
 The follow-up `81-finite149-portable-verification` stage corrects the PR 3 review
 path without changing its data: it streams the 498,673,223-byte finite-outcomes
@@ -39,6 +39,18 @@ order-22 Refutation934 provenance, and marks the 149 ETP paths as a frozen inven
 rather than an independently replayed graph. It also retains the full Stage 80
 semantic gate by rerunning all 149 exhaustive task checks, 11 transpose derivations,
 zero-overlap and 1,470-prefix/17-suffix submission comparisons.
+
+PR 4 reconstructs the exact inner finite-table payload as the Stage 70 core
+followed by the Stage 80 augmentation: 1,470 + 17 = 1,487 records, 111,009 raw
+bytes. It reproduces the submitted XZ/Base85 table literal byte for byte, then
+statically replays the pinned generic opposite-closure algorithm. Of the 1,487
+embedded records, 1,414 have a missing strict transpose, producing 2,901 distinct
+runtime-oriented scan records. These 1,414 tables are runtime-derived and are not
+additional embedded payload records. Seventeen exact derived records have earlier
+repository history (six in Stage 10 and eleven in Stage 80), so only 1,397 receive
+Stage 100 as their historical `first_seen_stage`. The evidence reconstructs the
+inner table payload and transformation, not the complete 498,047-byte outer solver
+launcher.
 
 ## Verify this checkout
 
@@ -52,16 +64,18 @@ chunks:
 ```bash
 python3 tools/verify_repository.py
 python3 reproduction/81-finite149-portable-verification/scripts/verify.py
+python3 tools/verify_pr4.py
 python3 -m unittest discover -s tests -v
 ```
 
-To regenerate the PR 1 and PR 2 outputs plus the corrected PR 3 verification layer
-from the committed raw snapshots:
+To regenerate the PR 1 and PR 2 outputs, the corrected PR 3 verification layer,
+and both PR 4 stages from committed inputs:
 
 ```bash
 python3 tools/rebuild_pr1.py
 python3 tools/rebuild_pr2.py
 python3 reproduction/81-finite149-portable-verification/scripts/rebuild.py
+python3 tools/rebuild_pr4.py
 git diff --exit-code
 ```
 
@@ -69,6 +83,9 @@ The PR 2 rebuild uses bounded streams for the two 489,598,720-byte uncompressed
 pair bitsets. The corrected PR 3 rebuild scans all 498,673,223 uncompressed
 finite-outcomes bytes with a 256 KiB application-buffer cap and retains only the
 789 requested cells. Neither path materializes its large input in memory.
+The PR 4 rebuild handles only the bounded 111,009-byte embedded stream and its
+215,433-byte runtime closure; submitted Python files are parsed as data and never
+imported or executed.
 
 ## Repository layout
 

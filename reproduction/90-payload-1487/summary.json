@@ -1,0 +1,63 @@
+{
+  "action_counts": {
+    "add": 17,
+    "retain": 1470
+  },
+  "bank": {
+    "canonical_id_vector_sha256": "75596a4b3a08e651cf1c152923092b955a7f5cd6a81b65c2978a9cbfd091cd07",
+    "historical_id_vector_sha256": "189072d2efe38a8060fb220569725b19ead150b23b2fc77c1e6be7ef40d34b9b",
+    "order_distribution": {
+      "10": 96,
+      "11": 10,
+      "12": 182,
+      "13": 1,
+      "15": 1,
+      "16": 3,
+      "19": 1,
+      "20": 3,
+      "21": 1,
+      "22": 1,
+      "25": 2,
+      "32": 2,
+      "36": 1,
+      "5": 102,
+      "6": 536,
+      "65": 1,
+      "7": 30,
+      "8": 289,
+      "9": 225
+    },
+    "raw_bytes": 111009,
+    "raw_sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+    "table_count": 1487
+  },
+  "composition": {
+    "core_records": 1470,
+    "finite149_records": 17,
+    "finite149_uses_stage81_effective_provenance": true
+  },
+  "metrics": {
+    "payload.declared_embedded": 1487,
+    "payload.decoded_embedded": 1487,
+    "payload.embedded": 1487
+  },
+  "payload_bundle": {
+    "base85_bytes": 36010,
+    "base85_sha256": "2b34894f2da26c12476f88473cd4cb2dae77ddbfeeedb2c2d7147d6caf8abb42",
+    "exact_submitted_base85_match": true,
+    "exact_submitted_xz_match": true,
+    "raw_bytes": 111009,
+    "raw_sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+    "xz_bytes": 28808,
+    "xz_check": "CRC64",
+    "xz_preset": "9|PRESET_EXTREME",
+    "xz_sha256": "a9b757ea978411ff982f0a1c0404e0b505be74b8c29481d7eeb81d97a6cd79cc"
+  },
+  "schema_version": "1.0.0",
+  "stage_id": "90-payload-1487",
+  "submission_boundary": {
+    "complete_outer_solver_rebuilt": false,
+    "exact_inner_table_payload_rebuilt": true,
+    "submission_files_statically_checked": 4
+  }
+}

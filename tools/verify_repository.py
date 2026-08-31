@@ -9,11 +9,14 @@ into memory.
 from __future__ import annotations
 
 import argparse
+import ast
+import base64
 import codecs
 import csv
 import gzip
 import hashlib
 import json
+import lzma
 import re
 import struct
 import sys
@@ -30,6 +33,7 @@ if __package__ in {None, ""}:
 from tools.pr2_common import (
     Stage50Error as Pr2PayloadError,
     extract_embedded_false_solver_table_payload,
+    extract_top_level_literals,
     read_bounded_file,
 )
 
@@ -60,6 +64,63 @@ STAGE40 = "40-delivery-10059"
 STAGE50 = "50-generator-prune-3535"
 STAGE60 = "60-fin4-residual-284151591"
 STAGE70 = "70-positive-marginal-core-1470"
+STAGE80 = "80-finite149"
+STAGE81 = "81-finite149-portable-verification"
+STAGE90 = "90-payload-1487"
+STAGE100 = "100-opposite-closure-2901"
+
+STAGE90_CORE_COUNT = 1_470
+STAGE90_FINITE149_COUNT = 17
+STAGE90_EMBEDDED_COUNT = 1_487
+STAGE90_RAW_BYTES = 111_009
+STAGE90_RAW_SHA256 = (
+    "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680"
+)
+STAGE90_CANONICAL_VECTOR_SHA256 = (
+    "75596a4b3a08e651cf1c152923092b955a7f5cd6a81b65c2978a9cbfd091cd07"
+)
+STAGE90_XZ_BYTES = 28_808
+STAGE90_XZ_SHA256 = (
+    "a9b757ea978411ff982f0a1c0404e0b505be74b8c29481d7eeb81d97a6cd79cc"
+)
+STAGE90_B85_BYTES = 36_010
+STAGE90_B85_SHA256 = (
+    "2b34894f2da26c12476f88473cd4cb2dae77ddbfeeedb2c2d7147d6caf8abb42"
+)
+STAGE100_SELF_TRANSPOSE_COUNT = 9
+STAGE100_EMBEDDED_OPPOSITE_SOURCE_COUNT = 64
+STAGE100_EMBEDDED_OPPOSITE_PAIR_COUNT = 32
+STAGE100_DERIVED_COUNT = 1_414
+STAGE100_HISTORICAL_REINTRODUCTION_COUNT = 17
+STAGE100_HISTORICAL_STAGE10_COUNT = 6
+STAGE100_HISTORICAL_STAGE80_COUNT = 11
+STAGE100_NEW_RUNTIME_TABLE_COUNT = 1_397
+STAGE100_RUNTIME_COUNT = 2_901
+STAGE100_DERIVED_BYTES = 104_424
+STAGE100_DERIVED_SHA256 = (
+    "992318b8e336cc8cd232b4012d02a43d906d18d8397b2d67880a533406377f9e"
+)
+STAGE100_DERIVED_VECTOR_SHA256 = (
+    "bfe0723f93ad8bedf715814c2608adeae240b5af6027f3a6cedcee06bc72b5bb"
+)
+STAGE100_RUNTIME_BYTES = 215_433
+STAGE100_RUNTIME_SHA256 = (
+    "b38ffe73f45ae8780c6cbcbd7904bcc1a5b2947b15789d6c9972394fe695afb7"
+)
+STAGE100_RUNTIME_VECTOR_SHA256 = (
+    "42c21dfecfaca35451ad1bc7f1216456ef682aadc6eb7edbf498417d81ae530e"
+)
+STAGE100_FALSE_ENGINE_SHA256 = (
+    "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197"
+)
+STAGE100_FALSE_ENGINE_SOURCE_LIMIT = 2 * 1024 * 1024
+STAGE100_FALSE_ENGINE_FUNCTION_SHA256 = {
+    "_table_bytes": "873f934b7ea996a482cca9b437dae9751142580d3496f7fa78169fb47e2e4310",
+    "_tables": "1d6e1c4b762e20f3d733d802c3083543eb0309d0cb67d1f053a6724571e75291",
+    "_v5_table_key": "ab6d27ad36ef53bf560feca87a2cf1dfba53a883514efb1b6856db0b659b0980",
+    "_v5_transpose_table": "092a12af26920432d4a1d9075e375b182d09a8d541a4e030f64bed4fad54042a",
+    "_v5_tables_with_all_duals": "0bd86e168bfe481111abac70d3a000dfed75981c0370e3fc7107fbbe065108d9",
+}
 
 PAIR_BITSET_MAGIC = b"O5RPAIR1" + b"\0" * 8
 PAIR_BITSET_VERSION = 1
@@ -2272,6 +2333,771 @@ def count_table_binary(path: Path) -> int:
     return len(table_binary_ids(path))
 
 
+def load_jsonl_objects(path: Path, context: str) -> list[dict[str, Any]]:
+    """Load a bounded JSONL artifact whose rows must all be objects."""
+
+    rows: list[dict[str, Any]] = []
+    with open_text_artifact(path) as handle:
+        for line_number, raw_line in enumerate(
+            iter_bounded_text_lines(handle, str(path)), start=1
+        ):
+            if not raw_line.strip():
+                continue
+            try:
+                value = json.loads(raw_line)
+            except json.JSONDecodeError as exc:
+                raise VerificationError(
+                    f"invalid JSONL {context}:{line_number}: {exc}"
+                ) from exc
+            if not isinstance(value, dict):
+                raise VerificationError(
+                    f"non-object JSONL row in {context}:{line_number}"
+                )
+            rows.append(value)
+    return rows
+
+
+def read_table_binary_records(path: Path) -> tuple[bytes, ...]:
+    """Read canonical table records from a bounded, manifested binary stream."""
+
+    records: list[bytes] = []
+    with path.open("rb") as handle:
+        while True:
+            first = handle.read(1)
+            if not first:
+                break
+            order = first[0]
+            if order == 0:
+                raise VerificationError(f"zero-order table in {path}")
+            entries = handle.read(order * order)
+            if len(entries) != order * order:
+                raise VerificationError(f"truncated table binary in {path}")
+            if any(value >= order for value in entries):
+                raise VerificationError(f"out-of-range table entry in {path}")
+            records.append(first + entries)
+    return tuple(records)
+
+
+def table_id_from_record(record: bytes) -> str:
+    return "sha256:" + hashlib.sha256(record).hexdigest()
+
+
+def table_vector_sha256(records: Iterable[bytes]) -> str:
+    digest = hashlib.sha256()
+    for record in records:
+        digest.update(hashlib.sha256(record).hexdigest().encode("ascii"))
+        digest.update(b"\n")
+    return digest.hexdigest()
+
+
+def transpose_table_record(record: bytes) -> bytes:
+    if not record:
+        raise VerificationError("cannot transpose an empty table record")
+    order = record[0]
+    entries = record[1:]
+    canonical_table_bytes(order, entries)
+    return bytes([order]) + bytes(
+        entries[column * order + row]
+        for row in range(order)
+        for column in range(order)
+    )
+
+
+def decode_submitted_false_engine(launcher_source: bytes) -> bytes:
+    """Decode only the submitted launcher's literal false-engine source."""
+
+    try:
+        literals = extract_top_level_literals(
+            launcher_source,
+            (
+                "_ENGINE_PAYLOAD_B85",
+                "_ENGINE_PAYLOAD_SHA256",
+                "_ENGINE_PAYLOAD_FORMAT",
+                "_ENGINE_LZMA_DICT_SIZE",
+            ),
+            context="submitted launcher",
+        )
+        encoded = literals["_ENGINE_PAYLOAD_B85"]["false"]
+        expected_sha256 = literals["_ENGINE_PAYLOAD_SHA256"]["false"]
+        payload_format = literals["_ENGINE_PAYLOAD_FORMAT"]["false"]
+        dictionary_size = literals["_ENGINE_LZMA_DICT_SIZE"]
+    except (KeyError, TypeError, Pr2PayloadError) as exc:
+        raise VerificationError(f"invalid submitted false-engine literals: {exc}") from exc
+    if not isinstance(encoded, bytes) or len(encoded) > 2 * 1024 * 1024:
+        raise VerificationError("invalid submitted false-engine Base85 literal")
+    if expected_sha256 != STAGE100_FALSE_ENGINE_SHA256:
+        raise VerificationError("submitted false-engine declared digest drift")
+    if payload_format != "utf8_source" or dictionary_size != 1_048_576:
+        raise VerificationError("submitted false-engine format parameters drift")
+    try:
+        compressed = base64.b85decode(encoded)
+        if base64.b85encode(compressed) != encoded:
+            raise VerificationError("submitted false-engine Base85 is noncanonical")
+        decompressor = lzma.LZMADecompressor(
+            format=lzma.FORMAT_RAW,
+            filters=[
+                {
+                    "id": lzma.FILTER_LZMA2,
+                    "dict_size": dictionary_size,
+                    "lc": 0,
+                    "lp": 0,
+                    "pb": 0,
+                    "mode": lzma.MODE_NORMAL,
+                    "nice_len": 273,
+                    "mf": lzma.MF_BT4,
+                    "depth": 0,
+                }
+            ],
+        )
+        source = decompressor.decompress(
+            compressed, max_length=STAGE100_FALSE_ENGINE_SOURCE_LIMIT + 1
+        )
+    except (lzma.LZMAError, ValueError, TypeError) as exc:
+        raise VerificationError(f"cannot decode submitted false engine: {exc}") from exc
+    if len(source) > STAGE100_FALSE_ENGINE_SOURCE_LIMIT:
+        raise VerificationError("submitted false-engine source exceeds size bound")
+    if not decompressor.eof or decompressor.unused_data:
+        raise VerificationError(
+            "submitted false-engine source is truncated or has trailing data"
+        )
+    if hashlib.sha256(source).hexdigest() != STAGE100_FALSE_ENGINE_SHA256:
+        raise VerificationError("submitted false-engine source digest drift")
+    try:
+        source.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise VerificationError("submitted false engine is not UTF-8") from exc
+    return source
+
+
+def audit_submitted_runtime_functions(engine_source: bytes) -> dict[str, Any]:
+    """Independently hash the submitted decode/transpose/closure functions."""
+
+    text = engine_source.decode("utf-8")
+    try:
+        tree = ast.parse(text)
+    except SyntaxError as exc:
+        raise VerificationError(f"submitted false engine is invalid Python: {exc}") from exc
+    functions = {
+        node.name: node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    rows: list[dict[str, Any]] = []
+    for name, expected_sha256 in STAGE100_FALSE_ENGINE_FUNCTION_SHA256.items():
+        node = functions.get(name)
+        if node is None:
+            raise VerificationError(f"submitted false engine lacks {name}")
+        segment = ast.get_source_segment(text, node)
+        if segment is None:
+            raise VerificationError(f"cannot recover submitted function {name}")
+        actual_sha256 = hashlib.sha256((segment + "\n").encode("utf-8")).hexdigest()
+        if actual_sha256 != expected_sha256:
+            raise VerificationError(f"submitted function digest drift: {name}")
+        rows.append(
+            {
+                "end_line": node.end_lineno,
+                "name": name,
+                "sha256": actual_sha256,
+                "start_line": node.lineno,
+            }
+        )
+    call_lines = [
+        line_number
+        for line_number, line in enumerate(text.splitlines(), start=1)
+        if "_v5_tables_with_all_duals()" in line
+        and not line.lstrip().startswith("def ")
+    ]
+    if call_lines != [11_953]:
+        raise VerificationError("submitted closure-generator call site drift")
+    return {
+        "engine_bytes": len(engine_source),
+        "engine_sha256": hashlib.sha256(engine_source).hexdigest(),
+        "functions": rows,
+        "runtime_call_lines": call_lines,
+        "schema_version": SCHEMA_VERSION,
+        "static_ast_only": True,
+    }
+
+
+def verify_stage90_semantics(
+    stage_dir: Path,
+    artifacts: list[dict[str, Any]],
+    bank: dict[str, Any] | None,
+    delta: dict[str, Any] | None,
+    summary: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Validate the exact submitted 1,487-record inner payload."""
+
+    if bank is None or delta is None or summary is None:
+        raise VerificationError("Stage90 lacks its table bank, delta, or summary")
+    if (
+        bank["count"] != STAGE90_EMBEDDED_COUNT
+        or bank["raw_bytes"] != STAGE90_RAW_BYTES
+        or bank["raw_sha256"] != STAGE90_RAW_SHA256
+        or bank["canonical_id_vector_sha256"]
+        != STAGE90_CANONICAL_VECTOR_SHA256
+    ):
+        raise VerificationError("Stage90 embedded-bank identity drift")
+    raw = b"".join(bank["records"])
+
+    xz_artifact = require_unique_role_artifact(
+        artifacts, "payload-compressed", stage_dir.name
+    )
+    b85_artifact = require_unique_role_artifact(
+        artifacts, "payload-base85", stage_dir.name
+    )
+    xz_path = safe_stage_path(stage_dir, xz_artifact["path"])
+    b85_path = safe_stage_path(stage_dir, b85_artifact["path"])
+    compressed = xz_path.read_bytes()
+    encoded = b85_path.read_bytes()
+    if (
+        len(compressed) != STAGE90_XZ_BYTES
+        or hashlib.sha256(compressed).hexdigest() != STAGE90_XZ_SHA256
+        or len(encoded) != STAGE90_B85_BYTES
+        or hashlib.sha256(encoded).hexdigest() != STAGE90_B85_SHA256
+    ):
+        raise VerificationError("Stage90 compressed payload identity drift")
+    try:
+        decoded_compressed = base64.b85decode(encoded)
+        decoded_raw = lzma.decompress(compressed, format=lzma.FORMAT_XZ)
+    except (ValueError, TypeError, lzma.LZMAError) as exc:
+        raise VerificationError(f"cannot decode Stage90 payload: {exc}") from exc
+    if base64.b85encode(decoded_compressed) != encoded:
+        raise VerificationError("Stage90 Base85 payload is noncanonical")
+    if decoded_compressed != compressed or decoded_raw != raw:
+        raise VerificationError("Stage90 Base85/XZ/raw chain drift")
+    recompressed = lzma.compress(
+        raw,
+        format=lzma.FORMAT_XZ,
+        check=lzma.CHECK_CRC64,
+        preset=9 | lzma.PRESET_EXTREME,
+    )
+    if recompressed != compressed or base64.b85encode(recompressed) != encoded:
+        raise VerificationError("Stage90 extreme-9 deterministic compression drift")
+
+    root = stage_dir.parents[1]
+    anchor_dir = root / "reproduction" / "00-submission-anchor"
+    submission_rows = load_jsonl_objects(
+        anchor_dir / "submissions.jsonl", "submission anchor index"
+    )
+    if len(submission_rows) != 4:
+        raise VerificationError("Stage90 expected exactly four submitted solvers")
+    audited_rows: list[dict[str, Any]] = []
+    outer_digests: set[str] = set()
+    for submission in submission_rows:
+        artifact_ref = submission.get("artifact")
+        if not isinstance(artifact_ref, dict) or not isinstance(
+            artifact_ref.get("path"), str
+        ):
+            raise VerificationError("invalid Stage90 submission artifact reference")
+        solver_path = anchor_dir / artifact_ref["path"]
+        try:
+            launcher = read_bounded_file(solver_path, limit=2 * 1024 * 1024)
+        except Pr2PayloadError as exc:
+            raise VerificationError(f"cannot read submitted solver {solver_path}: {exc}") from exc
+        try:
+            payload = extract_embedded_false_solver_table_payload(
+                launcher, context=str(solver_path)
+            )
+        except Pr2PayloadError as exc:
+            raise VerificationError(
+                f"cannot statically decode submitted payload {solver_path}: {exc}"
+            ) from exc
+        if (
+            payload.model_count != STAGE90_EMBEDDED_COUNT
+            or payload.declared_raw_bytes != STAGE90_RAW_BYTES
+            or payload.raw != raw
+            or payload.compressed != compressed
+            or payload.encoded != encoded
+            or payload.source_sha256 != STAGE100_FALSE_ENGINE_SHA256
+        ):
+            raise VerificationError(f"submitted Stage90 payload drift: {solver_path}")
+        outer_sha256 = hashlib.sha256(launcher).hexdigest()
+        outer_digests.add(outer_sha256)
+        audited_rows.append(
+            {
+                "declared_model_count": payload.model_count,
+                "false_engine_sha256": payload.source_sha256,
+                "outer_solver_bytes": len(launcher),
+                "outer_solver_sha256": outer_sha256,
+                "path": solver_path.relative_to(root).as_posix(),
+                "payload_base85_sha256": payload.encoded_sha256,
+                "payload_raw_sha256": payload.raw_sha256,
+                "payload_xz_sha256": payload.compressed_sha256,
+                "track": submission["track"],
+            }
+        )
+    if len(outer_digests) != 2:
+        raise VerificationError("Stage90 outer-solver blob cardinality drift")
+
+    audit_artifact = require_unique_role_artifact(
+        artifacts, "payload-audit", stage_dir.name
+    )
+    audit = load_json(safe_stage_path(stage_dir, audit_artifact["path"]))
+    expected_audit = {
+        "base85": {
+            "bytes": len(encoded),
+            "canonical_round_trip": True,
+            "exact_submitted_literal_match": True,
+            "sha256": hashlib.sha256(encoded).hexdigest(),
+        },
+        "compression": {
+            "check": "CRC64",
+            "exact_submitted_xz_match": True,
+            "format": "XZ",
+            "preset": "9|PRESET_EXTREME",
+            "tested_python_baseline": "3.11",
+        },
+        "decoded_payload": {
+            "declared_model_count": STAGE90_EMBEDDED_COUNT,
+            "declared_raw_bytes": STAGE90_RAW_BYTES,
+            "records": STAGE90_EMBEDDED_COUNT,
+            "sha256": STAGE90_RAW_SHA256,
+            "trailing_bytes": 0,
+        },
+        "false_engine_sha256": STAGE100_FALSE_ENGINE_SHA256,
+        "primary_anchor": (
+            "reproduction/00-submission-anchor/raw/"
+            "2026-08-31_marathon_openai-gpt-oss-120b_solver.py"
+        ),
+        "schema_version": SCHEMA_VERSION,
+        "stage_id": STAGE90,
+        "submission_files": audited_rows,
+        "submission_files_checked": 4,
+        "unique_outer_solver_blobs": 2,
+        "xz": {
+            "bytes": len(compressed),
+            "sha256": hashlib.sha256(compressed).hexdigest(),
+        },
+    }
+    if audit != expected_audit:
+        raise VerificationError("Stage90 submitted-payload audit drift")
+    expected_summary_fields = {
+        "composition": {
+            "core_records": STAGE90_CORE_COUNT,
+            "finite149_records": STAGE90_FINITE149_COUNT,
+            "finite149_uses_stage81_effective_provenance": True,
+        },
+        "payload_bundle": {
+            "base85_bytes": STAGE90_B85_BYTES,
+            "base85_sha256": STAGE90_B85_SHA256,
+            "exact_submitted_base85_match": True,
+            "exact_submitted_xz_match": True,
+            "raw_bytes": STAGE90_RAW_BYTES,
+            "raw_sha256": STAGE90_RAW_SHA256,
+            "xz_bytes": STAGE90_XZ_BYTES,
+            "xz_check": "CRC64",
+            "xz_preset": "9|PRESET_EXTREME",
+            "xz_sha256": STAGE90_XZ_SHA256,
+        },
+        "submission_boundary": {
+            "complete_outer_solver_rebuilt": False,
+            "exact_inner_table_payload_rebuilt": True,
+            "submission_files_statically_checked": 4,
+        },
+    }
+    if any(summary.get(key) != value for key, value in expected_summary_fields.items()):
+        raise VerificationError("Stage90 summary semantic boundary drift")
+
+    stage80_records = read_table_binary_records(
+        root / f"reproduction/{STAGE80}/normalized/base-tables.bin"
+    )
+    if len(stage80_records) != STAGE90_FINITE149_COUNT:
+        raise VerificationError("Stage80 base-table cardinality drift at Stage90 gate")
+    return {
+        "stage80_ids": {table_id_from_record(record) for record in stage80_records},
+        "stage80_records": stage80_records,
+    }
+
+
+def find_stage100_historical_rows(
+    root: Path, derived_records: Iterable[bytes]
+) -> dict[str, dict[str, Any]]:
+    """Stream prior indexes and retain only exact Stage100 derived-record matches."""
+
+    wanted = {table_id_from_record(record): record for record in derived_records}
+    indexes = [
+        ("10-primary-9450", "normalized/tables.jsonl.gz"),
+        ("20-registered-9852", "normalized/tables.jsonl.gz"),
+        ("30-early-deltas-9957", "normalized/tables.jsonl.gz"),
+        ("40-delivery-10059", "normalized/tables.jsonl.gz"),
+        ("50-generator-prune-3535", "normalized/tables.jsonl.gz"),
+        ("70-positive-marginal-core-1470", "normalized/tables.jsonl.gz"),
+        (STAGE80, "normalized/required-transposes.jsonl.gz"),
+    ]
+    found: dict[str, dict[str, Any]] = {}
+    for historical_stage_id, relative in indexes:
+        index_path = root / f"reproduction/{historical_stage_id}/{relative}"
+        with open_text_artifact(index_path) as handle:
+            for position, raw_line in enumerate(
+                iter_bounded_text_lines(handle, str(index_path))
+            ):
+                if not raw_line.strip():
+                    continue
+                try:
+                    row = json.loads(raw_line)
+                except json.JSONDecodeError as exc:
+                    raise VerificationError(
+                        f"invalid historical table row {index_path}:{position + 1}"
+                    ) from exc
+                if not isinstance(row, dict):
+                    raise VerificationError(
+                        f"non-object historical table row {index_path}:{position + 1}"
+                    )
+                table_id = row.get("table_id")
+                record = wanted.get(table_id)
+                if record is None:
+                    continue
+                if (
+                    validate_table_record(
+                        row, f"{index_path}:{position + 1}"
+                    )
+                    != record
+                ):
+                    raise VerificationError(
+                        f"historical table bytes drift for {table_id}"
+                    )
+                found.setdefault(
+                    table_id,
+                    {
+                        "first_seen_stage": row["first_seen_stage"],
+                        "historical_index_path": (
+                            f"reproduction/{historical_stage_id}/{relative}"
+                        ),
+                        "historical_position": position,
+                        "historical_stage_id": historical_stage_id,
+                        "provenance": row["provenance"],
+                    },
+                )
+    first_seen_counts: dict[str, int] = {}
+    for historical in found.values():
+        first_seen = historical["first_seen_stage"]
+        first_seen_counts[first_seen] = first_seen_counts.get(first_seen, 0) + 1
+    if len(found) != STAGE100_HISTORICAL_REINTRODUCTION_COUNT:
+        raise VerificationError("Stage100 historical reintroduction count drift")
+    if first_seen_counts != {
+        "10-primary-9450": STAGE100_HISTORICAL_STAGE10_COUNT,
+        STAGE80: STAGE100_HISTORICAL_STAGE80_COUNT,
+    }:
+        raise VerificationError("Stage100 historical first-seen distribution drift")
+    return found
+
+
+def verify_stage100_semantics(
+    stage_dir: Path,
+    artifacts: list[dict[str, Any]],
+    bank: dict[str, Any] | None,
+    delta: dict[str, Any] | None,
+    summary: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Replay exact-byte transpose closure and audit the submitted code anchors."""
+
+    if bank is None or delta is None or summary is None:
+        raise VerificationError("Stage100 lacks its table bank, delta, or summary")
+    if (
+        bank["count"] != STAGE100_RUNTIME_COUNT
+        or bank["raw_bytes"] != STAGE100_RUNTIME_BYTES
+        or bank["raw_sha256"] != STAGE100_RUNTIME_SHA256
+        or bank["canonical_id_vector_sha256"]
+        != STAGE100_RUNTIME_VECTOR_SHA256
+    ):
+        raise VerificationError("Stage100 runtime-bank identity drift")
+    embedded = tuple(bank["records"][:STAGE90_EMBEDDED_COUNT])
+    if len(embedded) != STAGE90_EMBEDDED_COUNT or len(set(embedded)) != len(embedded):
+        raise VerificationError("Stage100 embedded prefix identity drift")
+    embedded_index = {record: index for index, record in enumerate(embedded)}
+    seen = set(embedded)
+    derived: list[bytes] = []
+    decisions: list[dict[str, Any]] = []
+    for source_index, record in enumerate(embedded):
+        opposite = transpose_table_record(record)
+        row: dict[str, Any] = {
+            "order": record[0],
+            "schema_version": SCHEMA_VERSION,
+            "source_payload_index": source_index,
+            "source_table_id": table_id_from_record(record),
+            "transpose_table_id": table_id_from_record(opposite),
+        }
+        if opposite == record:
+            row["classification"] = "self-transpose"
+            row["existing_payload_index"] = source_index
+        elif opposite in embedded_index:
+            row["classification"] = "nontrivial-transpose-embedded"
+            row["existing_payload_index"] = embedded_index[opposite]
+        else:
+            if opposite in seen:
+                raise VerificationError("Stage100 derived transpose collision")
+            row["classification"] = "derived-runtime-transpose"
+            row["runtime_index"] = STAGE90_EMBEDDED_COUNT + len(derived)
+            seen.add(opposite)
+            derived.append(opposite)
+        decisions.append(row)
+    runtime = embedded + tuple(derived)
+    if tuple(bank["records"]) != runtime or len(set(runtime)) != len(runtime):
+        raise VerificationError("Stage100 runtime order/content differs from closure replay")
+    counts = {
+        classification: sum(
+            row["classification"] == classification for row in decisions
+        )
+        for classification in (
+            "self-transpose",
+            "nontrivial-transpose-embedded",
+            "derived-runtime-transpose",
+        )
+    }
+    if counts != {
+        "self-transpose": STAGE100_SELF_TRANSPOSE_COUNT,
+        "nontrivial-transpose-embedded": STAGE100_EMBEDDED_OPPOSITE_SOURCE_COUNT,
+        "derived-runtime-transpose": STAGE100_DERIVED_COUNT,
+    }:
+        raise VerificationError("Stage100 transpose classification drift")
+    derived_raw = b"".join(derived)
+    if (
+        len(derived_raw) != STAGE100_DERIVED_BYTES
+        or hashlib.sha256(derived_raw).hexdigest() != STAGE100_DERIVED_SHA256
+        or table_vector_sha256(derived) != STAGE100_DERIVED_VECTOR_SHA256
+    ):
+        raise VerificationError("Stage100 derived-stream identity drift")
+    root = stage_dir.parents[1]
+    historical = find_stage100_historical_rows(root, derived)
+    derived_decisions = [
+        row
+        for row in decisions
+        if row["classification"] == "derived-runtime-transpose"
+    ]
+    historical_rows = [
+        {
+            "first_seen_stage": metadata["first_seen_stage"],
+            "historical_index_path": metadata["historical_index_path"],
+            "historical_position": metadata["historical_position"],
+            "historical_stage_id": metadata["historical_stage_id"],
+            "runtime_index": decision["runtime_index"],
+            "table_id": table_id_from_record(record),
+        }
+        for record, decision in zip(derived, derived_decisions, strict=True)
+        if (metadata := historical.get(table_id_from_record(record))) is not None
+    ]
+    if len(historical_rows) != STAGE100_HISTORICAL_REINTRODUCTION_COUNT:
+        raise VerificationError("Stage100 historical audit-row cardinality drift")
+
+    decision_artifact = require_unique_role_artifact(
+        artifacts, "opposite-decision-index", stage_dir.name
+    )
+    committed_decisions = load_jsonl_objects(
+        safe_stage_path(stage_dir, decision_artifact["path"]),
+        "Stage100 opposite decisions",
+    )
+    if committed_decisions != decisions:
+        raise VerificationError("Stage100 opposite-decision ledger drift")
+
+    scan_artifact = require_unique_role_artifact(
+        artifacts, "runtime-scan-index", stage_dir.name
+    )
+    scan_path = safe_stage_path(stage_dir, scan_artifact["path"])
+    expected_header = [
+        "runtime_index",
+        "origin",
+        "source_payload_index",
+        "source_table_id",
+        "order",
+        "table_id",
+    ]
+    derived_source_by_runtime = {
+        int(row["runtime_index"]): int(row["source_payload_index"])
+        for row in decisions
+        if row["classification"] == "derived-runtime-transpose"
+    }
+    with open_text_artifact(scan_path) as handle:
+        reader = csv.DictReader(iter_bounded_text_lines(handle, str(scan_path)))
+        if reader.fieldnames != expected_header:
+            raise VerificationError("Stage100 runtime-scan header drift")
+        scan_count = 0
+        for runtime_index, raw_row in enumerate(reader):
+            if runtime_index >= len(runtime):
+                raise VerificationError("Stage100 runtime-scan has trailing rows")
+            row = require_csv_row_shape(
+                raw_row, expected_header, f"{scan_path}:{runtime_index + 2}"
+            )
+            record = runtime[runtime_index]
+            if runtime_index < STAGE90_EMBEDDED_COUNT:
+                origin = "embedded"
+                source_index = runtime_index
+            else:
+                origin = "derived-transpose"
+                source_index = derived_source_by_runtime[runtime_index]
+            expected = {
+                "runtime_index": str(runtime_index),
+                "origin": origin,
+                "source_payload_index": str(source_index),
+                "source_table_id": table_id_from_record(embedded[source_index]),
+                "order": str(record[0]),
+                "table_id": table_id_from_record(record),
+            }
+            if row != expected:
+                raise VerificationError(
+                    f"Stage100 runtime-scan row drift at index {runtime_index}"
+                )
+            scan_count += 1
+        if scan_count != STAGE100_RUNTIME_COUNT:
+            raise VerificationError("Stage100 runtime-scan cardinality drift")
+
+    required_records = read_table_binary_records(
+        root / f"reproduction/{STAGE80}/normalized/required-transposes.bin"
+    )
+    derived_set = set(derived)
+    runtime_index_by_record = {record: index for index, record in enumerate(runtime)}
+    if len(required_records) != 11 or any(
+        record not in derived_set for record in required_records
+    ):
+        raise VerificationError(
+            "Stage80 task-required transposes are not a subset of Stage100 derivations"
+        )
+    required_rows = [
+        {
+            "runtime_index": runtime_index_by_record[record],
+            "table_id": table_id_from_record(record),
+        }
+        for record in required_records
+    ]
+
+    primary_relative = (
+        "reproduction/00-submission-anchor/raw/"
+        "2026-08-31_marathon_openai-gpt-oss-120b_solver.py"
+    )
+    try:
+        launcher = read_bounded_file(
+            root / primary_relative, limit=2 * 1024 * 1024
+        )
+    except Pr2PayloadError as exc:
+        raise VerificationError(f"cannot read primary submission anchor: {exc}") from exc
+    static_audit = audit_submitted_runtime_functions(
+        decode_submitted_false_engine(launcher)
+    )
+    static_audit.update({"anchor_path": primary_relative, "stage_id": STAGE100})
+    runtime_audit_artifact = require_unique_role_artifact(
+        artifacts, "runtime-code-audit", stage_dir.name
+    )
+    if load_json(safe_stage_path(stage_dir, runtime_audit_artifact["path"])) != static_audit:
+        raise VerificationError("Stage100 submitted runtime-code audit drift")
+
+    suffix = decisions[STAGE90_CORE_COUNT:]
+    suffix_counts = {
+        "derived": sum(
+            row["classification"] == "derived-runtime-transpose" for row in suffix
+        ),
+        "embedded_nontrivial": sum(
+            row["classification"] == "nontrivial-transpose-embedded"
+            for row in suffix
+        ),
+        "self_transpose": sum(
+            row["classification"] == "self-transpose" for row in suffix
+        ),
+    }
+    if suffix_counts != {"derived": 15, "embedded_nontrivial": 2, "self_transpose": 0}:
+        raise VerificationError("Stage100 finite149 closure partition drift")
+    closure_audit_artifact = require_unique_role_artifact(
+        artifacts, "closure-audit", stage_dir.name
+    )
+    closure_audit = load_json(
+        safe_stage_path(stage_dir, closure_audit_artifact["path"])
+    )
+    expected_closure_audit = {
+        "arithmetic": {
+            "derived": STAGE100_DERIVED_COUNT,
+            "embedded": STAGE90_EMBEDDED_COUNT,
+            "runtime": STAGE100_RUNTIME_COUNT,
+            "skipped_existing": (
+                STAGE100_SELF_TRANSPOSE_COUNT
+                + STAGE100_EMBEDDED_OPPOSITE_SOURCE_COUNT
+            ),
+        },
+        "canonical_id_vector": {
+            "derived_sha256": STAGE100_DERIVED_VECTOR_SHA256,
+            "runtime_sha256": STAGE100_RUNTIME_VECTOR_SHA256,
+            "serialization": "lowercase canonical record SHA-256 hex plus LF",
+        },
+        "deduplication": {
+            "exact_record_bytes_only": True,
+            "isomorphism_quotient": False,
+            "nontrivial_embedded_pair_count": STAGE100_EMBEDDED_OPPOSITE_PAIR_COUNT,
+            "nontrivial_transpose_already_embedded_sources": (
+                STAGE100_EMBEDDED_OPPOSITE_SOURCE_COUNT
+            ),
+            "self_transpose_sources": STAGE100_SELF_TRANSPOSE_COUNT,
+        },
+        "derived_stream": {
+            "bytes": STAGE100_DERIVED_BYTES,
+            "sha256": STAGE100_DERIVED_SHA256,
+        },
+        "finite149_suffix": suffix_counts,
+        "historical_identity": {
+            "first_seen_stage_counts": {
+                "10-primary-9450": STAGE100_HISTORICAL_STAGE10_COUNT,
+                STAGE80: STAGE100_HISTORICAL_STAGE80_COUNT,
+            },
+            "historical_exact_record_reintroductions": historical_rows,
+            "new_exact_records_first_seen_here": STAGE100_NEW_RUNTIME_TABLE_COUNT,
+            "reintroduced_exact_records": (
+                STAGE100_HISTORICAL_REINTRODUCTION_COUNT
+            ),
+        },
+        "ordering": (
+            "all embedded records, then missing strict transposes in ascending "
+            "embedded source index"
+        ),
+        "required_stage80_transposes": required_rows,
+        "required_stage80_transposes_are_subset_not_addition": True,
+        "runtime_stream": {
+            "bytes": STAGE100_RUNTIME_BYTES,
+            "distinct_records": STAGE100_RUNTIME_COUNT,
+            "sha256": STAGE100_RUNTIME_SHA256,
+        },
+        "schema_version": SCHEMA_VERSION,
+        "stage_id": STAGE100,
+    }
+    if closure_audit != expected_closure_audit:
+        raise VerificationError("Stage100 opposite-closure audit drift")
+
+    expected_summary_fields = {
+        "closure": {
+            "derived_missing_transposes": STAGE100_DERIVED_COUNT,
+            "embedded_nontrivial_transpose_pairs": (
+                STAGE100_EMBEDDED_OPPOSITE_PAIR_COUNT
+            ),
+            "embedded_nontrivial_transpose_sources": (
+                STAGE100_EMBEDDED_OPPOSITE_SOURCE_COUNT
+            ),
+            "finite149_suffix": suffix_counts,
+            "historical_exact_record_reintroductions": (
+                STAGE100_HISTORICAL_REINTRODUCTION_COUNT
+            ),
+            "historical_first_seen_stage_counts": {
+                "10-primary-9450": STAGE100_HISTORICAL_STAGE10_COUNT,
+                STAGE80: STAGE100_HISTORICAL_STAGE80_COUNT,
+            },
+            "new_exact_records_first_seen_here": (
+                STAGE100_NEW_RUNTIME_TABLE_COUNT
+            ),
+            "runtime_records": STAGE100_RUNTIME_COUNT,
+            "self_transpose_sources": STAGE100_SELF_TRANSPOSE_COUNT,
+            "stage80_required_transposes_in_derived_set": 11,
+        },
+        "runtime_boundary": {
+            "embedded_payload_records": STAGE90_EMBEDDED_COUNT,
+            "executes_complete_solver": False,
+            "runtime_derived_records": STAGE100_DERIVED_COUNT,
+            "static_algorithm_replay": True,
+        },
+    }
+    if any(summary.get(key) != value for key, value in expected_summary_fields.items()):
+        raise VerificationError("Stage100 summary semantic boundary drift")
+    return {
+        "decisions": decisions,
+        "derived_records": tuple(derived),
+        "historical": historical,
+    }
+
+
 def claim_expected_integer(
     claims_by_id: dict[str, dict[str, str]],
     claim_id: str,
@@ -2441,11 +3267,13 @@ def verify_stage(
         "primary-model-index",
         "skipped-model-index",
         "input-classification",
+        "opposite-decision-index",
     }
     csv_count_roles = {
         "pair-partition",
         "fin4-shard-index",
         "coverage-score-index",
+        "runtime-scan-index",
     }
     delivery_binaries: dict[str, list[str]] = {}
     for artifact in artifacts:
@@ -2534,6 +3362,7 @@ def verify_stage(
         )
 
     pr2_semantics = None
+    pr4_semantics = None
     if stage_dir.name == STAGE50:
         pr2_semantics = verify_stage50_semantics(
             stage_dir, artifacts, bank, delta, summary
@@ -2544,13 +3373,23 @@ def verify_stage(
         pr2_semantics = verify_stage70_semantics(
             stage_dir, artifacts, bank, delta, summary
         )
+    elif stage_dir.name == STAGE90:
+        pr4_semantics = verify_stage90_semantics(
+            stage_dir, artifacts, bank, delta, summary
+        )
+    elif stage_dir.name == STAGE100:
+        pr4_semantics = verify_stage100_semantics(
+            stage_dir, artifacts, bank, delta, summary
+        )
 
     return len(artifacts), submission_count, manifest_claims, {
+        "stage_dir": stage_dir,
         "manifest": manifest,
         "bank": bank,
         "delta": delta,
         "summary": summary,
         "pr2": pr2_semantics,
+        "pr4": pr4_semantics,
     }
 
 
@@ -2757,6 +3596,261 @@ def verify_stage70_transition(
         raise VerificationError("Stage70 core records differ from positive-marginal candidates")
 
 
+def verify_stage90_transition(
+    result: dict[str, Any], previous: dict[str, Any]
+) -> None:
+    """Join the Stage70 core with Stage80 bytes and Stage81 provenance."""
+
+    bank = result["bank"]
+    previous_bank = previous["bank"]
+    semantics = result.get("pr4")
+    delta = result["delta"]
+    if (
+        bank is None
+        or previous_bank is None
+        or delta is None
+        or not isinstance(semantics, dict)
+    ):
+        raise VerificationError("Stage90 transition lacks semantic bank evidence")
+    if result["manifest"]["depends_on"] != [STAGE70, STAGE81]:
+        raise VerificationError("Stage90 dependency contract drift")
+    if len(delta["rows"]) != STAGE90_EMBEDDED_COUNT:
+        raise VerificationError("Stage90 delta cardinality drift")
+    stage80_records = semantics["stage80_records"]
+    expected_records = tuple(previous_bank["records"]) + tuple(stage80_records)
+    if (
+        previous_bank["count"] != STAGE90_CORE_COUNT
+        or len(stage80_records) != STAGE90_FINITE149_COUNT
+        or tuple(bank["records"]) != expected_records
+    ):
+        raise VerificationError("Stage90 core/finite149 concatenation drift")
+
+    for position, row in enumerate(delta["rows"]):
+        if position < STAGE90_CORE_COUNT:
+            expected = {
+                "action": "retain",
+                "reason_code": "payload_core_preserved",
+                "source_stage_id": STAGE70,
+                "source_table_id": previous_bank["ids"][position],
+                "table_id": previous_bank["ids"][position],
+            }
+        else:
+            suffix_index = position - STAGE90_CORE_COUNT
+            table_id = table_id_from_record(stage80_records[suffix_index])
+            expected = {
+                "action": "add",
+                "reason_code": "finite149_payload_append",
+                "source_stage_id": STAGE80,
+                "source_table_id": table_id,
+                "table_id": table_id,
+            }
+        if any(row.get(key) != value for key, value in expected.items()):
+            raise VerificationError(f"Stage90 delta source join drift at {position}")
+
+    stage_dir = result["stage_dir"]
+    root = stage_dir.parents[1]
+    stage70_rows = load_jsonl_objects(
+        previous["stage_dir"] / "normalized/tables.jsonl.gz",
+        "Stage70 table index",
+    )
+    stage80_rows = load_jsonl_objects(
+        root / f"reproduction/{STAGE80}/normalized/base-tables.jsonl.gz",
+        "Stage80 base-table index",
+    )
+    stage81_rows = load_jsonl_objects(
+        root
+        / f"reproduction/{STAGE81}/normalized/base-table-provenance.jsonl.gz",
+        "Stage81 effective provenance",
+    )
+    stage90_rows = load_jsonl_objects(
+        stage_dir / "normalized/tables.jsonl.gz", "Stage90 table index"
+    )
+    if stage90_rows[:STAGE90_CORE_COUNT] != stage70_rows:
+        raise VerificationError("Stage90 core table metadata drift")
+    if len(stage80_rows) != 17 or len(stage81_rows) != 17:
+        raise VerificationError("Stage90 finite149 metadata cardinality drift")
+    provenance_by_id = {
+        row.get("effective_table_id"): row for row in stage81_rows
+    }
+    if len(provenance_by_id) != 17 or None in provenance_by_id:
+        raise VerificationError("Stage81 effective-provenance identity drift")
+    expected_suffix: list[dict[str, Any]] = []
+    for base in stage80_rows:
+        table_id = base["table_id"]
+        provenance = provenance_by_id.get(table_id)
+        if not isinstance(provenance, dict):
+            raise VerificationError(f"Stage81 lacks provenance for {table_id}")
+        expected = dict(base)
+        expected["provenance"] = [
+            {
+                "notes": "Stage 81 effective-provenance record",
+                "source_id": "stage81-stage80-evidence",
+                "source_path": (
+                    "reproduction/81-finite149-portable-verification/"
+                    "normalized/base-table-provenance.jsonl.gz"
+                ),
+                "source_record": provenance["stable_id"],
+            },
+            {
+                "notes": provenance["derivation"],
+                "source_id": "stage80-historical-snapshot",
+                "source_path": provenance["effective_source_path"],
+                "source_record": provenance["effective_source_record"],
+            },
+        ]
+        expected["notes"] = list(base.get("notes", [])) + [
+            "effective_provenance=81-finite149-portable-verification"
+        ]
+        expected["verification"] = {
+            "entry_range_checked": True,
+            "shape_checked": True,
+            "task_check_paths": [
+                (
+                    "reproduction/81-finite149-portable-verification/verification/"
+                    "stage80-portable-semantic-audit.json"
+                )
+            ],
+        }
+        expected_suffix.append(expected)
+    if stage90_rows[STAGE90_CORE_COUNT:] != expected_suffix:
+        raise VerificationError("Stage90 corrected finite149 provenance drift")
+
+
+def verify_stage100_transition(
+    result: dict[str, Any], previous: dict[str, Any]
+) -> None:
+    """Verify runtime-prefix preservation and every derived-table source join."""
+
+    bank = result["bank"]
+    previous_bank = previous["bank"]
+    semantics = result.get("pr4")
+    delta = result["delta"]
+    if (
+        bank is None
+        or previous_bank is None
+        or delta is None
+        or not isinstance(semantics, dict)
+    ):
+        raise VerificationError("Stage100 transition lacks semantic bank evidence")
+    if result["manifest"]["depends_on"] != [STAGE90]:
+        raise VerificationError("Stage100 dependency contract drift")
+    if len(delta["rows"]) != STAGE100_RUNTIME_COUNT:
+        raise VerificationError("Stage100 delta cardinality drift")
+    if (
+        tuple(bank["records"][:STAGE90_EMBEDDED_COUNT])
+        != tuple(previous_bank["records"])
+    ):
+        raise VerificationError("Stage100 embedded runtime prefix drift")
+
+    decisions = semantics["decisions"]
+    derived_decisions = [
+        row
+        for row in decisions
+        if row["classification"] == "derived-runtime-transpose"
+    ]
+    for position, row in enumerate(delta["rows"]):
+        if position < STAGE90_EMBEDDED_COUNT:
+            table_id = previous_bank["ids"][position]
+            expected = {
+                "action": "retain",
+                "reason_code": "embedded_runtime_prefix",
+                "source_stage_id": STAGE90,
+                "source_table_id": table_id,
+                "table_id": table_id,
+            }
+        else:
+            decision = derived_decisions[position - STAGE90_EMBEDDED_COUNT]
+            expected = {
+                "action": "derive",
+                "reason_code": "missing_strict_transpose",
+                "source_stage_id": STAGE90,
+                "source_table_id": decision["source_table_id"],
+                "table_id": decision["transpose_table_id"],
+            }
+        if any(row.get(key) != value for key, value in expected.items()):
+            raise VerificationError(f"Stage100 delta source join drift at {position}")
+
+    stage90_rows = load_jsonl_objects(
+        previous["stage_dir"] / "normalized/tables.jsonl.gz",
+        "Stage90 table index",
+    )
+    stage100_rows = load_jsonl_objects(
+        result["stage_dir"] / "normalized/tables.jsonl.gz",
+        "Stage100 table index",
+    )
+    if stage100_rows[:STAGE90_EMBEDDED_COUNT] != stage90_rows:
+        raise VerificationError("Stage100 embedded table metadata prefix drift")
+    expected_derived_rows: list[dict[str, Any]] = []
+    for record, decision in zip(
+        semantics["derived_records"], derived_decisions, strict=True
+    ):
+        source_index = decision["source_payload_index"]
+        source_table_id = decision["source_table_id"]
+        runtime_index = decision["runtime_index"]
+        order = record[0]
+        entries = list(record[1:])
+        table_id = table_id_from_record(record)
+        historical = semantics["historical"].get(table_id)
+        notes = [
+            f"strict_transpose_of={source_table_id}",
+            f"source_payload_index={source_index}",
+            f"runtime_index={runtime_index}",
+        ]
+        provenance = [
+            {
+                "notes": "Generic strict row/column transpose; no problem-ID branch",
+                "source_id": "stage100-payload-input",
+                "source_path": (
+                    "reproduction/90-payload-1487/normalized/tables.jsonl.gz"
+                ),
+                "source_record": source_index,
+            }
+        ]
+        first_seen_stage = STAGE100
+        if historical is not None:
+            first_seen_stage = historical["first_seen_stage"]
+            notes.extend(
+                [
+                    (
+                        "historical_exact_record_reintroduced_from="
+                        f"{first_seen_stage}"
+                    ),
+                    (
+                        "historical_table_index="
+                        f"{historical['historical_index_path']}#position="
+                        f"{historical['historical_position']}"
+                    ),
+                ]
+            )
+            provenance.extend(historical["provenance"])
+        expected_derived_rows.append(
+            {
+                "encoding": "uint8-order-row-major-v1",
+                "entries": entries,
+                "first_seen_stage": first_seen_stage,
+                "identifiers": [
+                    {
+                        "scheme": "sha256-compact-json-table-v1",
+                        "value": historical_table_id(order, entries),
+                    }
+                ],
+                "notes": notes,
+                "order": order,
+                "provenance": provenance,
+                "record_kind": "derived-transpose",
+                "schema_version": SCHEMA_VERSION,
+                "table_id": table_id,
+                "verification": {
+                    "entry_range_checked": True,
+                    "shape_checked": True,
+                    "task_check_paths": ["verification/opposite-closure-audit.json"],
+                },
+            }
+        )
+    if stage100_rows[STAGE90_EMBEDDED_COUNT:] != expected_derived_rows:
+        raise VerificationError("Stage100 derived-table metadata drift")
+
+
 def verify_stage_transitions(
     results: dict[str, dict[str, Any]], *, allow_missing_dependencies: bool = False
 ) -> None:
@@ -2858,9 +3952,26 @@ def verify_stage_transitions(
                         f"first_seen_stage changed for {table_id} in {stage_id}"
                     )
             elif first_stage != stage_id:
-                raise VerificationError(
-                    f"new table has wrong first_seen_stage in {stage_id}: {table_id}"
+                pr4_semantics = result.get("pr4")
+                stage90_inherited = (
+                    stage_id == STAGE90
+                    and isinstance(pr4_semantics, dict)
+                    and first_stage == STAGE80
+                    and table_id in pr4_semantics.get("stage80_ids", set())
                 )
+                historical = (
+                    pr4_semantics.get("historical", {}).get(table_id)
+                    if stage_id == STAGE100 and isinstance(pr4_semantics, dict)
+                    else None
+                )
+                stage100_reintroduced = (
+                    isinstance(historical, dict)
+                    and historical.get("first_seen_stage") == first_stage
+                )
+                if not stage90_inherited and not stage100_reintroduced:
+                    raise VerificationError(
+                        f"new table has wrong first_seen_stage in {stage_id}: {table_id}"
+                    )
         if stage_id == STAGE50:
             if previous_stage is None:
                 raise VerificationError("Stage50 lacks its Stage40 bank dependency")
@@ -2869,6 +3980,14 @@ def verify_stage_transitions(
             if previous_stage is None:
                 raise VerificationError("Stage70 lacks its Stage50 bank dependency")
             verify_stage70_transition(result, previous_stage)
+        elif stage_id == STAGE90:
+            if previous_stage is None:
+                raise VerificationError("Stage90 lacks its Stage70 bank dependency")
+            verify_stage90_transition(result, previous_stage)
+        elif stage_id == STAGE100:
+            if previous_stage is None:
+                raise VerificationError("Stage100 lacks its Stage90 bank dependency")
+            verify_stage100_transition(result, previous_stage)
 
 
 def resolve_stage_directories(

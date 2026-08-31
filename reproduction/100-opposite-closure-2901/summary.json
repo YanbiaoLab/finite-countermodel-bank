@@ -1,0 +1,65 @@
+{
+  "action_counts": {
+    "derive": 1414,
+    "retain": 1487
+  },
+  "bank": {
+    "canonical_id_vector_sha256": "42c21dfecfaca35451ad1bc7f1216456ef682aadc6eb7edbf498417d81ae530e",
+    "historical_id_vector_sha256": "d61729cfddf4c76da1be66e34b0aab82ac5413e873e3d97074f75267d375c8af",
+    "order_distribution": {
+      "10": 182,
+      "11": 18,
+      "12": 356,
+      "13": 2,
+      "15": 2,
+      "16": 4,
+      "19": 2,
+      "20": 6,
+      "21": 2,
+      "22": 2,
+      "25": 2,
+      "32": 4,
+      "36": 2,
+      "5": 201,
+      "6": 1044,
+      "65": 2,
+      "7": 59,
+      "8": 569,
+      "9": 442
+    },
+    "raw_bytes": 215433,
+    "raw_sha256": "b38ffe73f45ae8780c6cbcbd7904bcc1a5b2947b15789d6c9972394fe695afb7",
+    "table_count": 2901
+  },
+  "closure": {
+    "derived_missing_transposes": 1414,
+    "embedded_nontrivial_transpose_pairs": 32,
+    "embedded_nontrivial_transpose_sources": 64,
+    "finite149_suffix": {
+      "derived": 15,
+      "embedded_nontrivial": 2,
+      "self_transpose": 0
+    },
+    "historical_exact_record_reintroductions": 17,
+    "historical_first_seen_stage_counts": {
+      "10-primary-9450": 6,
+      "80-finite149": 11
+    },
+    "new_exact_records_first_seen_here": 1397,
+    "runtime_records": 2901,
+    "self_transpose_sources": 9,
+    "stage80_required_transposes_in_derived_set": 11
+  },
+  "metrics": {
+    "closure.added": 1414,
+    "closure.runtime": 2901
+  },
+  "runtime_boundary": {
+    "embedded_payload_records": 1487,
+    "executes_complete_solver": false,
+    "runtime_derived_records": 1414,
+    "static_algorithm_replay": true
+  },
+  "schema_version": "1.0.0",
+  "stage_id": "100-opposite-closure-2901"
+}

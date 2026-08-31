@@ -1,0 +1,78 @@
+{
+  "base85": {
+    "bytes": 36010,
+    "canonical_round_trip": true,
+    "exact_submitted_literal_match": true,
+    "sha256": "2b34894f2da26c12476f88473cd4cb2dae77ddbfeeedb2c2d7147d6caf8abb42"
+  },
+  "compression": {
+    "check": "CRC64",
+    "exact_submitted_xz_match": true,
+    "format": "XZ",
+    "preset": "9|PRESET_EXTREME",
+    "tested_python_baseline": "3.11"
+  },
+  "decoded_payload": {
+    "declared_model_count": 1487,
+    "declared_raw_bytes": 111009,
+    "records": 1487,
+    "sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+    "trailing_bytes": 0
+  },
+  "false_engine_sha256": "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197",
+  "primary_anchor": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+  "schema_version": "1.0.0",
+  "stage_id": "90-payload-1487",
+  "submission_files": [
+    {
+      "declared_model_count": 1487,
+      "false_engine_sha256": "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197",
+      "outer_solver_bytes": 490327,
+      "outer_solver_sha256": "f8b845e42a0007fc576d22235597fcccc85316d581c72c758f3f35cc9b65ec19",
+      "path": "reproduction/00-submission-anchor/raw/2026-08-31_solo_google-gemma-4-31b-it_solver.py",
+      "payload_base85_sha256": "2b34894f2da26c12476f88473cd4cb2dae77ddbfeeedb2c2d7147d6caf8abb42",
+      "payload_raw_sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+      "payload_xz_sha256": "a9b757ea978411ff982f0a1c0404e0b505be74b8c29481d7eeb81d97a6cd79cc",
+      "track": "solo"
+    },
+    {
+      "declared_model_count": 1487,
+      "false_engine_sha256": "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197",
+      "outer_solver_bytes": 490327,
+      "outer_solver_sha256": "f8b845e42a0007fc576d22235597fcccc85316d581c72c758f3f35cc9b65ec19",
+      "path": "reproduction/00-submission-anchor/raw/2026-08-31_solo_openai-gpt-oss-120b_solver.py",
+      "payload_base85_sha256": "2b34894f2da26c12476f88473cd4cb2dae77ddbfeeedb2c2d7147d6caf8abb42",
+      "payload_raw_sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+      "payload_xz_sha256": "a9b757ea978411ff982f0a1c0404e0b505be74b8c29481d7eeb81d97a6cd79cc",
+      "track": "solo"
+    },
+    {
+      "declared_model_count": 1487,
+      "false_engine_sha256": "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197",
+      "outer_solver_bytes": 498047,
+      "outer_solver_sha256": "e301cbd091df1376c21ac297e1afb05decb70c34879cd6e485744d09e017c809",
+      "path": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_google-gemma-4-31b-it_solver.py",
+      "payload_base85_sha256": "2b34894f2da26c12476f88473cd4cb2dae77ddbfeeedb2c2d7147d6caf8abb42",
+      "payload_raw_sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+      "payload_xz_sha256": "a9b757ea978411ff982f0a1c0404e0b505be74b8c29481d7eeb81d97a6cd79cc",
+      "track": "marathon"
+    },
+    {
+      "declared_model_count": 1487,
+      "false_engine_sha256": "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197",
+      "outer_solver_bytes": 498047,
+      "outer_solver_sha256": "e301cbd091df1376c21ac297e1afb05decb70c34879cd6e485744d09e017c809",
+      "path": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+      "payload_base85_sha256": "2b34894f2da26c12476f88473cd4cb2dae77ddbfeeedb2c2d7147d6caf8abb42",
+      "payload_raw_sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+      "payload_xz_sha256": "a9b757ea978411ff982f0a1c0404e0b505be74b8c29481d7eeb81d97a6cd79cc",
+      "track": "marathon"
+    }
+  ],
+  "submission_files_checked": 4,
+  "unique_outer_solver_blobs": 2,
+  "xz": {
+    "bytes": 28808,
+    "sha256": "a9b757ea978411ff982f0a1c0404e0b505be74b8c29481d7eeb81d97a6cd79cc"
+  }
+}
