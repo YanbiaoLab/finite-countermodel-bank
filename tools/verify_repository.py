@@ -39,6 +39,7 @@ from tools.pr2_common import (
 
 
 SCHEMA_VERSION = "1.0.0"
+MINIMUM_PYTHON = (3, 10)
 HASH_RE = re.compile(r"^[a-f0-9]{64}$")
 STAGE_RE = re.compile(r"^[0-9]{2,3}-[a-z0-9-]+$")
 CLAIM_RE = re.compile(r"^[a-z0-9_.-]+$")
@@ -230,6 +231,17 @@ STAGE70_SELECTION_FIELDS = {
 
 class VerificationError(RuntimeError):
     """Raised when committed evidence violates the repository contract."""
+
+
+def require_supported_python(version_info: Any = sys.version_info) -> None:
+    """Fail before artifact I/O when the interpreter is below the supported floor."""
+
+    if tuple(version_info[:2]) < MINIMUM_PYTHON:
+        detected = ".".join(str(value) for value in version_info[:3])
+        raise VerificationError(
+            f"Python 3.10+ is required; detected {detected}. "
+            "Python 3.11 matches the official sandbox"
+        )
 
 
 def iter_bounded_text_lines(
@@ -4031,6 +4043,7 @@ def resolve_stage_directories(
 def verify_repository(
     root: Path, selected_stages: list[str] | None = None
 ) -> tuple[int, int]:
+    require_supported_python()
     schema_count = verify_schema_documents(root)
     claims_by_id = verify_claims(root)
     reproduction_root = root / "reproduction"

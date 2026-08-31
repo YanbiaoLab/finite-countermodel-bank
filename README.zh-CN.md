@@ -38,6 +38,20 @@ Stage 10 出现，另 11 张已作为 Stage 80 必要转置发布，故只有其
 `first_seen_stage` 为 Stage 100。本仓库也不声称从零重建完整的 498,047 字节外层 solver
 launcher。
 
+## 复现范围
+
+下表中的“重建”是指从本仓库已经提交的输入确定性地重新生成产物，并不自动表示重新执行
+历史模型搜索或比赛环境。
+
+| 层级 | 本仓库覆盖范围 | 证据边界 |
+| --- | --- | --- |
+| 从已提交快照确定性重建 | Stage 10–50 从已捕获输入重建 `9,450 → 10,059 → 3,535` 表库血缘；Stage 81、90、100 重新生成可移植 finite149 证据、精确 1,487 条 payload 及 2,901 条运行时闭包。 | 历史程序和已提交 solver 只作为数据解析，不执行。 |
+| 冻结产物回放 | Stage 60、70 验证已固定的 324M/284M bitset，并从冻结覆盖报告重放固定的 `3,535 → 1,470` 筛选；149 条 ETP 路径仍是哈希固定的清单。 | 不重新执行历史 Fin4/C evaluator，也不重放 ETP 证明图。 |
+| 独立语义与不变量校验 | 穷举检查 Stage 40 的 102 个反模型和全部 149 个 finite149 方向；重新计算表身份、转置、重叠、bitset、提交前后缀及 payload 不变量。 | 这些检查验证已提交的表和结果，不复现原始搜索如何发现它们。 |
+| 从最早发现输入完整重跑 | **当前不可用。** | 缺失内容包括 Stage 10 挖掘/generator 输入、Stage 40 SAT 日志、Stage 50 d16.2、Stage 60 singleton masks/`equations.bin`/完整种子链及完整 finite149 图与路径来源；本仓库也不重跑 Judge v3，不重新生成完整外层 solver 和 Lean 证书。 |
+
+因此，本仓库支持从已提交证据出发的制品级复现，不支持从零重跑完整发现与比赛流水线。
+
 ## 校验当前 checkout
 
 复现脚本要求 **Python 3.10+**，推荐并测试于 **Python 3.11**；3.11 与比赛官方
@@ -46,11 +60,11 @@ launcher。
 大小数据块处理大文件：
 
 ```bash
-python3 tools/verify_repository.py
-python3 reproduction/81-finite149-portable-verification/scripts/verify.py
-python3 tools/verify_pr4.py
-python3 -m unittest discover -s tests -v
+python3 tools/verify_all.py
 ```
+
+统一入口会在 Python 低于 3.10 时立即失败，并使用同一解释器依次运行仓库校验器、有界的
+Stage 81 校验器、精确 PR 4 校验器及单元测试。各校验器仍可单独执行，以便按阶段 review。
 
 从已提交输入重建 PR 1、PR 2、修正后的 PR 3 校验层及两个 PR 4 阶段：
 

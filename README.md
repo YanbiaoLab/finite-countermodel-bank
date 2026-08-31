@@ -52,6 +52,23 @@ Stage 100 as their historical `first_seen_stage`. The evidence reconstructs the
 inner table payload and transformation, not the complete 498,047-byte outer solver
 launcher.
 
+## Reproducibility scope
+
+`Rebuild` below means deterministic regeneration from inputs already committed in
+this repository. It does not by itself imply rerunning the historical model search
+or competition environment.
+
+| Level | Covered here | Evidence boundary |
+| --- | --- | --- |
+| Deterministic rebuild from committed snapshots | Stages 10–50 reconstruct the `9,450 → 10,059 → 3,535` table lineage from captured inputs; Stages 81, 90, and 100 regenerate the portable finite149 evidence, exact 1,487-record payload, and 2,901-record runtime closure. | Historical programs and submitted solvers are parsed as data rather than executed. |
+| Frozen-artifact replay | Stages 60 and 70 validate the pinned 324M/284M bitsets and replay the fixed `3,535 → 1,470` selection from frozen coverage reports; the 149 ETP paths remain a hash-pinned inventory. | The historical Fin4/C evaluator and ETP proof graph are not rerun. |
+| Independent semantic and invariant checks | The 102 Stage 40 countermodels and all 149 finite149 directions are exhaustively checked; table identity, transpose, overlap, bitset, prefix/suffix, and payload invariants are recomputed. | These checks validate committed tables and results, not how the original search discovered them. |
+| Full rerun from earliest discovery inputs | **Not available.** | Missing inputs include the Stage 10 mining/generator inputs, Stage 40 SAT logs, Stage 50 d16.2, Stage 60 singleton masks/`equations.bin`/complete seed chain, and the full finite149 graph/path sources. The repository also does not rerun Judge v3 or regenerate the complete outer solver and Lean certificates. |
+
+Accordingly, this repository supports artifact-level reproducibility from committed
+evidence, not a from-scratch replay of the entire discovery and competition
+workflow.
+
 ## Verify this checkout
 
 The scripts require **Python 3.10+** and are recommended and tested with **Python
@@ -62,11 +79,13 @@ only the Python standard library and processes large files in bounded streams or
 chunks:
 
 ```bash
-python3 tools/verify_repository.py
-python3 reproduction/81-finite149-portable-verification/scripts/verify.py
-python3 tools/verify_pr4.py
-python3 -m unittest discover -s tests -v
+python3 tools/verify_all.py
 ```
+
+The unified entry point fails immediately on Python older than 3.10 and runs the
+repository verifier, the bounded Stage 81 verifier, the exact PR 4 verifier, and the
+unit tests with the same interpreter. Each verifier remains directly runnable for
+stage-targeted review.
 
 To regenerate the PR 1 and PR 2 outputs, the corrected PR 3 verification layer,
 and both PR 4 stages from committed inputs:
