@@ -4,6 +4,7 @@ import csv
 import gzip
 import hashlib
 import json
+import shutil
 import tempfile
 import unittest
 from copy import deepcopy
@@ -26,6 +27,8 @@ from tools.verify_repository import (
     verify_claims,
     verify_stage,
     verify_stage70_semantics,
+    verify_stage90_transition,
+    verify_stage100_transition,
     verify_stage_transitions,
 )
 
@@ -108,8 +111,8 @@ class RepositoryFixtureTests(unittest.TestCase):
 
     def test_full_repository_contract(self) -> None:
         stage_count, artifact_count = verify_repository(ROOT)
-        self.assertEqual(stage_count, 10)
-        self.assertEqual(artifact_count, 89)
+        self.assertEqual(stage_count, 12)
+        self.assertEqual(artifact_count, 106)
 
     def test_stage_selection_includes_transitive_dependencies(self) -> None:
         stage_dirs = resolve_stage_directories(
@@ -148,6 +151,137 @@ class RepositoryFixtureTests(unittest.TestCase):
                 "81-finite149-portable-verification",
             ],
         )
+
+    def test_stage100_selection_includes_all_transitive_dependencies(self) -> None:
+        stage_dirs = resolve_stage_directories(
+            ROOT / "reproduction", ["100-opposite-closure-2901"]
+        )
+        self.assertEqual(
+            [path.name for path in stage_dirs],
+            [
+                "00-submission-anchor",
+                "10-primary-9450",
+                "20-registered-9852",
+                "30-early-deltas-9957",
+                "40-delivery-10059",
+                "50-generator-prune-3535",
+                "60-fin4-residual-284151591",
+                "70-positive-marginal-core-1470",
+                "80-finite149",
+                "81-finite149-portable-verification",
+                "90-payload-1487",
+                "100-opposite-closure-2901",
+            ],
+        )
+
+    def test_stage100_rejects_a_tampered_closure_audit(self) -> None:
+        source = ROOT / "reproduction/100-opposite-closure-2901"
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            temporary_root = Path(temporary_dir)
+            reproduction = temporary_root / "reproduction"
+            stage_dir = reproduction / source.name
+            shutil.copytree(source, stage_dir)
+            required_target = (
+                reproduction
+                / "80-finite149/normalized/required-transposes.bin"
+            )
+            required_target.parent.mkdir(parents=True)
+            shutil.copy2(
+                ROOT
+                / "reproduction/80-finite149/normalized/required-transposes.bin",
+                required_target,
+            )
+            for historical_stage, relative in (
+                ("10-primary-9450", "normalized/tables.jsonl.gz"),
+                ("20-registered-9852", "normalized/tables.jsonl.gz"),
+                ("30-early-deltas-9957", "normalized/tables.jsonl.gz"),
+                ("40-delivery-10059", "normalized/tables.jsonl.gz"),
+                ("50-generator-prune-3535", "normalized/tables.jsonl.gz"),
+                ("70-positive-marginal-core-1470", "normalized/tables.jsonl.gz"),
+                ("80-finite149", "normalized/required-transposes.jsonl.gz"),
+            ):
+                historical_target = (
+                    reproduction / historical_stage / relative
+                )
+                historical_target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(
+                    ROOT / "reproduction" / historical_stage / relative,
+                    historical_target,
+                )
+            solver_target = (
+                reproduction
+                / "00-submission-anchor/raw/"
+                "2026-08-31_marathon_openai-gpt-oss-120b_solver.py"
+            )
+            solver_target.parent.mkdir(parents=True)
+            shutil.copy2(
+                ROOT
+                / "reproduction/00-submission-anchor/raw/"
+                "2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+                solver_target,
+            )
+            audit_path = stage_dir / "verification/opposite-closure-audit.json"
+            body = audit_path.read_bytes()
+            self.assertIn(b'"derived": 1414', body)
+            tampered = body.replace(
+                b'"derived": 1414',
+                b'"derived": 1415',
+                1,
+            )
+            audit_path.write_bytes(tampered)
+            new_sha256 = hashlib.sha256(tampered).hexdigest()
+            manifest_path = stage_dir / "stage.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            artifact = next(
+                row
+                for row in manifest["artifacts"]
+                if row["path"] == "verification/opposite-closure-audit.json"
+            )
+            old_sha256 = artifact["sha256"]
+            artifact["sha256"] = new_sha256
+            artifact["bytes"] = len(tampered)
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            checksums_path = stage_dir / "SHA256SUMS"
+            checksums = checksums_path.read_text(encoding="ascii")
+            checksums_path.write_text(
+                checksums.replace(old_sha256, new_sha256, 1), encoding="ascii"
+            )
+            with self.assertRaisesRegex(
+                VerificationError,
+                "Stage100 opposite-closure audit drift",
+            ):
+                verify_stage(stage_dir, verify_claims(ROOT))
+
+    def test_pr4_transitions_reject_trailing_delta_rows_cleanly(self) -> None:
+        claims = verify_claims(ROOT)
+        stage70 = verify_stage(
+            ROOT / "reproduction/70-positive-marginal-core-1470", claims
+        )[3]
+        stage90 = verify_stage(ROOT / "reproduction/90-payload-1487", claims)[3]
+        stage100 = verify_stage(
+            ROOT / "reproduction/100-opposite-closure-2901", claims
+        )[3]
+
+        trailing90 = deepcopy(stage90)
+        row90 = deepcopy(trailing90["delta"]["rows"][-1])
+        row90["sequence"] = 1_487
+        trailing90["delta"]["rows"].append(row90)
+        with self.assertRaisesRegex(
+            VerificationError, "Stage90 delta cardinality drift"
+        ):
+            verify_stage90_transition(trailing90, stage70)
+
+        trailing100 = deepcopy(stage100)
+        row100 = deepcopy(trailing100["delta"]["rows"][-1])
+        row100["sequence"] = 2_901
+        trailing100["delta"]["rows"].append(row100)
+        with self.assertRaisesRegex(
+            VerificationError, "Stage100 delta cardinality drift"
+        ):
+            verify_stage100_transition(trailing100, stage90)
 
     def test_stage70_rejects_a_false_submission_prefix_summary(self) -> None:
         stage_dir = ROOT / "reproduction/70-positive-marginal-core-1470"

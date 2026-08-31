@@ -44,8 +44,8 @@ finite149.substitute_tables,80-finite149,verified substitute payload tables,1,ta
 refutation934.official_order,80-finite149,official Refutation934 table order,24,elements,official Lean finite-refutation source,verified,reproduction/80-finite149/summary.json
 refutation934.substitute_order,80-finite149,substitute Refutation934 table order,22,elements,verified closed substructure,verified,reproduction/80-finite149/summary.json
 refutation934.covered_tasks,80-finite149,tasks covered by Refutation934 substitute,5,directions,direct exhaustive checks,verified,reproduction/80-finite149/summary.json
-payload.embedded,90-payload-1487,embedded payload records,1487,tables,1470 + 17,planned,
-payload.declared_embedded,90-payload-1487,solver-declared embedded table count,1487,tables,static solver declaration,planned,
-payload.decoded_embedded,90-payload-1487,decoded embedded table count,1487,tables,payload decoder audit,planned,
-closure.added,100-opposite-closure-2901,missing strict transposes generated at runtime,1414,tables,exact transpose-membership derivation,planned,
-closure.runtime,100-opposite-closure-2901,distinct oriented runtime scan tables,2901,tables,1487 + 1414,planned,
+payload.embedded,90-payload-1487,embedded inner-payload records,1487,tables,exact Stage 70 core followed by Stage 80 finite149 append,verified,reproduction/90-payload-1487/summary.json
+payload.declared_embedded,90-payload-1487,solver-declared embedded table count,1487,tables,restricted-AST extraction of the submitted false engine declaration,verified,reproduction/90-payload-1487/verification/submitted-payload-audit.json
+payload.decoded_embedded,90-payload-1487,decoded inner-payload table count,1487,tables,exact XZ/Base85 payload decode and canonical-record audit,verified,reproduction/90-payload-1487/verification/submitted-payload-audit.json
+closure.added,100-opposite-closure-2901,missing strict transposes derived relative to the Stage 90 runtime bank,1414,tables,exact transpose-membership replay (17 exact records have earlier repository history),verified,reproduction/100-opposite-closure-2901/verification/opposite-closure-audit.json
+closure.runtime,100-opposite-closure-2901,distinct oriented runtime scan tables,2901,tables,1487 embedded + 1414 runtime-derived,verified,reproduction/100-opposite-closure-2901/summary.json

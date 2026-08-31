@@ -1,12 +1,13 @@
 # Stage 81 — portable finite149 verification / finite149 可移植校验修正
 
-This is the corrective review layer for the already merged `80-finite149` stage.
+This is the corrective review layer for the already merged `80-finite149` stage;
+the correction itself was merged in PR #8.
 It preserves every Stage 80 raw and generated artifact byte for byte and changes
 none of the `789 → 149 → 17 + 11` counts or table-membership decisions.
 
-本阶段是已合并 `80-finite149` 的独立修正层。它不改写 Stage 80 的 raw、normalized、
-delta 或任何数量结论，也不启动 PR 4；它只修正复现器的内存实现、补齐来源核对，并准确
-限定 ETP 路径证据的可复现边界。
+本阶段是已合并 `80-finite149` 的独立修正层，并已在 PR #8 合并。它不改写 Stage 80
+的 raw、normalized、delta 或任何数量结论；它只修正复现器的内存实现、补齐来源核对，
+并准确限定 ETP 路径证据的可复现边界。后续 PR 4 的 Stage 90/100 只消费这些已固定产物。
 
 ## What this corrects / 修正内容
 
@@ -117,3 +118,10 @@ this command instead of the historical Stage 80 rebuild/verifier.
 There is no new `raw/` directory because Stage 81 consumes the immutable Stage 80
 snapshot. There is no membership delta because the correction adds, removes, and
 derives zero tables.
+
+Downstream [`90-payload-1487`](../90-payload-1487/) consumes this stage's corrected
+17-row effective-provenance index when publishing the exact 1,487-record inner
+payload. [`100-opposite-closure-2901`](../100-opposite-closure-2901/) then derives
+the 1,414 missing transposes for the 2,901-record runtime scan. Neither downstream
+stage changes the Stage 80/81 finite149 evidence or claims to rebuild the complete
+outer solver launcher.

@@ -1,0 +1,43 @@
+{
+  "anchor_path": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+  "engine_bytes": 608143,
+  "engine_sha256": "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197",
+  "functions": [
+    {
+      "end_line": 8188,
+      "name": "_table_bytes",
+      "sha256": "873f934b7ea996a482cca9b437dae9751142580d3496f7fa78169fb47e2e4310",
+      "start_line": 8181
+    },
+    {
+      "end_line": 8210,
+      "name": "_tables",
+      "sha256": "1d6e1c4b762e20f3d733d802c3083543eb0309d0cb67d1f053a6724571e75291",
+      "start_line": 8191
+    },
+    {
+      "end_line": 8670,
+      "name": "_v5_table_key",
+      "sha256": "ab6d27ad36ef53bf560feca87a2cf1dfba53a883514efb1b6856db0b659b0980",
+      "start_line": 8669
+    },
+    {
+      "end_line": 8674,
+      "name": "_v5_transpose_table",
+      "sha256": "092a12af26920432d4a1d9075e375b182d09a8d541a4e030f64bed4fad54042a",
+      "start_line": 8673
+    },
+    {
+      "end_line": 8693,
+      "name": "_v5_tables_with_all_duals",
+      "sha256": "0bd86e168bfe481111abac70d3a000dfed75981c0370e3fc7107fbbe065108d9",
+      "start_line": 8677
+    }
+  ],
+  "runtime_call_lines": [
+    11953
+  ],
+  "schema_version": "1.0.0",
+  "stage_id": "100-opposite-closure-2901",
+  "static_ast_only": true
+}

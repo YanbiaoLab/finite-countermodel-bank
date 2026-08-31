@@ -117,7 +117,7 @@ Stage 50 静态解析 d15/d17 并重建两次稳定筛选；Stage 60 逐行流�
 提交 solver 的前 1,470 条记录逐条比较。由于 Stage 60 的 singleton 与完整种子链缺失，
 这里的“复现”仅指冻结产物回放和独立校验，不代表从零重跑历史 Fin4 搜索。
 
-## PR 3 capture and portable correction
+## PR 3 capture and merged portable correction
 
 Stage `80-finite149` preserves the immutable finite149 snapshot and the
 `789 → 149 → 17 + 11` augmentation. Its merged historical builder materializes the
@@ -154,3 +154,57 @@ finite-outcomes 解压 JSON 改为逐行扫描，只保留 789 个目标单元�
 表的直接解析核对、Refutation934 order-22 表的实际来源记录，以及 ETP 路径只能作为冻结
 清单而不能从现有快照逐边重放的边界说明。其余 149 项穷举、11 个转置、零重叠及提交
 前后缀检查也由同一低内存入口完整重跑。
+
+## PR 4 exact payload and runtime closure
+
+PR 4 adds two deterministic stages that consume only committed predecessors:
+
+| Stage | Exact transition | Published boundary |
+| --- | --- | --- |
+| `90-payload-1487` | `1,470 + 17 = 1,487` embedded records | Exact inner canonical stream and submitted XZ/Base85 table literal |
+| `100-opposite-closure-2901` | `1,487 + 1,414 = 2,901` runtime records | Static replay of the generic missing-transpose closure |
+
+Rebuild and verify both stages with Python 3.11:
+
+```bash
+python3 tools/rebuild_pr4.py
+python3 tools/verify_pr4.py
+```
+
+Stage 90 concatenates the Stage 70 core and Stage 80 base records in exact submitted
+order, while taking the finite149 effective provenance from the merged Stage 81
+correction. The resulting 111,009-byte stream is regenerated as the exact submitted
+XZ payload using CRC64 and `9 | lzma.PRESET_EXTREME`, then Python Base85 encoded.
+All four submitted launchers are parsed as data through restricted AST extraction;
+none is imported or executed.
+
+Stage 100 yields all 1,487 embedded records first, then scans those originals in
+order and appends a strict transpose only when its canonical bytes are absent. Nine
+sources are self-transpose and 64 sources form 32 already-embedded opposite pairs,
+so 1,414 new records are derived and the runtime scan contains 2,901 distinct
+records. The 11 task-required Stage 80 transposes are an exact subset of these
+generic derivations, not an additional append. The delta's `derive` action is
+relative to Stage 90 membership: six derived byte strings were first recorded in
+Stage 10 and the eleven required transposes were first recorded in Stage 80. Those
+17 preserve their historical `first_seen_stage`; 1,397 are first seen here.
+
+Neither stage has a new `raw/` directory because its complete inputs are already
+manifested dependencies. The byte-for-byte reconstruction covers the inner table
+payload and its pinned transformation; it does not rebuild or execute the complete
+498,047-byte outer solver launcher, rerun the finite149 search, or revalidate Lean
+certificate generation.
+
+## PR 4 精确 payload 与运行时闭包
+
+Stage 90 按实际提交顺序连接 Stage 70 的 1,470 张核心表和 Stage 80 的 17 张基表，并
+使用已合并 Stage 81 的修正来源，得到 111,009 字节、1,487 条记录的内层 payload；随后
+以 CRC64、`9 | lzma.PRESET_EXTREME` 和 Python Base85 逐字节复现提交字面量。
+
+Stage 100 先保留全部 1,487 条嵌入记录，再按原索引生成尚不存在的严格转置。9 条记录
+自转置，64 条记录组成 32 对已嵌入 opposite，因此净派生 1,414 条，形成 2,901 条互异的
+运行时扫描记录。Stage 80 的 11 张任务所需转置只是这 1,414 张中的子集，不会再次追加。
+`derive` 表示相对于 Stage 90 的重新加入：其中 6 张曾在 Stage 10 出现，11 张已在 Stage
+80 发布；这 17 张保留历史 `first_seen_stage`，其余 1,397 张才首次出现于本阶段。
+
+两个阶段均不需要新的 `raw/`。复现范围是精确内层表数据与已固定的通用变换，不包括从零
+重建或执行完整的 498,047 字节外层 solver，也不重复 finite149 搜索或 Lean 证书验证。

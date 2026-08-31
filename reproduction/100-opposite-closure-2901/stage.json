@@ -1,0 +1,200 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "bytes": 191107,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 2901,
+      "role": "membership-delta",
+      "sha256": "e4465b5850ebee3ffdc11a46fa6d8361c47d648f67846302c44075d48e42af79",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 129200,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/opposite-decisions.jsonl.gz",
+      "record_count": 1487,
+      "role": "opposite-decision-index",
+      "sha256": "57ed7d01dc063f8700776acac1251096fe626dcdf2684307a9e706b62793dc0a",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 194060,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/runtime-scan.csv.gz",
+      "record_count": 2901,
+      "role": "runtime-scan-index",
+      "sha256": "120f29d93f36b7bc2b9d7b67d37901e9befaaf090def2a3864033c73e04fd90c",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 235794,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/table-id-map.csv.gz",
+      "record_count": 2901,
+      "role": "identity-map",
+      "sha256": "52c4f362ec522fdd2bceacac4a3a362875463b397086014f868b4ece27a7da21",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    },
+    {
+      "attributes": {
+        "canonical_id_vector_sha256": "42c21dfecfaca35451ad1bc7f1216456ef682aadc6eb7edbf498417d81ae530e",
+        "encoding": "uint8-order-row-major-v1",
+        "historical_id_vector_sha256": "d61729cfddf4c76da1be66e34b0aab82ac5413e873e3d97074f75267d375c8af",
+        "order_distribution": {
+          "10": 182,
+          "11": 18,
+          "12": 356,
+          "13": 2,
+          "15": 2,
+          "16": 4,
+          "19": 2,
+          "20": 6,
+          "21": 2,
+          "22": 2,
+          "25": 2,
+          "32": 4,
+          "36": 2,
+          "5": 201,
+          "6": 1044,
+          "65": 2,
+          "7": 59,
+          "8": 569,
+          "9": 442
+        },
+        "raw_bytes": 215433,
+        "raw_sha256": "b38ffe73f45ae8780c6cbcbd7904bcc1a5b2947b15789d6c9972394fe695afb7",
+        "table_count": 2901
+      },
+      "bytes": 215433,
+      "media_type": "application/octet-stream",
+      "path": "normalized/tables.bin",
+      "record_count": 2901,
+      "role": "table-binary",
+      "sha256": "b38ffe73f45ae8780c6cbcbd7904bcc1a5b2947b15789d6c9972394fe695afb7",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 475018,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/tables.jsonl.gz",
+      "record_count": 2901,
+      "role": "table-index",
+      "sha256": "9ded9d1aeee83801235888bf4fd51dac6d09959658660588433dfcda8bf101b9",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 1665,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "4ced7228f9d92e7eb8e687d23139a4c288d5fa069c422d9c7a57c09fdaf16eb9",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 9302,
+      "media_type": "application/json",
+      "path": "verification/opposite-closure-audit.json",
+      "role": "closure-audit",
+      "sha256": "34a63e9f14b2e0632ce67024543d191a1bd58fcb7ba9276ccebd0c44a616ab42",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 1281,
+      "media_type": "application/json",
+      "path": "verification/submitted-runtime-code-audit.json",
+      "role": "runtime-code-audit",
+      "sha256": "18324121de8c11c86aec0edf13923ec4520ed2d19c2a63f26778b83cb51fdd06",
+      "source_ids": [
+        "stage100-payload-input",
+        "stage100-runtime-algorithm-anchor",
+        "stage100-reproduction-code"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T20:45:41+08:00",
+  "claims": [
+    "closure.added",
+    "closure.runtime"
+  ],
+  "depends_on": [
+    "90-payload-1487"
+  ],
+  "notes": [
+    "The runtime scan yields all 1,487 embedded records first, then derives each missing strict transpose in ascending embedded source-index order.",
+    "Exact record bytes, not isomorphism classes, define deduplication.",
+    "The 11 task-required Stage 80 transposes are verified as a subset of the 1,414 generic derivations and are not appended separately.",
+    "Of the 1,414 runtime derivations, 17 exact records have earlier repository history (6 from Stage 10 and the 11 Stage 80 required transposes); their first_seen_stage values are preserved while the Stage 100 delta records their reintroduction relative to Stage 90.",
+    "The 2,901 records are runtime-oriented scan tables, not embedded payload records.",
+    "No raw directory is added because the submitted algorithm, exact payload, and transitive historical table indexes used for first-seen joins are already manifested predecessor artifacts."
+  ],
+  "pipeline_order": 100,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T20:45:41+08:00",
+      "kind": "repository-snapshot",
+      "license_status": "inherits the per-source status recorded by Stage 90",
+      "locator": "reproduction/90-payload-1487",
+      "source_id": "stage100-payload-input"
+    },
+    {
+      "captured_at": "2026-08-31T20:45:41+08:00",
+      "kind": "repository-snapshot",
+      "license_status": "not-specified; authenticated submission bytes",
+      "locator": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+      "revision": "8618129a58fd3680dc4c57c08c1090db0db0ab03",
+      "source_id": "stage100-runtime-algorithm-anchor"
+    },
+    {
+      "captured_at": "2026-08-31T20:45:41+08:00",
+      "kind": "generated",
+      "license_status": "Apache-2.0 repository code",
+      "locator": "tools/pr4_common.py and tools/rebuild_pr4.py",
+      "source_id": "stage100-reproduction-code"
+    }
+  ],
+  "stage_id": "100-opposite-closure-2901",
+  "status": "verified",
+  "title": "generic opposite closure to 2,901 runtime scan tables",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 tools/verify_pr4.py",
+    "notes": [
+      "The verifier rebuilds both PR 4 stages in a temporary directory and compares every generated byte before repository-level transition checks."
+    ]
+  }
+}

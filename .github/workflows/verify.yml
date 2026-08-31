@@ -32,6 +32,11 @@ jobs:
           python3 reproduction/81-finite149-portable-verification/scripts/verify.py --skip-repository-verifier
           git diff --exit-code
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Rebuild and verify PR 4 payload and runtime closure
+        run: |
+          python3 tools/verify_pr4.py --skip-repository-verifier
+          git diff --exit-code
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Verify manifests and artifacts
         run: python3 tools/verify_repository.py
       - name: Run unit tests
@@ -47,5 +52,9 @@ jobs:
           python-version: "3.12"
       - name: Verify portable PR 3 correction
         run: python3 reproduction/81-finite149-portable-verification/scripts/verify.py --skip-repository-verifier
+      - name: Verify exact PR 4 artifacts
+        run: python3 tools/verify_pr4.py --skip-repository-verifier
       - name: Run portable-parser unit tests
         run: python3 -m unittest tests.test_stage81_streaming -v
+      - name: Run PR 4 unit tests
+        run: python3 -m unittest tests.test_pr4_common -v

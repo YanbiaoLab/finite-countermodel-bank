@@ -1,0 +1,214 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "bytes": 72306,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 1487,
+      "role": "membership-delta",
+      "sha256": "ee4cf0c6e403e856958f2492e2d6851bed40c4c4c4e8d4a6424532310448ac59",
+      "source_ids": [
+        "stage90-core-input",
+        "stage90-finite149-input",
+        "stage90-submission-anchor",
+        "stage90-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 120985,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/table-id-map.csv.gz",
+      "record_count": 1487,
+      "role": "identity-map",
+      "sha256": "bc959a70959457b0c8e28bf2875d987805d5d6d1726271fcdc7caa53253ba8fd",
+      "source_ids": [
+        "stage90-core-input",
+        "stage90-finite149-input",
+        "stage90-submission-anchor",
+        "stage90-reproduction-code"
+      ]
+    },
+    {
+      "attributes": {
+        "canonical_id_vector_sha256": "75596a4b3a08e651cf1c152923092b955a7f5cd6a81b65c2978a9cbfd091cd07",
+        "encoding": "uint8-order-row-major-v1",
+        "historical_id_vector_sha256": "189072d2efe38a8060fb220569725b19ead150b23b2fc77c1e6be7ef40d34b9b",
+        "order_distribution": {
+          "10": 96,
+          "11": 10,
+          "12": 182,
+          "13": 1,
+          "15": 1,
+          "16": 3,
+          "19": 1,
+          "20": 3,
+          "21": 1,
+          "22": 1,
+          "25": 2,
+          "32": 2,
+          "36": 1,
+          "5": 102,
+          "6": 536,
+          "65": 1,
+          "7": 30,
+          "8": 289,
+          "9": 225
+        },
+        "raw_bytes": 111009,
+        "raw_sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+        "table_count": 1487
+      },
+      "bytes": 111009,
+      "media_type": "application/octet-stream",
+      "path": "normalized/tables.bin",
+      "record_count": 1487,
+      "role": "table-binary",
+      "sha256": "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680",
+      "source_ids": [
+        "stage90-core-input",
+        "stage90-finite149-input",
+        "stage90-submission-anchor",
+        "stage90-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 227538,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/tables.jsonl.gz",
+      "record_count": 1487,
+      "role": "table-index",
+      "sha256": "ede778ac4c6e4870e152a74578f9feead94b4d80d898d05d66ba440f26896ebb",
+      "source_ids": [
+        "stage90-core-input",
+        "stage90-finite149-input",
+        "stage90-submission-anchor",
+        "stage90-reproduction-code"
+      ]
+    },
+    {
+      "attributes": {
+        "check": "CRC64",
+        "decoded_bytes": 111009,
+        "format": "XZ",
+        "preset": "9|PRESET_EXTREME"
+      },
+      "bytes": 28808,
+      "media_type": "application/x-xz",
+      "path": "normalized/tables.xz",
+      "role": "payload-compressed",
+      "sha256": "a9b757ea978411ff982f0a1c0404e0b505be74b8c29481d7eeb81d97a6cd79cc",
+      "source_ids": [
+        "stage90-core-input",
+        "stage90-finite149-input",
+        "stage90-submission-anchor",
+        "stage90-reproduction-code"
+      ]
+    },
+    {
+      "attributes": {
+        "decoded_bytes": 28808,
+        "encoding": "Python Base85"
+      },
+      "bytes": 36010,
+      "media_type": "text/plain",
+      "path": "normalized/tables.xz.b85",
+      "role": "payload-base85",
+      "sha256": "2b34894f2da26c12476f88473cd4cb2dae77ddbfeeedb2c2d7147d6caf8abb42",
+      "source_ids": [
+        "stage90-core-input",
+        "stage90-finite149-input",
+        "stage90-submission-anchor",
+        "stage90-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 1741,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "e894083276922b014c04a71ada23cb42b72a899107139e01ad62dffb24665b9c",
+      "source_ids": [
+        "stage90-core-input",
+        "stage90-finite149-input",
+        "stage90-submission-anchor",
+        "stage90-reproduction-code"
+      ]
+    },
+    {
+      "bytes": 3863,
+      "media_type": "application/json",
+      "path": "verification/submitted-payload-audit.json",
+      "record_count": 4,
+      "role": "payload-audit",
+      "sha256": "6795c309b87d0fcd6336ddc713682f48cc38b67baf6c45831f1c71de90279977",
+      "source_ids": [
+        "stage90-core-input",
+        "stage90-finite149-input",
+        "stage90-submission-anchor",
+        "stage90-reproduction-code"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T20:45:41+08:00",
+  "claims": [
+    "payload.embedded",
+    "payload.declared_embedded",
+    "payload.decoded_embedded"
+  ],
+  "depends_on": [
+    "70-positive-marginal-core-1470",
+    "81-finite149-portable-verification"
+  ],
+  "notes": [
+    "The exact embedded stream is Stage 70's 1,470 records followed by Stage 80's 17 base records; Stage 81 supplies their corrected effective provenance.",
+    "The XZ stream is regenerated with CRC64 and preset 9|PRESET_EXTREME, then Python Base85 encoded and compared byte for byte with all four submitted false engines.",
+    "This stage reconstructs the inner finite-table payload, not the complete outer launcher.",
+    "No raw directory is added because every input is already an immutable manifested artifact in a dependency stage."
+  ],
+  "pipeline_order": 90,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T20:45:41+08:00",
+      "kind": "repository-snapshot",
+      "license_status": "inherits the per-source status recorded by Stage 70",
+      "locator": "reproduction/70-positive-marginal-core-1470",
+      "revision": "8618129a58fd3680dc4c57c08c1090db0db0ab03",
+      "source_id": "stage90-core-input"
+    },
+    {
+      "captured_at": "2026-08-31T20:45:41+08:00",
+      "kind": "repository-snapshot",
+      "license_status": "inherits the per-source status recorded by Stages 80 and 81",
+      "locator": "reproduction/81-finite149-portable-verification (including transitive Stage 80 data)",
+      "revision": "8618129a58fd3680dc4c57c08c1090db0db0ab03",
+      "source_id": "stage90-finite149-input"
+    },
+    {
+      "captured_at": "2026-08-31T20:45:41+08:00",
+      "kind": "repository-snapshot",
+      "license_status": "not-specified; authenticated submission bytes",
+      "locator": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+      "revision": "8618129a58fd3680dc4c57c08c1090db0db0ab03",
+      "source_id": "stage90-submission-anchor"
+    },
+    {
+      "captured_at": "2026-08-31T20:45:41+08:00",
+      "kind": "generated",
+      "license_status": "Apache-2.0 repository code",
+      "locator": "tools/pr4_common.py and tools/rebuild_pr4.py",
+      "source_id": "stage90-reproduction-code"
+    }
+  ],
+  "stage_id": "90-payload-1487",
+  "status": "verified",
+  "title": "exact 1,487-record submitted finite-table payload",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 tools/verify_pr4.py",
+    "notes": [
+      "The verifier rebuilds both PR 4 stages in a temporary directory, compares every generated byte, and runs the repository-level semantic checks."
+    ]
+  }
+}

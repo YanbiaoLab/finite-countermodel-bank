@@ -1,0 +1,230 @@
+{
+  "arithmetic": {
+    "derived": 1414,
+    "embedded": 1487,
+    "runtime": 2901,
+    "skipped_existing": 73
+  },
+  "canonical_id_vector": {
+    "derived_sha256": "bfe0723f93ad8bedf715814c2608adeae240b5af6027f3a6cedcee06bc72b5bb",
+    "runtime_sha256": "42c21dfecfaca35451ad1bc7f1216456ef682aadc6eb7edbf498417d81ae530e",
+    "serialization": "lowercase canonical record SHA-256 hex plus LF"
+  },
+  "deduplication": {
+    "exact_record_bytes_only": true,
+    "isomorphism_quotient": false,
+    "nontrivial_embedded_pair_count": 32,
+    "nontrivial_transpose_already_embedded_sources": 64,
+    "self_transpose_sources": 9
+  },
+  "derived_stream": {
+    "bytes": 104424,
+    "sha256": "992318b8e336cc8cd232b4012d02a43d906d18d8397b2d67880a533406377f9e"
+  },
+  "finite149_suffix": {
+    "derived": 15,
+    "embedded_nontrivial": 2,
+    "self_transpose": 0
+  },
+  "historical_identity": {
+    "first_seen_stage_counts": {
+      "10-primary-9450": 6,
+      "80-finite149": 11
+    },
+    "historical_exact_record_reintroductions": [
+      {
+        "first_seen_stage": "10-primary-9450",
+        "historical_index_path": "reproduction/10-primary-9450/normalized/tables.jsonl.gz",
+        "historical_position": 908,
+        "historical_stage_id": "10-primary-9450",
+        "runtime_index": 2068,
+        "table_id": "sha256:a93032bee30cbfa0b3d732df654ec7f193081a4a89a396e0cdd2108dedfa4eed"
+      },
+      {
+        "first_seen_stage": "10-primary-9450",
+        "historical_index_path": "reproduction/10-primary-9450/normalized/tables.jsonl.gz",
+        "historical_position": 3593,
+        "historical_stage_id": "10-primary-9450",
+        "runtime_index": 2452,
+        "table_id": "sha256:1cb94e7a40b8ac52e4c5b0bc7a805b1b286292da2fd4a6ad5fab534033ff7ea2"
+      },
+      {
+        "first_seen_stage": "10-primary-9450",
+        "historical_index_path": "reproduction/10-primary-9450/normalized/tables.jsonl.gz",
+        "historical_position": 4677,
+        "historical_stage_id": "10-primary-9450",
+        "runtime_index": 2597,
+        "table_id": "sha256:03d7c653fec452e6fc38c6f56ef830a9c064761c410e51d428cfa335911bc005"
+      },
+      {
+        "first_seen_stage": "10-primary-9450",
+        "historical_index_path": "reproduction/10-primary-9450/normalized/tables.jsonl.gz",
+        "historical_position": 3712,
+        "historical_stage_id": "10-primary-9450",
+        "runtime_index": 2633,
+        "table_id": "sha256:cf1069cc406cae2603e6a8ad85407c145b3accca3cb77baf2c8c98d942eef0a6"
+      },
+      {
+        "first_seen_stage": "10-primary-9450",
+        "historical_index_path": "reproduction/10-primary-9450/normalized/tables.jsonl.gz",
+        "historical_position": 7651,
+        "historical_stage_id": "10-primary-9450",
+        "runtime_index": 2708,
+        "table_id": "sha256:0368fb6384f764bf86f409e61758a68b912663698cbd116c18ae5e3860421bc8"
+      },
+      {
+        "first_seen_stage": "10-primary-9450",
+        "historical_index_path": "reproduction/10-primary-9450/normalized/tables.jsonl.gz",
+        "historical_position": 8063,
+        "historical_stage_id": "10-primary-9450",
+        "runtime_index": 2860,
+        "table_id": "sha256:cfe5d2c8fa2276af2d998a9bc0f74da6ff8492a55bb91d2aae5f373b35613650"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 0,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2887,
+        "table_id": "sha256:773f8fb27b8c06ce440841a79483ed71ef292a3777985e5a9b7bd44737915dbe"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 1,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2888,
+        "table_id": "sha256:279614b6a0adcf9f80c5f05da300d19a8c5f02ab0cd16dc0e255d36a724e22d4"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 2,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2889,
+        "table_id": "sha256:b960a641783770a2d5d8740e9568fe3991cb20200d54f26fee123220af6dc3f0"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 3,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2892,
+        "table_id": "sha256:52c589f75f911dc6a50527bf363fff1d4a2a5c0dd62e53d4d5934669912aa114"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 4,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2893,
+        "table_id": "sha256:480b73dc44a734e7f1bf156945948e690c5ec8beac0ca9d87aa2194d33a5fa00"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 5,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2894,
+        "table_id": "sha256:c1e7dce6a9a14ef5390ed219c86f5b7277bc18ef34fbcb03fd3aa40563308516"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 6,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2895,
+        "table_id": "sha256:f6c7654f53b3d58c36a7667e6ea586314c22a34f6a7ff6a602772f22d08a6677"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 7,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2896,
+        "table_id": "sha256:d1eca9f85bff6dbbcb1eeeeb6f26502b4fe3715d00c019fbec02654f1fc248fb"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 8,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2897,
+        "table_id": "sha256:5570177435e498bf814982b68fdb7a9340b528247a8b2d123b065a0746e4209a"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 9,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2899,
+        "table_id": "sha256:52018b508daef064c0ccd8ad845a2dd293a50f4de224e9cd49425163acebb4ec"
+      },
+      {
+        "first_seen_stage": "80-finite149",
+        "historical_index_path": "reproduction/80-finite149/normalized/required-transposes.jsonl.gz",
+        "historical_position": 10,
+        "historical_stage_id": "80-finite149",
+        "runtime_index": 2900,
+        "table_id": "sha256:dd8d4e7ba61bd41e4225b73895f2f64efdb9d6ab313ceddf5ba8cb6627d0ddec"
+      }
+    ],
+    "new_exact_records_first_seen_here": 1397,
+    "reintroduced_exact_records": 17
+  },
+  "ordering": "all embedded records, then missing strict transposes in ascending embedded source index",
+  "required_stage80_transposes": [
+    {
+      "runtime_index": 2887,
+      "table_id": "sha256:773f8fb27b8c06ce440841a79483ed71ef292a3777985e5a9b7bd44737915dbe"
+    },
+    {
+      "runtime_index": 2888,
+      "table_id": "sha256:279614b6a0adcf9f80c5f05da300d19a8c5f02ab0cd16dc0e255d36a724e22d4"
+    },
+    {
+      "runtime_index": 2889,
+      "table_id": "sha256:b960a641783770a2d5d8740e9568fe3991cb20200d54f26fee123220af6dc3f0"
+    },
+    {
+      "runtime_index": 2892,
+      "table_id": "sha256:52c589f75f911dc6a50527bf363fff1d4a2a5c0dd62e53d4d5934669912aa114"
+    },
+    {
+      "runtime_index": 2893,
+      "table_id": "sha256:480b73dc44a734e7f1bf156945948e690c5ec8beac0ca9d87aa2194d33a5fa00"
+    },
+    {
+      "runtime_index": 2894,
+      "table_id": "sha256:c1e7dce6a9a14ef5390ed219c86f5b7277bc18ef34fbcb03fd3aa40563308516"
+    },
+    {
+      "runtime_index": 2895,
+      "table_id": "sha256:f6c7654f53b3d58c36a7667e6ea586314c22a34f6a7ff6a602772f22d08a6677"
+    },
+    {
+      "runtime_index": 2896,
+      "table_id": "sha256:d1eca9f85bff6dbbcb1eeeeb6f26502b4fe3715d00c019fbec02654f1fc248fb"
+    },
+    {
+      "runtime_index": 2897,
+      "table_id": "sha256:5570177435e498bf814982b68fdb7a9340b528247a8b2d123b065a0746e4209a"
+    },
+    {
+      "runtime_index": 2899,
+      "table_id": "sha256:52018b508daef064c0ccd8ad845a2dd293a50f4de224e9cd49425163acebb4ec"
+    },
+    {
+      "runtime_index": 2900,
+      "table_id": "sha256:dd8d4e7ba61bd41e4225b73895f2f64efdb9d6ab313ceddf5ba8cb6627d0ddec"
+    }
+  ],
+  "required_stage80_transposes_are_subset_not_addition": true,
+  "runtime_stream": {
+    "bytes": 215433,
+    "distinct_records": 2901,
+    "sha256": "b38ffe73f45ae8780c6cbcbd7904bcc1a5b2947b15789d6c9972394fe695afb7"
+  },
+  "schema_version": "1.0.0",
+  "stage_id": "100-opposite-closure-2901"
+}

@@ -4,7 +4,8 @@ This stage isolates the finite-countermodel augmentation that follows the 1,470-
 positive-marginal core. It publishes the screening and proof-path evidence, the 17
 effective base records, and the 11 task-required strict transposes. It does **not**
 publish the cumulative 1,487-record payload or the 2,901-record runtime opposite
-closure; those belong to PR 4.
+closure; those are published separately by the downstream Stage 90 and Stage 100
+records in PR 4.
 
 本阶段只保存 1,470 张核心表之后的 finite149 增补：789→149 筛选、149 条官方
 ETP 路径、17 张有效基表、11 张任务所需转置以及验证账本。最终累计 payload 和
@@ -14,7 +15,8 @@ ETP 路径、17 张有效基表、11 张任务所需转置以及验证账本。�
 > valid, but its historical rebuild materializes the complete 498,673,223-byte
 > finite-outcomes JSON and is not the portable review path. Use the bounded-memory
 > verifier in [`81-finite149-portable-verification`](../81-finite149-portable-verification/)
-> instead. Stage 81 also parses all 17 Lean table sources, corrects the effective
+> instead. That correction was merged in PR #8. Stage 81 also parses all 17 Lean
+> table sources, corrects the effective
 > `F149-014` provenance, reruns the 149-task/transpose/overlap/submission-suffix
 > semantic gate, and records that the frozen ETP paths cannot be replayed edge by
 > edge from the captured files.
@@ -90,6 +92,9 @@ The committed Marathon solver is statically decoded in memory solely to verify t
 its first 1,470 records equal Stage 70 and its final 17 records equal the Stage 80
 inventory in order. The decoder never imports or executes submitted code and never
 writes the cumulative payload. See `verification/submission-suffix-audit.json`.
+The cumulative inner payload is subsequently materialized and verified by
+[`90-payload-1487`](../90-payload-1487/); the separate generic runtime closure is
+published by [`100-opposite-closure-2901`](../100-opposite-closure-2901/).
 
 ## Files / 文件
 
