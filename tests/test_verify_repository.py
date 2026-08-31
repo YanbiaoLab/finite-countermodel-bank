@@ -106,10 +106,10 @@ class RepositoryFixtureTests(unittest.TestCase):
         self.assertEqual(stage_count, 5)
         self.assertEqual(artifact_count, 37)
 
-    def test_full_pr2_repository_contract(self) -> None:
+    def test_full_repository_contract(self) -> None:
         stage_count, artifact_count = verify_repository(ROOT)
-        self.assertEqual(stage_count, 8)
-        self.assertEqual(artifact_count, 59)
+        self.assertEqual(stage_count, 9)
+        self.assertEqual(artifact_count, 79)
 
     def test_stage_selection_includes_transitive_dependencies(self) -> None:
         stage_dirs = resolve_stage_directories(

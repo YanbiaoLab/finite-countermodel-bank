@@ -1,0 +1,127 @@
+{
+  "all_five_exhaustive_checks_passed": true,
+  "schema_version": "1.0.0",
+  "substitute_canonical_table_id": "sha256:8a1868e8b86dca79df6029dcd8344375b18e9c0b0b4d0b2e25fa19e1591c2b3c",
+  "tasks": [
+    {
+      "assignments_checked": 10648,
+      "effective_order": 22,
+      "effective_table_id": "sha256:8a1868e8b86dca79df6029dcd8344375b18e9c0b0b4d0b2e25fa19e1591c2b3c",
+      "first_target_failure": {
+        "assignment": {
+          "x": 17,
+          "y": 10,
+          "z": 0
+        },
+        "lhs_value": 17,
+        "rhs_value": 16
+      },
+      "problem_id": "order4_full_04004172_0854_1045",
+      "source_violation_count": 0,
+      "target_failure_count": 22,
+      "usage_orientation": "direct",
+      "variable_count": 3,
+      "variables": [
+        "x",
+        "y",
+        "z"
+      ]
+    },
+    {
+      "assignments_checked": 10648,
+      "effective_order": 22,
+      "effective_table_id": "sha256:8a1868e8b86dca79df6029dcd8344375b18e9c0b0b4d0b2e25fa19e1591c2b3c",
+      "first_target_failure": {
+        "assignment": {
+          "x": 9,
+          "y": 5,
+          "z": 18
+        },
+        "lhs_value": 9,
+        "rhs_value": 16
+      },
+      "problem_id": "order4_full_04004178_0854_1051",
+      "source_violation_count": 0,
+      "target_failure_count": 40,
+      "usage_orientation": "direct",
+      "variable_count": 3,
+      "variables": [
+        "x",
+        "y",
+        "z"
+      ]
+    },
+    {
+      "assignments_checked": 10648,
+      "effective_order": 22,
+      "effective_table_id": "sha256:8a1868e8b86dca79df6029dcd8344375b18e9c0b0b4d0b2e25fa19e1591c2b3c",
+      "first_target_failure": {
+        "assignment": {
+          "x": 17,
+          "y": 2,
+          "z": 18
+        },
+        "lhs_value": 17,
+        "rhs_value": 0
+      },
+      "problem_id": "order4_full_04004182_0854_1055",
+      "source_violation_count": 0,
+      "target_failure_count": 18,
+      "usage_orientation": "direct",
+      "variable_count": 3,
+      "variables": [
+        "x",
+        "y",
+        "z"
+      ]
+    },
+    {
+      "assignments_checked": 10648,
+      "effective_order": 22,
+      "effective_table_id": "sha256:5570177435e498bf814982b68fdb7a9340b528247a8b2d123b065a0746e4209a",
+      "first_target_failure": {
+        "assignment": {
+          "x": 17,
+          "y": 10,
+          "z": 0
+        },
+        "lhs_value": 17,
+        "rhs_value": 16
+      },
+      "problem_id": "order4_full_12725171_2712_2449",
+      "source_violation_count": 0,
+      "target_failure_count": 22,
+      "usage_orientation": "transpose",
+      "variable_count": 3,
+      "variables": [
+        "x",
+        "y",
+        "z"
+      ]
+    },
+    {
+      "assignments_checked": 10648,
+      "effective_order": 22,
+      "effective_table_id": "sha256:5570177435e498bf814982b68fdb7a9340b528247a8b2d123b065a0746e4209a",
+      "first_target_failure": {
+        "assignment": {
+          "x": 17,
+          "y": 2,
+          "z": 5
+        },
+        "lhs_value": 17,
+        "rhs_value": 16
+      },
+      "problem_id": "order4_full_12725174_2712_2452",
+      "source_violation_count": 0,
+      "target_failure_count": 18,
+      "usage_orientation": "transpose",
+      "variable_count": 3,
+      "variables": [
+        "x",
+        "y",
+        "z"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "append_order_recovered": true,
+  "compared_in_memory_without_publishing_full_payload": true,
+  "core_prefix_exact_record_order_match": true,
+  "core_prefix_records": 1470,
+  "excluded_from_stage": [
+    "the cumulative 1,487-record payload binary",
+    "the 2,901-record opposite-closure runtime bank"
+  ],
+  "schema_version": "1.0.0",
+  "submitted_declared_raw_bytes": 111009,
+  "submitted_record_count_observed": 1487,
+  "submitted_solver_path": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+  "submitted_solver_sha256": "e301cbd091df1376c21ac297e1afb05decb70c34879cd6e485744d09e017c809",
+  "suffix_canonical_id_vector_sha256": "6aeb49142449c8659a6fbc4d1f1b71f0910b3880824bf702eac0eb85848ead52",
+  "suffix_exact_record_order_match": true,
+  "suffix_records": 17
+}

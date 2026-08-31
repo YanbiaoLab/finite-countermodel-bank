@@ -1,0 +1,322 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "bytes": 1808,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 28,
+      "role": "membership-delta",
+      "sha256": "c95e66c2de3f868b53848d28874d73144bf8832d394c472bfd24a747ee4eca45",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-core-bank"
+      ]
+    },
+    {
+      "bytes": 3295,
+      "media_type": "text/csv",
+      "path": "normalized/append-order.csv",
+      "record_count": 17,
+      "role": "append-order",
+      "sha256": "3e5a667da91b1ccca53fa51e00b8ae22389e71e6c129019409c627f6509cd8d8",
+      "source_ids": [
+        "stage80-submission-suffix"
+      ]
+    },
+    {
+      "attributes": {
+        "encoding": "uint8-order-row-major-v1"
+      },
+      "bytes": 9139,
+      "media_type": "application/octet-stream",
+      "path": "normalized/base-tables.bin",
+      "record_count": 17,
+      "role": "base-table-binary",
+      "sha256": "9cb8e94392548271c065df102579cfbe95cd512ff2352284f54df9022d6aa2ae",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-etp-proof-graph"
+      ]
+    },
+    {
+      "bytes": 6345,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/base-tables.jsonl.gz",
+      "record_count": 17,
+      "role": "base-table-index",
+      "sha256": "56b8d8bb230ade1dfc6294b9a40f0299b3be9d3cf8c91f855b3b40c0311cc516",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-etp-proof-graph"
+      ]
+    },
+    {
+      "bytes": 5889,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/coverage.jsonl.gz",
+      "record_count": 149,
+      "role": "finite149-coverage-index",
+      "sha256": "45c4a54f8557d2f7daa027b7d6bfce3cc5eaad691a638f04dededa22e514f369",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-etp-proof-graph"
+      ]
+    },
+    {
+      "bytes": 4203,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/etp-paths.jsonl.gz",
+      "record_count": 149,
+      "role": "etp-path-index",
+      "sha256": "a6f69f1d84db509afd2396f8ea35739cfce530065c5b11f8bc3ff7aed6c29075",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-etp-proof-graph"
+      ]
+    },
+    {
+      "attributes": {
+        "encoding": "uint8-order-row-major-v1"
+      },
+      "bytes": 7576,
+      "media_type": "application/octet-stream",
+      "path": "normalized/required-transposes.bin",
+      "record_count": 11,
+      "role": "transpose-table-binary",
+      "sha256": "5d14ff40a8fa3f3226fa9bfd6a52b33af2e641eab393ef65c81d87ce7fd9ceed",
+      "source_ids": [
+        "stage80-historical-snapshot"
+      ]
+    },
+    {
+      "bytes": 4942,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/required-transposes.jsonl.gz",
+      "record_count": 11,
+      "role": "transpose-table-index",
+      "sha256": "338ce483b6d9e050142e9fd10a2d503ecaef029b7dd942bcd9f5895f11cf6f5f",
+      "source_ids": [
+        "stage80-historical-snapshot"
+      ]
+    },
+    {
+      "bytes": 17526,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/screening-decisions.jsonl.gz",
+      "record_count": 789,
+      "role": "screening-index",
+      "sha256": "1488d2f2894ad3add48912a9adc556a56e454379b3b4bd652c9ec58f23a06a24",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-etp-proof-graph"
+      ]
+    },
+    {
+      "bytes": 4954,
+      "media_type": "text/csv",
+      "path": "normalized/table-id-map.csv",
+      "record_count": 17,
+      "role": "stable-table-map",
+      "sha256": "5316b228b0867a29a0c0493fe179359454006c15ad9f6ddfee106ceec5e4fbcb",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-submission-suffix"
+      ]
+    },
+    {
+      "attributes": {
+        "archive_format": "deterministic-tar-gzip-v1",
+        "uncompressed_source_bytes": 3520259
+      },
+      "bytes": 946408,
+      "media_type": "application/gzip",
+      "path": "raw/finite149-source-snapshot.tar.gz",
+      "record_count": 28,
+      "role": "raw-snapshot",
+      "sha256": "15dcc1152d014e4a18996d160f0471e85e3c47f7227450c1c2ed2b8bf1dbc237",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-etp-proof-graph"
+      ]
+    },
+    {
+      "bytes": 7471,
+      "media_type": "text/x-python",
+      "path": "scripts/capture.py",
+      "role": "capture-script",
+      "sha256": "543a4ad548c1797f83c906991ae4f74c311b504ff66255b5120f997dede1ce92",
+      "source_ids": [
+        "stage80-historical-snapshot"
+      ]
+    },
+    {
+      "bytes": 52775,
+      "media_type": "text/x-python",
+      "path": "scripts/rebuild.py",
+      "role": "rebuild-script",
+      "sha256": "316ad2c38a492175e1f00ab1c31fbea614a6602334c9e547fcd4057534b4f272",
+      "source_ids": [
+        "stage80-historical-snapshot"
+      ]
+    },
+    {
+      "bytes": 4145,
+      "media_type": "text/x-python",
+      "path": "scripts/verify.py",
+      "role": "verification-script",
+      "sha256": "793daf8dcda7b034674df6ab1c4e2e0c229924230a5f5b7d03cad2557b3a9792",
+      "source_ids": [
+        "stage80-historical-snapshot"
+      ]
+    },
+    {
+      "bytes": 3184,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "f236ccf1f9b4cd899a2989b8082ce8a6da4ebd2f90e79912072be222b3cdb25a",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-core-bank",
+        "stage80-submission-suffix",
+        "stage80-etp-proof-graph"
+      ]
+    },
+    {
+      "bytes": 3669,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "verification/coverage-exhaustive.jsonl.gz",
+      "record_count": 149,
+      "role": "exhaustive-coverage",
+      "sha256": "375a795ff9f5de598f933878a0ee4f863c06521b696b11f03a75dde84385658b",
+      "source_ids": [
+        "stage80-historical-snapshot"
+      ]
+    },
+    {
+      "bytes": 3281,
+      "media_type": "application/json",
+      "path": "verification/refutation934-five-task-exhaustive.json",
+      "record_count": 5,
+      "role": "exhaustive-task-audit",
+      "sha256": "53dd13fb105f40f2dc02831593a5eeb4c1406e6c3da12c04fa04653bf762a992",
+      "source_ids": [
+        "stage80-historical-snapshot"
+      ]
+    },
+    {
+      "bytes": 1225,
+      "media_type": "application/json",
+      "path": "verification/refutation934-substitution.json",
+      "role": "substitution-audit",
+      "sha256": "88d9a3676e49aa0da49cdfb2bd671579b971107ea3381c0c012585992bb1646e",
+      "source_ids": [
+        "stage80-historical-snapshot",
+        "stage80-etp-proof-graph"
+      ]
+    },
+    {
+      "bytes": 816,
+      "media_type": "application/json",
+      "path": "verification/submission-suffix-audit.json",
+      "role": "submission-suffix-audit",
+      "sha256": "e2c721f6aeb31e4d2c499da55abea5e7be157705863abbec70468f9b75bc4b65",
+      "source_ids": [
+        "stage80-core-bank",
+        "stage80-submission-suffix"
+      ]
+    },
+    {
+      "bytes": 500,
+      "media_type": "application/json",
+      "path": "verification/zero-overlap-with-core1470.json",
+      "role": "overlap-audit",
+      "sha256": "452553a0b03fc5753dc08584e5e67dd32b683908b2befe893757b65e95aea33c",
+      "source_ids": [
+        "stage80-core-bank"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T18:00:00+08:00",
+  "claims": [
+    "finite149.no_submission_directions",
+    "finite149.directions",
+    "finite149.base_tables",
+    "finite149.required_transposes",
+    "finite149.oriented_assets",
+    "finite149.original_uses",
+    "finite149.transpose_uses",
+    "finite149.core_overlap",
+    "finite149.official_payload_tables",
+    "finite149.substitute_tables",
+    "refutation934.official_order",
+    "refutation934.substitute_order",
+    "refutation934.covered_tasks"
+  ],
+  "depends_on": [
+    "70-positive-marginal-core-1470"
+  ],
+  "notes": [
+    "This stage publishes only the 17-record augmentation and 11 task-required transposes, never the cumulative 1,487-record payload.",
+    "The 2,901-record runtime opposite closure is deferred to PR 4.",
+    "All 149 task directions and the five Refutation934 directions are exhaustively evaluated over every assignment."
+  ],
+  "pipeline_order": 80,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T18:00:00+08:00",
+      "kind": "local-filesystem-snapshot",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "math-distill-equational-stage2 finite149 historical artifacts",
+      "notes": [
+        "The deterministic archive and per-member hashes identify the captured bytes; the sibling checkout was dirty and its revision is context only."
+      ],
+      "revision": "abdbb31fd18efc83a2b2c629ef612929cba9d3a2",
+      "source_id": "stage80-historical-snapshot"
+    },
+    {
+      "captured_at": "2026-08-31T18:00:00+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/70-positive-marginal-core-1470/normalized/tables.bin",
+      "notes": [
+        "Committed predecessor used only for exact zero-overlap checking."
+      ],
+      "source_id": "stage80-core-bank"
+    },
+    {
+      "captured_at": "2026-08-31T18:00:00+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+      "notes": [
+        "Statically decoded in memory only to recover and verify the final 17-record append order; the cumulative payload is not emitted."
+      ],
+      "source_id": "stage80-submission-suffix"
+    },
+    {
+      "captured_at": "2026-08-31T18:00:00+08:00",
+      "kind": "third-party",
+      "license_status": "upstream source snapshot; see upstream repository licensing",
+      "locator": "https://github.com/teorth/equational_theories",
+      "notes": [
+        "finite_outcomes SHA-256: 257f9e97bac460e3dcdb74469d95783a640c797d8d3423b8e9dbef95e5db52d5",
+        "finite_graph SHA-256: d609274eeb8289cf28596463626c1e6e3af21c24f76a5bb06167ef6a88a2f679"
+      ],
+      "revision": "730c20724c9f076eec1c1a98eec232a0ea8f4c5c",
+      "source_id": "stage80-etp-proof-graph"
+    }
+  ],
+  "stage_id": "80-finite149",
+  "status": "verified",
+  "title": "finite149 augmentation: 789 -> 149 directions -> 17 + 11 tables",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 reproduction/80-finite149/scripts/verify.py",
+    "notes": [
+      "The stage-local verifier rebuilds in a temporary directory, compares every generated byte, reruns exhaustive task evaluation, and then runs the repository verifier."
+    ]
+  }
+}

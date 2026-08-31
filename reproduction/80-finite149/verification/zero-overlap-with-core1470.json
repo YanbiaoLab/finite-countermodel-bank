@@ -1,0 +1,13 @@
+{
+  "base_overlap_count": 0,
+  "base_overlaps": [],
+  "base_table_count": 17,
+  "comparison": "exact canonical bytes: order byte + n^2 row-major bytes",
+  "oriented_asset_count": 28,
+  "oriented_overlap_count": 0,
+  "oriented_overlaps": [],
+  "prior_core_canonical_id_vector_sha256": "370b66c25d73fb8a4e06eaa561af062572141cd04df678852dfc1100c8073de8",
+  "prior_core_count": 1470,
+  "prior_core_path": "reproduction/70-positive-marginal-core-1470/normalized/tables.bin",
+  "schema_version": "1.0.0"
+}

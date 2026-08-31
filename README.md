@@ -23,8 +23,12 @@ core. The core matches the first 1,470 embedded records of the submitted Maratho
 solver exactly. The Fin4 stage is explicitly a frozen-artifact replay: missing
 singleton and seed-chain inputs prevent a from-scratch rerun.
 
-The finite149 augmentation and final payload integration will be added in later
-chronological, reviewable stages. See
+PR 3 captures and reproduces the finite149 augmentation: the 789 no-submission
+directions reduce to 149 finite-countermodel directions covered by 17 stable base
+tables and 11 required transposes (129 direct uses and 20 transpose uses). It also
+verifies zero byte overlap with the 1,470-table core and the order-22 closed-subtable
+replacement for the official order-24 Refutation934 table. The cumulative 1,487
+payload and 2,901-table runtime opposite closure remain deferred to PR 4. See
 [TIMELINE.md](TIMELINE.md) for the planned sequence and [CLAIMS.csv](CLAIMS.csv)
 for the claim ledger.
 
@@ -35,15 +39,17 @@ chunks:
 
 ```bash
 python3 tools/verify_repository.py
+python3 reproduction/80-finite149/scripts/verify.py
 python3 -m unittest discover -s tests -v
 ```
 
-To regenerate the PR 1 and PR 2 normalized outputs, deltas, summaries, manifests,
-and checksums from the committed raw snapshots:
+To regenerate the PR 1, PR 2, and PR 3 normalized outputs, deltas, summaries,
+manifests, and checksums from the committed raw snapshots:
 
 ```bash
 python3 tools/rebuild_pr1.py
 python3 tools/rebuild_pr2.py
+python3 reproduction/80-finite149/scripts/rebuild.py
 git diff --exit-code
 ```
 
