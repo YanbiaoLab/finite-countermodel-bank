@@ -1,0 +1,172 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "bytes": 1819,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/base-table-provenance.jsonl.gz",
+      "record_count": 17,
+      "role": "effective-provenance-index",
+      "sha256": "d6b41f1074b42aed8bbc6f6b625311d6cf86598b9d1091c2ac592c51561902a6",
+      "source_ids": [
+        "stage81-stage80-evidence"
+      ]
+    },
+    {
+      "attributes": {
+        "full_matrix_rows_scanned": 4694,
+        "max_buffer_bytes_observed": 173473
+      },
+      "bytes": 14567,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/finite-outcomes-789.jsonl.gz",
+      "record_count": 789,
+      "role": "selected-outcomes-index",
+      "sha256": "d832fc7f2a4ba964390c4b6a8ee05009b5f93f0146f316fce73b791017cbab6d",
+      "source_ids": [
+        "stage81-stage80-evidence"
+      ]
+    },
+    {
+      "bytes": 68495,
+      "media_type": "text/x-python",
+      "path": "scripts/rebuild.py",
+      "role": "rebuild-script",
+      "sha256": "67b2cb1b342d37be7a2351f47ecd256c30d5d5335efa0063b3da3d5eaecd0733",
+      "source_ids": [
+        "stage81-correction-code"
+      ]
+    },
+    {
+      "bytes": 5570,
+      "media_type": "text/x-python",
+      "path": "scripts/verify.py",
+      "role": "verification-script",
+      "sha256": "749676b8be87e541e7e583e930afd6e0ebea4818bfdc03a2d16714a32721da55",
+      "source_ids": [
+        "stage81-correction-code"
+      ]
+    },
+    {
+      "bytes": 5170,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "correction-summary",
+      "sha256": "592f7496d33e96ff23461628baa4b65b0f24b8661f2d73fbccfe7755d95eb618",
+      "source_ids": [
+        "stage81-stage80-evidence",
+        "stage81-official-runtime-doc"
+      ]
+    },
+    {
+      "bytes": 2673,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "verification/lean-source-table-audit.jsonl.gz",
+      "record_count": 17,
+      "role": "lean-source-audit",
+      "sha256": "d2fd51420525cf9fba7b915de1efb741a634a4c9361d60154b63e1fb92e01fec",
+      "source_ids": [
+        "stage81-stage80-evidence"
+      ]
+    },
+    {
+      "bytes": 2929,
+      "media_type": "application/json",
+      "path": "verification/path-evidence-boundary.json",
+      "role": "evidence-boundary",
+      "sha256": "7f3f856daa4dd274ff55be7d9fc22257e23b6542f0edfd0fd3df07142b17fa13",
+      "source_ids": [
+        "stage81-stage80-evidence"
+      ]
+    },
+    {
+      "bytes": 1768,
+      "media_type": "application/json",
+      "path": "verification/refutation934-effective-provenance.json",
+      "record_count": 1,
+      "role": "provenance-correction",
+      "sha256": "a2a6b513483dcaf6e11c1f3ed811f6618a2e1491fe77c4268023b768e00124f9",
+      "source_ids": [
+        "stage81-stage80-evidence"
+      ]
+    },
+    {
+      "bytes": 1263,
+      "media_type": "application/json",
+      "path": "verification/screening-stream-audit.json",
+      "record_count": 789,
+      "role": "streaming-screening-audit",
+      "sha256": "b2d73d16e16289506f969e16db42180365e3ce13d374ab1300d13a50dfbdd8be",
+      "source_ids": [
+        "stage81-stage80-evidence"
+      ]
+    },
+    {
+      "bytes": 736,
+      "media_type": "application/json",
+      "path": "verification/stage80-portable-semantic-audit.json",
+      "role": "portable-semantic-audit",
+      "sha256": "3b9cb87506d0480a9bd5addc98ddd8c5f60e5c9998fe12130baf88aa65f84267",
+      "source_ids": [
+        "stage81-stage80-evidence"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T19:05:54+08:00",
+  "claims": [],
+  "depends_on": [
+    "80-finite149"
+  ],
+  "notes": [
+    "This corrective layer preserves every manifested Stage 80 artifact byte for byte and changes no finite149 count or table membership.",
+    "The nested 498,673,223-byte finite-outcomes JSON is parsed to top-level EOF one matrix row at a time under a 256 KiB application buffer cap.",
+    "All 17 captured official Lean operator-table comments are parsed and compared with the historical table rows.",
+    "The portable verifier also reruns all 149 exhaustive task checks, the 11 transpose derivations, 129/20 orientation split, zero-overlap check, delta/order joins, and exact 1,470-prefix/17-suffix submission comparison.",
+    "The 149 ETP paths remain a frozen inventory because the finite graph and 13 of 30 referenced path-source files were not captured; direct finite-table semantics remain exhaustively checked in Stage 80.",
+    "Python 3.10+ is required; Python 3.11 is the recommended and required CI baseline aligned with the official python:3.11-slim sandbox."
+  ],
+  "pipeline_order": 81,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T19:05:54+08:00",
+      "kind": "repository-snapshot",
+      "license_status": "inherits the per-source status recorded by Stage 80",
+      "locator": "reproduction/80-finite149",
+      "notes": [
+        "Stage 80 raw snapshot SHA-256: 15dcc1152d014e4a18996d160f0471e85e3c47f7227450c1c2ed2b8bf1dbc237",
+        "The corrective build consumes the committed Stage 80 archive and normalized records without modifying them."
+      ],
+      "revision": "be7d492ed4651f1193c823238ef528f32afc90d1",
+      "source_id": "stage81-stage80-evidence"
+    },
+    {
+      "captured_at": "2026-08-31T19:05:54+08:00",
+      "kind": "generated",
+      "license_status": "Apache-2.0 repository code",
+      "locator": "reproduction/81-finite149-portable-verification/scripts",
+      "source_id": "stage81-correction-code"
+    },
+    {
+      "captured_at": "2026-08-31T19:05:54+08:00",
+      "kind": "third-party",
+      "license_status": "upstream repository documentation; see upstream licensing",
+      "locator": "https://github.com/SAIRcompetition/equational-theories-lean-stage2/blob/817a4653bf762584931d49c6714c9fcfab7df66a/README.md#sandbox-python-environment",
+      "notes": [
+        "The official README identifies python:3.11-slim as the sandbox image; its Python 3.8+ prerequisite describes local harness tooling."
+      ],
+      "revision": "817a4653bf762584931d49c6714c9fcfab7df66a",
+      "source_id": "stage81-official-runtime-doc"
+    }
+  ],
+  "stage_id": "81-finite149-portable-verification",
+  "status": "verified",
+  "title": "portable finite149 verification and provenance correction",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 reproduction/81-finite149-portable-verification/scripts/verify.py",
+    "notes": [
+      "The stage-local verifier regenerates all correction artifacts in a temporary directory and compares every generated byte."
+    ]
+  }
+}

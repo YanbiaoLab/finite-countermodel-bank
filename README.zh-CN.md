@@ -23,26 +23,37 @@ PR 3 已保存并复现 finite149 增补：789 个无提交方向筛到 149 个�
 order-22 闭子表替代。累计 1,487 payload 与 2,901 张运行时 opposite closure 仍留给
 PR 4。阶段安排见 [TIMELINE.md](TIMELINE.md)，各项数字及其验证状态见 [CLAIMS.csv](CLAIMS.csv)。
 
+后继 `81-finite149-portable-verification` 阶段在不改动 PR 3 数据和数量的前提下修正
+复现路径：逐行流式扫描解压后 498,673,223 字节的 finite-outcomes JSON，解析并核对全部
+17 份已保存 Lean 运算表，明确记录 Refutation934 order-22 表的实际来源，并将 149 条
+ETP 路径准确标记为冻结清单而非已独立重放的证明图；同时继续重跑全部 149 项穷举检查、
+11 个转置推导、零重叠及提交 1,470-prefix/17-suffix 比较，不降低原有 CI 语义覆盖。
+
 ## 校验当前 checkout
 
-校验器仅使用 Python 标准库，并以固定大小的数据块计算哈希，避免一次性加载大文件：
+复现脚本要求 **Python 3.10+**，推荐并测试于 **Python 3.11**；3.11 与比赛官方
+[`python:3.11-slim` 评测沙箱](https://github.com/SAIRcompetition/equational-theories-lean-stage2/blob/main/README.md#sandbox-python-environment)
+一致，3.12 仅作为额外 CI 兼容性测试。校验器只使用 Python 标准库，并以有界流或固定
+大小数据块处理大文件：
 
 ```bash
 python3 tools/verify_repository.py
-python3 reproduction/80-finite149/scripts/verify.py
+python3 reproduction/81-finite149-portable-verification/scripts/verify.py
 python3 -m unittest discover -s tests -v
 ```
 
-从已提交 raw 快照重建 PR 1、PR 2 与 PR 3 的全部规范输出、delta、summary、manifest 与校验和：
+从已提交 raw 快照重建 PR 1、PR 2 的产物及修正后的 PR 3 校验层：
 
 ```bash
 python3 tools/rebuild_pr1.py
 python3 tools/rebuild_pr2.py
-python3 reproduction/80-finite149/scripts/rebuild.py
+python3 reproduction/81-finite149-portable-verification/scripts/rebuild.py
 git diff --exit-code
 ```
 
-PR 2 重建器以有界流处理两份解压后各 489,598,720 字节的 pair bitset，不会将其整体载入内存。
+PR 2 重建器以有界流处理两份解压后各 489,598,720 字节的 pair bitset；修正后的 PR 3
+重建器以 256 KiB 应用层缓冲上限扫描全部 498,673,223 个 finite-outcomes 解压字节，
+只保留 789 个目标单元。两者都不会将大输入整体载入内存。
 
 ## 仓库结构
 

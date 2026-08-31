@@ -108,8 +108,8 @@ class RepositoryFixtureTests(unittest.TestCase):
 
     def test_full_repository_contract(self) -> None:
         stage_count, artifact_count = verify_repository(ROOT)
-        self.assertEqual(stage_count, 9)
-        self.assertEqual(artifact_count, 79)
+        self.assertEqual(stage_count, 10)
+        self.assertEqual(artifact_count, 89)
 
     def test_stage_selection_includes_transitive_dependencies(self) -> None:
         stage_dirs = resolve_stage_directories(
@@ -126,6 +126,26 @@ class RepositoryFixtureTests(unittest.TestCase):
                 "50-generator-prune-3535",
                 "60-fin4-residual-284151591",
                 "70-positive-marginal-core-1470",
+            ],
+        )
+
+    def test_stage81_selection_includes_stage80_and_all_dependencies(self) -> None:
+        stage_dirs = resolve_stage_directories(
+            ROOT / "reproduction", ["81-finite149-portable-verification"]
+        )
+        self.assertEqual(
+            [path.name for path in stage_dirs],
+            [
+                "00-submission-anchor",
+                "10-primary-9450",
+                "20-registered-9852",
+                "30-early-deltas-9957",
+                "40-delivery-10059",
+                "50-generator-prune-3535",
+                "60-fin4-residual-284151591",
+                "70-positive-marginal-core-1470",
+                "80-finite149",
+                "81-finite149-portable-verification",
             ],
         )
 

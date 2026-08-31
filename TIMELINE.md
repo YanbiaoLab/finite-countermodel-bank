@@ -17,22 +17,24 @@ raw files.
 | PR 1 | `20-registered-9852` | 9,450 + 402 → 9,852 | Registry snapshot, exact-dedup delta | Merged in PR #3 |
 | PR 1 | `30-early-deltas-9957` | 9,852 + (66 − 55) + (145 − 51) → 9,957 | Separate d1 and d2 snapshots and membership deltas | Merged in PR #3 |
 | PR 1 | `40-delivery-10059` | 9,957 + 102 → 10,059 | Delivery snapshot, independent-check report, zero-overlap delta | Merged in PR #3 |
-| PR 2 | `50-generator-prune-3535` | 10,059 − 241 − 6,283 → 3,535 | Affine witnesses, order-at-most-4 removal ledger, exact d17 match | Verified in this PR |
-| PR 2 | `60-fin4-residual-284151591` | 324,157,667 − 40,006,076 → 284,151,591 directed pairs | Frozen bitsets, per-source partition, Fin4 shard ledger, bounded validation | Verified in this PR; frozen-artifact replay |
-| PR 2 | `70-positive-marginal-core-1470` | 3,535 − 2,065 → 1,470 | Residual coverage scores, fixed selection order, keep/drop delta, submission-prefix match | Verified in this PR |
-| PR 3 | `80-finite149` | 789 no-submission directions → 149 finite directions → 17 base tables + 11 required opposite orientations | Official-path inventory, exhaustive task checks, zero-overlap audit, Refutation934 substitution record | Verified in this PR |
+| PR 2 | `50-generator-prune-3535` | 10,059 − 241 − 6,283 → 3,535 | Affine witnesses, order-at-most-4 removal ledger, exact d17 match | Merged in PR #4 |
+| PR 2 | `60-fin4-residual-284151591` | 324,157,667 − 40,006,076 → 284,151,591 directed pairs | Frozen bitsets, per-source partition, Fin4 shard ledger, bounded validation | Merged in PR #4; frozen-artifact replay |
+| PR 2 | `70-positive-marginal-core-1470` | 3,535 − 2,065 → 1,470 | Residual coverage scores, fixed selection order, keep/drop delta, submission-prefix match | Merged in PR #4 |
+| PR 3 | `80-finite149` | 789 no-submission directions → 149 finite directions → 17 base tables + 11 required opposite orientations | Official-path inventory, exhaustive task checks, zero-overlap audit, Refutation934 substitution record | Merged in PR #7 |
+| PR 3 correction | `81-finite149-portable-verification` | Same Stage 80 data; bounded replay and provenance correction | 789-cell streamed projection, full 149-task/transpose/overlap/suffix semantic gate, 17 Lean-source comparisons, corrected Refutation934 source, explicit path boundary | Verified in this corrective PR |
 | PR 4 | `90-payload-1487` | 1,470 + 17 → 1,487 embedded records | Payload builder, byte stream, Base85/LZMA bundle, exact solver comparison | Planned |
 | PR 4 | `100-opposite-closure-2901` | 1,487 + 1,414 missing strict transposes → 2,901 | Derivation ledger, dedup report, runtime scan manifest | Planned |
 
 The PR boundaries are intentional. PR 1 preserves historical accumulation; PR 2
 records later pruning, frozen Fin4 residual validation, and coverage-based
-selection; PR 3 isolates the independent finite149 augmentation; PR 4 rebuilds and
+selection; PR 3 isolates the independent finite149 augmentation; its Stage 81
+correction fixes the review path without changing Stage 80 data; PR 4 rebuilds and
 compares the final submission. Work does not advance to the next PR until the
 previous PR has received human review.
 
 这些 PR 边界用于避免把不同时间点的数据混在一起：PR 1 保存历史累积，PR 2 保存后续
-精简及覆盖筛选，PR 3 单独保存 finite149 增补，PR 4 才构建最终提交并逐字节比较。前一个
-PR 未完成人工 review 前，不推进下一个 PR。
+精简及覆盖筛选，PR 3 单独保存 finite149 增补，Stage 81 只修正其复现与来源说明，PR 4
+才构建最终提交并逐字节比较。前一个 PR 未完成人工 review 前，不推进下一个 PR。
 
 ## Arithmetic checkpoints / 数量检查点
 
@@ -53,8 +55,9 @@ are reconstructed or independently validated in PR 2. Stage 60 does not claim a
 from-scratch Fin4 rerun because required singleton and seed-chain inputs are
 missing. PR 3 verifies the separate 17-base finite149 augmentation and its 11
 task-required transposes without constructing the cumulative 1,487-record payload.
-The 1,487 and 2,901 checkpoints remain planned for PR 4. `CLAIMS.csv` is
-authoritative for claim status.
+Stage 81 supersedes only the portable verification and provenance description; all
+Stage 80 arithmetic and table membership remain unchanged. The 1,487 and 2,901
+checkpoints remain planned for PR 4. `CLAIMS.csv` is authoritative for claim status.
 
 ## Source routing / 源文件入口
 
@@ -78,6 +81,7 @@ PR 1 的 raw 快照固定，Stage 50–70 已由 PR 2 的 raw 快照固定，Sta
 | `60-fin4-residual-284151591` | `members/wubing/data/324M_remaining_pairs/`, `members/wubing/data/284M_remaining_pairs/`, and the `d17-fin4-exhaustive-full-20260818` / `d17-fin4-exhaustive-full-bitslice-opposite-20260818` run directories |
 | `70-positive-marginal-core-1470` | `members/wubing/artifacts/runs/d17-finite-model-284m-pair-coverage-20260818/` and `members/wubing/artifacts/runs/d17-finite-model-order5-law-counts-20260817/` |
 | `80-finite149` | `research_best/20260821_solo_v2_order4_full_generated/finite_not_generated_lean/`, its 789-direction audit, the exact finite-outcome matrix, and `research_best/20260825_solo_v5_finite149_static_library/` Refutation934 reduction record |
+| `81-finite149-portable-verification` | Immutable Stage 80 raw snapshot and normalized artifacts; no new sibling-checkout input |
 
 Many `members/wubing/` paths are ignored by the sibling repository. A file copied
 from such a path must be labeled as a captured local snapshot with capture time and

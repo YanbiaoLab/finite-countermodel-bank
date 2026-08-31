@@ -1,0 +1,25 @@
+{
+  "append_order_exact_records": 17,
+  "base_binary_exact_records": 17,
+  "core_prefix_exact_records": 1470,
+  "delta_add_records": 17,
+  "delta_derive_records": 11,
+  "etp_path_inventory_records_validated": 149,
+  "exhaustive_assignment_count": 1535666,
+  "exhaustive_direction_exact_record_matches": 149,
+  "full_stage80_semantic_replacement": true,
+  "orientation_usage": {
+    "direct": 129,
+    "transpose": 20
+  },
+  "refutation934_five_task_exact_record_matches": 5,
+  "required_transpose_exact_records": 11,
+  "schema_version": "1.0.0",
+  "stage80_artifacts_modified": false,
+  "submitted_record_count": 1487,
+  "suffix_exact_records": 17,
+  "zero_overlap_with_core1470": {
+    "base_tables": 0,
+    "oriented_assets": 0
+  }
+}
