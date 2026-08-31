@@ -1,0 +1,63 @@
+{
+  "action_counts": {
+    "remove": 6524
+  },
+  "bank": {
+    "canonical_id_vector_sha256": "1bf3bc87ac9b5c8d6ffece79a8014eb9b26086336e8552ec34cebc3bc9211888",
+    "historical_id_vector_sha256": "8809417a8cab6990434f26474a44b2c22afd4501186ac2be908eab0db1227bc3",
+    "order_distribution": {
+      "10": 142,
+      "11": 12,
+      "12": 359,
+      "13": 1,
+      "16": 3,
+      "20": 3,
+      "25": 2,
+      "32": 1,
+      "5": 187,
+      "6": 1256,
+      "7": 31,
+      "8": 803,
+      "9": 735
+    },
+    "raw_bytes": 237631,
+    "raw_sha256": "7cb270a88641bb5ac6c43ddc22afd7395f54321afa3925454fe15f60d02de02b",
+    "table_count": 3535
+  },
+  "delivery_audit": {
+    "candidate_retained": 101,
+    "input": 102,
+    "order4_removed": 1
+  },
+  "historical_payloads": {
+    "d15_member": "members/wubing/experiments/solvers/false_solver/drafts/d15/solver.py",
+    "d15_raw_sha256": "fcb18adf3ff344e51a8f46d3e8eb92f7bb5487f4a3ee5ef74836076d51f3c3d4",
+    "d15_source_sha256": "c304fb47a14ecd0b3b8f966847f5e0149e41b0a520a97c38d9e2ebe315ba76a2",
+    "d17_member": "solvers/false/20260812_d17/solver.py",
+    "d17_raw_sha256": "7cb270a88641bb5ac6c43ddc22afd7395f54321afa3925454fe15f60d02de02b",
+    "d17_source_sha256": "edac3c959d912a51c6ee02b87ea3dce56b70738795c9102a284b1200a806145c",
+    "published_d17_exact_match": true
+  },
+  "known_gaps": [
+    "The report names d16.2 as the immediate historical build baseline, but that file was unavailable for capture.",
+    "The complete 241-table classification is reconstructed from 227 historical direct-affine rows plus 14 explicit carrier-relabeling witnesses and the exact d15-to-d17 payload transition."
+  ],
+  "metrics": {
+    "candidate.3535": 3535,
+    "delivery.candidate_retained": 101,
+    "delivery.order4": 1,
+    "prune.order_le_4": 6283,
+    "prune.scalar_affine": 241
+  },
+  "pruning": {
+    "candidate_tables": 3535,
+    "carrier_relabelled_scalar_affine": 14,
+    "direct_scalar_affine": 227,
+    "input_tables": 10059,
+    "non_affine_after_first_filter": 9818,
+    "order_at_most_4_after_affine_filter": 6283,
+    "stable_input_order_preserved": true
+  },
+  "schema_version": "1.0.0",
+  "stage_id": "50-generator-prune-3535"
+}

@@ -15,12 +15,23 @@ import gzip
 import hashlib
 import json
 import re
+import struct
 import sys
 import tarfile
 from datetime import datetime
+from decimal import Decimal, InvalidOperation, ROUND_HALF_EVEN, localcontext
 from pathlib import Path
-from typing import Any, Iterable, Iterator, TextIO
+from typing import Any, BinaryIO, Iterable, Iterator, TextIO
 from urllib.parse import urlparse
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from tools.pr2_common import (
+    Stage50Error as Pr2PayloadError,
+    extract_embedded_false_solver_table_payload,
+    read_bounded_file,
+)
 
 
 SCHEMA_VERSION = "1.0.0"
@@ -44,6 +55,116 @@ SOURCE_KINDS = {
 TRACKS = {"solo", "marathon"}
 CHUNK_SIZE = 1024 * 1024
 MAX_TEXT_LINE_CHARS = 1024 * 1024
+
+STAGE40 = "40-delivery-10059"
+STAGE50 = "50-generator-prune-3535"
+STAGE60 = "60-fin4-residual-284151591"
+STAGE70 = "70-positive-marginal-core-1470"
+
+PAIR_BITSET_MAGIC = b"O5RPAIR1" + b"\0" * 8
+PAIR_BITSET_VERSION = 1
+PAIR_BITSET_HEADER_BYTES = 4096
+PAIR_BITSET_HEADER_STRUCT = struct.Struct("<16s6I3Q32s")
+PAIR_BITSET_EQUATION_COUNT = 62_576
+PAIR_BITSET_WORD_COUNT = 978
+PAIR_BITSET_ROW_STRIDE = 7_824
+PAIR_BITSET_BIT_ORDER_CODE = 1
+PAIR_BITSET_UNCOMPRESSED_BYTES = 489_598_720
+PAIR_BITSET_EQUATIONS_SHA256 = (
+    "7fb9c0e85bee412baa7030bafec311c65a75502a2c25bdd0b94171b324585b1d"
+)
+PAIR_324_COUNT = 324_157_667
+PAIR_FIN4_COUNT = 40_006_076
+PAIR_284_COUNT = 284_151_591
+PAIR_324_SHA256 = (
+    "f3cce217528adee2305e618a81a1fdb7399c6732523bb60f055b1d5acf61f383"
+)
+PAIR_284_SHA256 = (
+    "03f4a7eccc7df811756fc5da361a647b49b9064f35b2b14730362fc3fb810756"
+)
+
+STAGE50_INPUT_COUNT = 10_059
+STAGE50_AFFINE_COUNT = 241
+STAGE50_DIRECT_AFFINE_COUNT = 227
+STAGE50_RELABELLED_AFFINE_COUNT = 14
+STAGE50_SMALL_COUNT = 6_283
+STAGE50_CANDIDATE_COUNT = 3_535
+STAGE50_DELIVERY_COUNT = 102
+STAGE50_DELIVERY_RETAINED_COUNT = 101
+
+STAGE70_CANDIDATE_COUNT = 3_535
+STAGE70_INDIVIDUAL_POSITIVE_COUNT = 2_303
+STAGE70_INDIVIDUAL_ZERO_COUNT = 1_232
+STAGE70_INDIVIDUAL_COVERAGE_SUM = 48_939_148
+STAGE70_INDIVIDUAL_COVERAGE_MAX = 6_113_454
+STAGE70_POSITIVE_MARGINAL_COUNT = 1_470
+STAGE70_ZERO_MARGINAL_COUNT = 2_065
+STAGE70_FINAL_UNION_COUNT = 32_336_615
+STAGE70_FINAL_REMAINING_COUNT = 251_814_976
+SUBMITTED_MARATHON_SHA256 = (
+    "e301cbd091df1376c21ac297e1afb05decb70c34879cd6e485744d09e017c809"
+)
+SUBMITTED_FALSE_TABLE_RAW_SHA256 = (
+    "17240427976219ef8da8b2ecb1bd14731b6c11d3be052711911443539e92a680"
+)
+STAGE70_POSITIVE_REASON = "positive_marginal_284m_residual"
+STAGE70_ZERO_REASON = "zero_marginal_284m_residual"
+FRACTION_RE = re.compile(r"^(?:0|1)\.[0-9]{12}$")
+FRACTION_QUANTUM = Decimal("0.000000000001")
+
+PAIR_PARTITION_HEADER = [
+    "source_equation_id",
+    "fin23_covered_target_count",
+    "singleton_true_target_count",
+    "targeted_324m_target_count",
+    "fin4_covered_target_count",
+    "residual_284m_target_count",
+]
+FIN4_SHARD_HEADER = [
+    "shard",
+    "engine",
+    "range_start",
+    "range_count",
+    "raw_tables_scanned",
+    "canonical_classes",
+    "signatures_evaluated",
+    "opposite_derived",
+    "skipped_as_derived",
+    "elapsed_seconds",
+    "maximum_rss_bytes",
+    "source_member",
+]
+STAGE70_COVERAGE_HEADER = [
+    "coverage_rank",
+    "model_index",
+    "order",
+    "model_sha256",
+    "satisfied_count",
+    "refuted_count",
+    "raw_pair_count",
+    "remaining_pair_coverage_count",
+    "new_unique_remaining_pair_count",
+    "overlap_remaining_pair_count",
+    "cumulative_unique_remaining_pair_count",
+    "individual_fraction_of_284m_remaining_pairs",
+    "incremental_fraction_of_284m_remaining_pairs",
+    "cumulative_fraction_of_284m_remaining_pairs",
+    "canonical_table_id",
+]
+STAGE70_SELECTION_FIELDS = {
+    "action",
+    "reason_code",
+    "coverage_rank",
+    "model_index",
+    "candidate_position",
+    "canonical_table_id",
+    "historical_model_sha256",
+    "order",
+    "remaining_pair_coverage_count",
+    "new_unique_remaining_pair_count",
+    "overlap_remaining_pair_count",
+    "cumulative_unique_remaining_pair_count",
+}
 
 
 class VerificationError(RuntimeError):
@@ -685,6 +806,1053 @@ def count_nonempty_lines(path: Path) -> int:
     return count
 
 
+def count_csv_rows(path: Path) -> int:
+    """Count CSV data rows (not the header) with the normal bounded-line guard."""
+
+    with open_text_artifact(path) as handle:
+        reader = csv.reader(iter_bounded_text_lines(handle, str(path)))
+        try:
+            next(reader)
+        except StopIteration as exc:
+            raise VerificationError(f"CSV artifact has no header: {path}") from exc
+        return sum(1 for _row in reader)
+
+
+def parse_canonical_nonnegative_integer(value: Any, context: str) -> int:
+    if not isinstance(value, str) or not re.fullmatch(r"(?:0|[1-9][0-9]*)", value):
+        raise VerificationError(f"{context} is not a canonical nonnegative integer")
+    return int(value)
+
+
+def require_csv_row_shape(
+    row: dict[str | None, str | list[str] | None],
+    headers: list[str],
+    context: str,
+) -> dict[str, str]:
+    if None in row or set(row) != set(headers):
+        raise VerificationError(f"{context} has extra or missing CSV fields")
+    normalized: dict[str, str] = {}
+    for header in headers:
+        value = row[header]
+        if not isinstance(value, str) or value == "":
+            raise VerificationError(f"{context}.{header} must be non-empty")
+        normalized[header] = value
+    return normalized
+
+
+def require_unique_role_artifact(
+    artifacts: list[dict[str, Any]], role: str, stage_id: str
+) -> dict[str, Any]:
+    matches = [artifact for artifact in artifacts if artifact["role"] == role]
+    if len(matches) != 1:
+        raise VerificationError(
+            f"expected one {role} artifact in {stage_id}; found {len(matches)}"
+        )
+    return matches[0]
+
+
+def verify_fixed_fraction(
+    value: str, numerator: int, denominator: int, context: str
+) -> None:
+    if not isinstance(value, str) or not FRACTION_RE.fullmatch(value):
+        raise VerificationError(f"{context} is not a 12-place fixed-point fraction")
+    if denominator == 0:
+        if numerator != 0:
+            raise VerificationError(f"{context} has a zero denominator")
+        expected = "0.000000000000"
+    else:
+        with localcontext() as decimal_context:
+            decimal_context.prec = 60
+            rounded = (Decimal(numerator) / Decimal(denominator)).quantize(
+                FRACTION_QUANTUM, rounding=ROUND_HALF_EVEN
+            )
+        expected = format(rounded, ".12f")
+    if value != expected:
+        raise VerificationError(f"{context} drift: {value} != {expected}")
+
+
+def advance_coverage_union(
+    previous_cumulative: int,
+    individual: int,
+    marginal: int,
+    overlap: int,
+    universe_size: int,
+    context: str,
+) -> int:
+    """Validate one inclusion/exclusion row and return its new union size."""
+
+    if individual != marginal + overlap:
+        raise VerificationError(f"{context}: marginal/overlap identity drift")
+    if overlap > previous_cumulative:
+        raise VerificationError(
+            f"{context}: overlap exceeds the previously covered union"
+        )
+    if marginal > universe_size - previous_cumulative:
+        raise VerificationError(
+            f"{context}: marginal exceeds the previously uncovered universe"
+        )
+    return previous_cumulative + marginal
+
+
+def direct_affine_parameters(record: bytes) -> tuple[int, int, int] | None:
+    """Return direct ``a*x+b*y+c`` parameters for one canonical table."""
+
+    order = record[0]
+    entries = record[1:]
+    if order == 1:
+        return (0, 0, 0)
+    constant = entries[0]
+    left = (entries[order] - constant) % order
+    right = (entries[1] - constant) % order
+    for row in range(order):
+        offset = row * order
+        for column in range(order):
+            if entries[offset + column] != (
+                left * row + right * column + constant
+            ) % order:
+                return None
+    return left, right, constant
+
+
+def verify_stage50_semantics(
+    stage_dir: Path,
+    artifacts: list[dict[str, Any]],
+    bank: dict[str, Any] | None,
+    delta: dict[str, Any] | None,
+    summary: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Validate the bounded normalized affine and delivery audits for Stage50."""
+
+    if bank is None or delta is None or summary is None:
+        raise VerificationError("Stage50 lacks its table bank, delta, or summary")
+    if bank["count"] != STAGE50_CANDIDATE_COUNT or any(
+        order <= 4 for order in bank["orders"]
+    ):
+        raise VerificationError("Stage50 candidate bank cardinality/order drift")
+
+    affine_artifact = require_unique_role_artifact(
+        artifacts, "affine-classification", stage_dir.name
+    )
+    witness_path = safe_stage_path(stage_dir, affine_artifact["path"])
+    witnesses: list[dict[str, Any]] = []
+    seen_positions: set[int] = set()
+    seen_table_ids: set[str] = set()
+    classification_counts: dict[str, int] = {}
+    with open_text_artifact(witness_path) as handle:
+        for line_number, raw_line in enumerate(
+            iter_bounded_text_lines(handle, str(witness_path)), start=1
+        ):
+            if not raw_line.strip():
+                continue
+            try:
+                record = json.loads(raw_line)
+            except json.JSONDecodeError as exc:
+                raise VerificationError(
+                    f"invalid affine JSONL {witness_path}:{line_number}: {exc}"
+                ) from exc
+            context = f"{witness_path}:{line_number}"
+            if not isinstance(record, dict):
+                raise VerificationError(f"non-object affine witness at {context}")
+            require_exact_fields(
+                record,
+                [
+                    "schema_version",
+                    "source_position",
+                    "table_id",
+                    "order",
+                    "classification",
+                    "mapping_to_zn",
+                    "left_coefficient",
+                    "right_coefficient",
+                    "constant",
+                ],
+                [],
+                context,
+            )
+            if record["schema_version"] != SCHEMA_VERSION:
+                raise VerificationError(f"affine witness schema drift at {context}")
+            position = require_integer(
+                record["source_position"], f"{context}.source_position"
+            )
+            order = require_integer(record["order"], f"{context}.order", minimum=1)
+            if order > 255:
+                raise VerificationError(f"affine witness order exceeds 255 at {context}")
+            table_id = record["table_id"]
+            if not isinstance(table_id, str) or not re.fullmatch(
+                r"sha256:[a-f0-9]{64}", table_id
+            ):
+                raise VerificationError(f"invalid affine table_id at {context}")
+            classification = record["classification"]
+            if classification not in {"direct", "carrier-relabelled"}:
+                raise VerificationError(f"invalid affine classification at {context}")
+            mapping = record["mapping_to_zn"]
+            if (
+                not isinstance(mapping, list)
+                or any(isinstance(value, bool) or not isinstance(value, int) for value in mapping)
+                or sorted(mapping) != list(range(order))
+            ):
+                raise VerificationError(f"invalid carrier mapping at {context}")
+            parameters = []
+            for field in ("left_coefficient", "right_coefficient", "constant"):
+                value = require_integer(record[field], f"{context}.{field}")
+                if value >= order:
+                    raise VerificationError(f"{context}.{field} is outside Z/{order}Z")
+                parameters.append(value)
+            if classification == "direct" and mapping != list(range(order)):
+                raise VerificationError(f"direct affine witness relabels its carrier at {context}")
+            if position in seen_positions or table_id in seen_table_ids:
+                raise VerificationError(f"duplicate affine witness at {context}")
+            if witnesses and position <= witnesses[-1]["source_position"]:
+                raise VerificationError("Stage50 affine witnesses are not source ordered")
+            seen_positions.add(position)
+            seen_table_ids.add(table_id)
+            classification_counts[classification] = (
+                classification_counts.get(classification, 0) + 1
+            )
+            witnesses.append(
+                {
+                    "source_position": position,
+                    "table_id": table_id,
+                    "order": order,
+                    "classification": classification,
+                    "mapping": tuple(mapping),
+                    "parameters": tuple(parameters),
+                }
+            )
+
+    if affine_artifact.get("record_count") != len(witnesses):
+        raise VerificationError("Stage50 affine witness record_count drift")
+    if len(witnesses) != STAGE50_AFFINE_COUNT or classification_counts != {
+        "direct": STAGE50_DIRECT_AFFINE_COUNT,
+        "carrier-relabelled": STAGE50_RELABELLED_AFFINE_COUNT,
+    }:
+        raise VerificationError("Stage50 affine classification counts drift")
+
+    scalar_delta = []
+    small_delta = []
+    for row in delta["rows"]:
+        if (
+            row["action"] != "remove"
+            or row.get("source_stage_id") != STAGE40
+            or row.get("source_table_id") != row["table_id"]
+        ):
+            raise VerificationError("Stage50 delta is not a direct Stage40 removal")
+        if row["reason_code"] == "scalar_affine_regenerated":
+            scalar_delta.append(row)
+        elif row["reason_code"] == "fin4_regenerated":
+            small_delta.append(row)
+        else:
+            raise VerificationError("Stage50 delta has an unsupported reason_code")
+    if [row["table_id"] for row in scalar_delta] != [
+        witness["table_id"] for witness in witnesses
+    ]:
+        raise VerificationError("Stage50 affine witnesses and delta disagree")
+    if len(small_delta) != STAGE50_SMALL_COUNT:
+        raise VerificationError("Stage50 order-at-most-4 delta count drift")
+
+    delivery_artifact = require_unique_role_artifact(
+        artifacts, "delivery-audit", stage_dir.name
+    )
+    delivery = load_json(safe_stage_path(stage_dir, delivery_artifact["path"]))
+    require_exact_fields(
+        delivery,
+        [
+            "schema_version",
+            "stage_id",
+            "delivery_source_stage",
+            "delivery_count",
+            "order4_count",
+            "order4_table_id",
+            "order4_stage40_position",
+            "candidate_retained_count",
+            "candidate_retained_table_ids",
+        ],
+        [],
+        "Stage50 delivery audit",
+    )
+    if (
+        delivery["schema_version"] != SCHEMA_VERSION
+        or delivery["stage_id"] != STAGE50
+        or delivery["delivery_source_stage"] != STAGE40
+        or require_integer(delivery["delivery_count"], "delivery_count")
+        != STAGE50_DELIVERY_COUNT
+        or require_integer(delivery["order4_count"], "order4_count") != 1
+        or require_integer(
+            delivery["candidate_retained_count"], "candidate_retained_count"
+        )
+        != STAGE50_DELIVERY_RETAINED_COUNT
+    ):
+        raise VerificationError("Stage50 delivery audit scalar drift")
+    order4_id = delivery["order4_table_id"]
+    if not isinstance(order4_id, str) or not re.fullmatch(
+        r"sha256:[a-f0-9]{64}", order4_id
+    ):
+        raise VerificationError("Stage50 delivery audit has an invalid order-4 ID")
+    require_integer(delivery["order4_stage40_position"], "order4_stage40_position")
+    retained_ids = require_string_list(
+        delivery["candidate_retained_table_ids"],
+        "candidate_retained_table_ids",
+        minimum_items=STAGE50_DELIVERY_RETAINED_COUNT,
+        unique=True,
+    )
+    if len(retained_ids) != STAGE50_DELIVERY_RETAINED_COUNT or any(
+        not re.fullmatch(r"sha256:[a-f0-9]{64}", table_id)
+        for table_id in retained_ids
+    ):
+        raise VerificationError("Stage50 delivery retained-table vector drift")
+
+    pruning = summary.get("pruning")
+    expected_pruning = {
+        "input_tables": STAGE50_INPUT_COUNT,
+        "direct_scalar_affine": STAGE50_DIRECT_AFFINE_COUNT,
+        "carrier_relabelled_scalar_affine": STAGE50_RELABELLED_AFFINE_COUNT,
+        "non_affine_after_first_filter": STAGE50_INPUT_COUNT - STAGE50_AFFINE_COUNT,
+        "order_at_most_4_after_affine_filter": STAGE50_SMALL_COUNT,
+        "candidate_tables": STAGE50_CANDIDATE_COUNT,
+        "stable_input_order_preserved": True,
+    }
+    if pruning != expected_pruning or summary.get("delivery_audit") != {
+        "input": STAGE50_DELIVERY_COUNT,
+        "order4_removed": 1,
+        "candidate_retained": STAGE50_DELIVERY_RETAINED_COUNT,
+    }:
+        raise VerificationError("Stage50 summary audit drift")
+    return {
+        "witnesses": witnesses,
+        "small_delta_ids": [row["table_id"] for row in small_delta],
+        "delivery": delivery,
+    }
+
+
+def read_exact_hashed(
+    handle: BinaryIO,
+    size: int,
+    digest: Any,
+    context: str,
+) -> bytes:
+    """Read exactly ``size`` bytes without an unbounded allocation."""
+
+    chunks: list[bytes] = []
+    remaining = size
+    while remaining:
+        chunk = handle.read(remaining)
+        if not chunk:
+            raise VerificationError(f"truncated stream while reading {context}")
+        if not isinstance(chunk, bytes):
+            chunk = bytes(chunk)
+        chunks.append(chunk)
+        digest.update(chunk)
+        remaining -= len(chunk)
+    return b"".join(chunks)
+
+
+def parse_pair_bitset_header(
+    block: bytes, expected_remaining: int, context: str
+) -> dict[str, int | str]:
+    if len(block) != PAIR_BITSET_HEADER_BYTES:
+        raise VerificationError(f"{context} header-size drift")
+    try:
+        values = PAIR_BITSET_HEADER_STRUCT.unpack_from(block)
+    except struct.error as exc:
+        raise VerificationError(f"{context} header is truncated") from exc
+    (
+        magic,
+        version,
+        header_bytes,
+        equation_count,
+        word_count,
+        row_stride,
+        bit_order,
+        pair_universe,
+        remaining_pairs,
+        payload_bytes,
+        equations_sha,
+    ) = values
+    expected = {
+        "magic": PAIR_BITSET_MAGIC,
+        "version": PAIR_BITSET_VERSION,
+        "header_bytes": PAIR_BITSET_HEADER_BYTES,
+        "equation_count": PAIR_BITSET_EQUATION_COUNT,
+        "word_count": PAIR_BITSET_WORD_COUNT,
+        "row_stride": PAIR_BITSET_ROW_STRIDE,
+        "bit_order": PAIR_BITSET_BIT_ORDER_CODE,
+        "pair_universe": PAIR_BITSET_EQUATION_COUNT
+        * (PAIR_BITSET_EQUATION_COUNT - 1),
+        "remaining_pairs": expected_remaining,
+        "payload_bytes": PAIR_BITSET_EQUATION_COUNT * PAIR_BITSET_ROW_STRIDE,
+        "equations_sha": bytes.fromhex(PAIR_BITSET_EQUATIONS_SHA256),
+    }
+    actual = {
+        "magic": magic,
+        "version": version,
+        "header_bytes": header_bytes,
+        "equation_count": equation_count,
+        "word_count": word_count,
+        "row_stride": row_stride,
+        "bit_order": bit_order,
+        "pair_universe": pair_universe,
+        "remaining_pairs": remaining_pairs,
+        "payload_bytes": payload_bytes,
+        "equations_sha": equations_sha,
+    }
+    for field, expected_value in expected.items():
+        if actual[field] != expected_value:
+            raise VerificationError(f"{context} header {field} drift")
+    if any(block[PAIR_BITSET_HEADER_STRUCT.size :]):
+        raise VerificationError(f"{context} has nonzero reserved header bytes")
+    return {
+        "remaining_pairs": remaining_pairs,
+        "row_stride": row_stride,
+        "payload_bytes": payload_bytes,
+        "equations_sha256": equations_sha.hex(),
+    }
+
+
+def verify_stage60_shard_ledger(
+    stage_dir: Path, artifact: dict[str, Any]
+) -> dict[str, Any]:
+    path = safe_stage_path(stage_dir, artifact["path"])
+    scalar_classes = 0
+    bitslice_classes = 0
+    signatures = 0
+    opposites = 0
+    skipped = 0
+    raw_tables = 0
+    elapsed = Decimal(0)
+    maximum_rss = 0
+    rows = 0
+    with open_text_artifact(path) as handle:
+        reader = csv.DictReader(iter_bounded_text_lines(handle, str(path)))
+        if reader.fieldnames != FIN4_SHARD_HEADER:
+            raise VerificationError("Stage60 Fin4 shard header drift")
+        for rows, raw_row in enumerate(reader, start=1):
+            context = f"{path}:{rows + 1}"
+            row = require_csv_row_shape(raw_row, FIN4_SHARD_HEADER, context)
+            index = parse_canonical_nonnegative_integer(row["shard"], f"{context}.shard")
+            if index != rows - 1 or index >= 256:
+                raise VerificationError(f"{context}: noncontiguous shard index")
+            expected_engine = "scalar" if index < 6 else "bitslice-opposite"
+            if row["engine"] != expected_engine:
+                raise VerificationError(f"{context}: Fin4 engine drift")
+            start = parse_canonical_nonnegative_integer(
+                row["range_start"], f"{context}.range_start"
+            )
+            count = parse_canonical_nonnegative_integer(
+                row["range_count"], f"{context}.range_count"
+            )
+            scanned = parse_canonical_nonnegative_integer(
+                row["raw_tables_scanned"], f"{context}.raw_tables_scanned"
+            )
+            if start != index * (1 << 24) or count != 1 << 24 or scanned != count:
+                raise VerificationError(f"{context}: Fin4 shard range drift")
+            canonical = parse_canonical_nonnegative_integer(
+                row["canonical_classes"], f"{context}.canonical_classes"
+            )
+            evaluated = parse_canonical_nonnegative_integer(
+                row["signatures_evaluated"], f"{context}.signatures_evaluated"
+            )
+            opposite = parse_canonical_nonnegative_integer(
+                row["opposite_derived"], f"{context}.opposite_derived"
+            )
+            shard_skipped = parse_canonical_nonnegative_integer(
+                row["skipped_as_derived"], f"{context}.skipped_as_derived"
+            )
+            if expected_engine == "scalar":
+                if evaluated != canonical or opposite != 0 or shard_skipped != 0:
+                    raise VerificationError(f"{context}: scalar shard accounting drift")
+                scalar_classes += canonical
+            else:
+                if evaluated + shard_skipped != canonical:
+                    raise VerificationError(f"{context}: bitslice shard accounting drift")
+                bitslice_classes += canonical
+                signatures += evaluated
+                opposites += opposite
+                skipped += shard_skipped
+            if not re.fullmatch(r"(?:0|[1-9][0-9]*)\.[0-9]{9}", row["elapsed_seconds"]):
+                raise VerificationError(f"{context}: noncanonical elapsed_seconds")
+            try:
+                shard_elapsed = Decimal(row["elapsed_seconds"])
+            except InvalidOperation as exc:
+                raise VerificationError(f"{context}: invalid elapsed_seconds") from exc
+            rss = parse_canonical_nonnegative_integer(
+                row["maximum_rss_bytes"], f"{context}.maximum_rss_bytes"
+            )
+            if not row["source_member"].endswith(
+                f"/shards/shard_{index:03}.json"
+            ):
+                raise VerificationError(f"{context}: shard source member drift")
+            raw_tables += scanned
+            elapsed += shard_elapsed
+            maximum_rss = max(maximum_rss, rss)
+    if rows != 256 or artifact.get("record_count") != rows:
+        raise VerificationError("Stage60 Fin4 shard count drift")
+    result = {
+        "shards": rows,
+        "raw_labeled_tables_scanned": raw_tables,
+        "scalar_isomorphism_classes": scalar_classes,
+        "bitslice_interval_isomorphism_classes": bitslice_classes,
+        "all_fin4_isomorphism_classes": scalar_classes + bitslice_classes,
+        "bitslice_model_signatures_evaluated": signatures,
+        "bitslice_opposite_signatures_derived": opposites,
+        "bitslice_classes_skipped_as_derived": skipped,
+        "elapsed_seconds_sum": float(
+            elapsed.quantize(Decimal("0.000001"), rounding=ROUND_HALF_EVEN)
+        ),
+        "maximum_engine_rss_bytes": maximum_rss,
+        "ranges_contiguous_and_gapless": True,
+    }
+    expected_integers = {
+        "raw_labeled_tables_scanned": 2**32,
+        "scalar_isomorphism_classes": 58_254_198,
+        "bitslice_interval_isomorphism_classes": 120_727_754,
+        "all_fin4_isomorphism_classes": 178_981_952,
+        "bitslice_model_signatures_evaluated": 79_470_563,
+        "bitslice_opposite_signatures_derived": 41_257_191,
+        "bitslice_classes_skipped_as_derived": 41_257_191,
+        "maximum_engine_rss_bytes": 504_709_120,
+    }
+    if any(result[field] != value for field, value in expected_integers.items()):
+        raise VerificationError("Stage60 Fin4 shard totals drift")
+    return result
+
+
+def verify_stage60_semantics(
+    stage_dir: Path,
+    artifacts: list[dict[str, Any]],
+    summary: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Stream both 467-MiB bitsets and bind them to the two small ledgers."""
+
+    if summary is None:
+        raise VerificationError("Stage60 lacks its summary")
+    pair_artifacts = [artifact for artifact in artifacts if artifact["role"] == "pair-bitset"]
+    expected_paths = {
+        "normalized/324M_remaining_pairs.bitset.gz": (
+            PAIR_324_COUNT,
+            PAIR_324_SHA256,
+        ),
+        "normalized/284M_remaining_pairs.bitset.gz": (
+            PAIR_284_COUNT,
+            PAIR_284_SHA256,
+        ),
+    }
+    if len(pair_artifacts) != 2 or {artifact["path"] for artifact in pair_artifacts} != set(
+        expected_paths
+    ):
+        raise VerificationError("Stage60 pair-bitset artifact set drift")
+    by_path = {artifact["path"]: artifact for artifact in pair_artifacts}
+    for relative, (set_bits, raw_sha) in expected_paths.items():
+        if by_path[relative].get("attributes") != {
+            "encoding": "o5rpair1-gzip-v1",
+            "uncompressed_bytes": PAIR_BITSET_UNCOMPRESSED_BYTES,
+            "uncompressed_sha256": raw_sha,
+            "set_bits": set_bits,
+        }:
+            raise VerificationError(f"Stage60 pair-bitset attributes drift for {relative}")
+
+    partition_artifact = require_unique_role_artifact(
+        artifacts, "pair-partition", stage_dir.name
+    )
+    partition_path = safe_stage_path(stage_dir, partition_artifact["path"])
+    original_path = safe_stage_path(
+        stage_dir, "normalized/324M_remaining_pairs.bitset.gz"
+    )
+    residual_path = safe_stage_path(
+        stage_dir, "normalized/284M_remaining_pairs.bitset.gz"
+    )
+    original_digest = hashlib.sha256()
+    residual_digest = hashlib.sha256()
+    totals = {header: 0 for header in PAIR_PARTITION_HEADER[1:]}
+    original_popcount = 0
+    residual_popcount = 0
+    original_active = 0
+    residual_active = 0
+    rows = 0
+    invalid_tail_bits = PAIR_BITSET_WORD_COUNT * 64 - PAIR_BITSET_EQUATION_COUNT
+    invalid_tail_mask = (
+        ((1 << invalid_tail_bits) - 1) << (64 - invalid_tail_bits)
+        if invalid_tail_bits
+        else 0
+    )
+    try:
+        with open_text_artifact(partition_path) as ledger, gzip.open(
+            original_path, "rb"
+        ) as original, gzip.open(residual_path, "rb") as residual:
+            reader = csv.DictReader(iter_bounded_text_lines(ledger, str(partition_path)))
+            if reader.fieldnames != PAIR_PARTITION_HEADER:
+                raise VerificationError("Stage60 pair-partition header drift")
+            original_header_block = read_exact_hashed(
+                original,
+                PAIR_BITSET_HEADER_BYTES,
+                original_digest,
+                "Stage60 324M header",
+            )
+            residual_header_block = read_exact_hashed(
+                residual,
+                PAIR_BITSET_HEADER_BYTES,
+                residual_digest,
+                "Stage60 284M header",
+            )
+            parse_pair_bitset_header(
+                original_header_block, PAIR_324_COUNT, "Stage60 324M bitset"
+            )
+            parse_pair_bitset_header(
+                residual_header_block, PAIR_284_COUNT, "Stage60 284M bitset"
+            )
+            for row_index in range(PAIR_BITSET_EQUATION_COUNT):
+                try:
+                    raw_row = next(reader)
+                except StopIteration as exc:
+                    raise VerificationError(
+                        f"Stage60 pair ledger ended before Equation{row_index + 1}"
+                    ) from exc
+                context = f"{partition_path}:{row_index + 2}"
+                row = require_csv_row_shape(raw_row, PAIR_PARTITION_HEADER, context)
+                values = {
+                    field: parse_canonical_nonnegative_integer(
+                        row[field], f"{context}.{field}"
+                    )
+                    for field in PAIR_PARTITION_HEADER
+                }
+                source_id = values["source_equation_id"]
+                fin23 = values["fin23_covered_target_count"]
+                singleton = values["singleton_true_target_count"]
+                targeted = values["targeted_324m_target_count"]
+                fin4 = values["fin4_covered_target_count"]
+                residual_count = values["residual_284m_target_count"]
+                if source_id != row_index + 1:
+                    raise VerificationError(f"{context}: source equation ID drift")
+                if fin23 + singleton + targeted != PAIR_BITSET_EQUATION_COUNT - 1:
+                    raise VerificationError(f"{context}: pre-Fin4 row partition drift")
+                if targeted != fin4 + residual_count:
+                    raise VerificationError(f"{context}: post-Fin4 row partition drift")
+                original_row = read_exact_hashed(
+                    original,
+                    PAIR_BITSET_ROW_STRIDE,
+                    original_digest,
+                    f"Stage60 324M Equation{source_id}",
+                )
+                residual_row = read_exact_hashed(
+                    residual,
+                    PAIR_BITSET_ROW_STRIDE,
+                    residual_digest,
+                    f"Stage60 284M Equation{source_id}",
+                )
+                original_value = int.from_bytes(original_row, "little")
+                residual_value = int.from_bytes(residual_row, "little")
+                if residual_value & ~original_value:
+                    raise VerificationError(
+                        f"Stage60 residual is not a subset at Equation{source_id}"
+                    )
+                if original_value & (1 << row_index) or residual_value & (1 << row_index):
+                    raise VerificationError(f"Stage60 diagonal bit set at Equation{source_id}")
+                if invalid_tail_mask:
+                    original_last = int.from_bytes(original_row[-8:], "little")
+                    residual_last = int.from_bytes(residual_row[-8:], "little")
+                    if original_last & invalid_tail_mask or residual_last & invalid_tail_mask:
+                        raise VerificationError(
+                            f"Stage60 out-of-range bit set at Equation{source_id}"
+                        )
+                # Keep compatibility with the target verification interpreter,
+                # which does not provide int.bit_count().
+                original_count = bin(original_value).count("1")
+                actual_residual_count = bin(residual_value).count("1")
+                if (
+                    original_count != targeted
+                    or actual_residual_count != residual_count
+                    or original_count - actual_residual_count != fin4
+                ):
+                    raise VerificationError(f"Stage60 bitset/ledger drift at Equation{source_id}")
+                original_popcount += original_count
+                residual_popcount += actual_residual_count
+                original_active += original_count > 0
+                residual_active += actual_residual_count > 0
+                for field in totals:
+                    totals[field] += values[field]
+                rows += 1
+            try:
+                next(reader)
+            except StopIteration:
+                pass
+            else:
+                raise VerificationError("Stage60 pair ledger has trailing rows")
+            if original.read(1) or residual.read(1):
+                raise VerificationError("Stage60 pair-bitset stream has trailing bytes")
+    except VerificationError:
+        raise
+    except (OSError, EOFError, UnicodeError, csv.Error) as exc:
+        raise VerificationError(f"cannot stream Stage60 evidence: {exc}") from exc
+
+    expected_totals = {
+        "fin23_covered_target_count": 2_285_032_108,
+        "singleton_true_target_count": 1_306_503_425,
+        "targeted_324m_target_count": PAIR_324_COUNT,
+        "fin4_covered_target_count": PAIR_FIN4_COUNT,
+        "residual_284m_target_count": PAIR_284_COUNT,
+    }
+    if (
+        rows != PAIR_BITSET_EQUATION_COUNT
+        or partition_artifact.get("record_count") != rows
+        or totals != expected_totals
+        or original_popcount != PAIR_324_COUNT
+        or residual_popcount != PAIR_284_COUNT
+        or original_popcount - residual_popcount != PAIR_FIN4_COUNT
+        or original_active != 41_696
+        or residual_active != 41_696
+        or original_digest.hexdigest() != PAIR_324_SHA256
+        or residual_digest.hexdigest() != PAIR_284_SHA256
+    ):
+        raise VerificationError("Stage60 streamed bitset totals/hash drift")
+
+    shard_artifact = require_unique_role_artifact(
+        artifacts, "fin4-shard-index", stage_dir.name
+    )
+    shard_summary = verify_stage60_shard_ledger(stage_dir, shard_artifact)
+    bitset_summary = {
+        "rows_checked": rows,
+        "row_stride_bytes": PAIR_BITSET_ROW_STRIDE,
+        "original_active_sources": original_active,
+        "residual_active_sources": residual_active,
+        "residual_is_subset": True,
+        "diagonal_bits_all_zero": True,
+        "out_of_range_bits_all_zero": True,
+        "original_uncompressed_sha256": original_digest.hexdigest(),
+        "residual_uncompressed_sha256": residual_digest.hexdigest(),
+    }
+    if summary.get("bitset_validation") != bitset_summary:
+        raise VerificationError("Stage60 bitset summary drift")
+    if summary.get("row_ledger") != {"rows": rows, "totals": totals}:
+        raise VerificationError("Stage60 row-ledger summary drift")
+    if summary.get("fin4_enumeration") != shard_summary:
+        raise VerificationError("Stage60 shard-ledger summary drift")
+    partition_summary = summary.get("directed_pair_partition")
+    if not isinstance(partition_summary, dict) or any(
+        partition_summary.get(field) != value
+        for field, value in {
+            "full_nonreflexive_universe": PAIR_BITSET_EQUATION_COUNT
+            * (PAIR_BITSET_EQUATION_COUNT - 1),
+            "fin2_or_fin3_covered": totals["fin23_covered_target_count"],
+            "singleton_true": totals["singleton_true_target_count"],
+            "targeted_after_prior_filters": original_popcount,
+            "fin4_incremental_covered": original_popcount - residual_popcount,
+            "residual_after_fin4": residual_popcount,
+        }.items()
+    ):
+        raise VerificationError("Stage60 directed-pair partition summary drift")
+    return {
+        "original_popcount": original_popcount,
+        "removed_popcount": original_popcount - residual_popcount,
+        "residual_popcount": residual_popcount,
+    }
+
+
+def verify_stage70_semantics(
+    stage_dir: Path,
+    artifacts: list[dict[str, Any]],
+    bank: dict[str, Any] | None,
+    delta: dict[str, Any] | None,
+    summary: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Validate coverage recurrence and its decision/delta/core projections."""
+
+    if bank is None or delta is None or summary is None:
+        raise VerificationError("Stage70 lacks its table bank, delta, or summary")
+    if bank["count"] != STAGE70_POSITIVE_MARGINAL_COUNT:
+        raise VerificationError("Stage70 core cardinality drift")
+    coverage_artifact = require_unique_role_artifact(
+        artifacts, "coverage-score-index", stage_dir.name
+    )
+    coverage_path = safe_stage_path(stage_dir, coverage_artifact["path"])
+    coverage_rows: list[dict[str, Any]] = []
+    seen_model_indexes = bytearray(STAGE70_CANDIDATE_COUNT)
+    seen_model_hashes: set[str] = set()
+    seen_canonical_ids: set[str] = set()
+    previous_sort_key: tuple[int, int] | None = None
+    cumulative = 0
+    individual_positive = 0
+    individual_sum = 0
+    individual_maximum = 0
+    positive_marginal = 0
+    with open_text_artifact(coverage_path) as handle:
+        reader = csv.DictReader(iter_bounded_text_lines(handle, str(coverage_path)))
+        if reader.fieldnames != STAGE70_COVERAGE_HEADER:
+            raise VerificationError("Stage70 coverage-score header drift")
+        for row_number, raw_row in enumerate(reader, start=1):
+            context = f"{coverage_path}:{row_number + 1}"
+            row = require_csv_row_shape(raw_row, STAGE70_COVERAGE_HEADER, context)
+            integers = {
+                field: parse_canonical_nonnegative_integer(row[field], f"{context}.{field}")
+                for field in (
+                    "coverage_rank",
+                    "model_index",
+                    "order",
+                    "satisfied_count",
+                    "refuted_count",
+                    "raw_pair_count",
+                    "remaining_pair_coverage_count",
+                    "new_unique_remaining_pair_count",
+                    "overlap_remaining_pair_count",
+                    "cumulative_unique_remaining_pair_count",
+                )
+            }
+            rank = integers["coverage_rank"]
+            model_index = integers["model_index"]
+            order = integers["order"]
+            satisfied = integers["satisfied_count"]
+            refuted = integers["refuted_count"]
+            raw_pairs = integers["raw_pair_count"]
+            individual = integers["remaining_pair_coverage_count"]
+            marginal = integers["new_unique_remaining_pair_count"]
+            overlap = integers["overlap_remaining_pair_count"]
+            declared_cumulative = integers["cumulative_unique_remaining_pair_count"]
+            model_hash = row["model_sha256"]
+            canonical_id = row["canonical_table_id"]
+            if rank != row_number or rank > STAGE70_CANDIDATE_COUNT:
+                raise VerificationError(f"{context}: coverage ranking drift")
+            if not 0 <= model_index < STAGE70_CANDIDATE_COUNT:
+                raise VerificationError(f"{context}: model_index outside candidate bank")
+            if seen_model_indexes[model_index]:
+                raise VerificationError(f"{context}: duplicate model_index")
+            seen_model_indexes[model_index] = 1
+            if not 5 <= order <= 255:
+                raise VerificationError(f"{context}: invalid candidate order")
+            if not HASH_RE.fullmatch(model_hash) or model_hash in seen_model_hashes:
+                raise VerificationError(f"{context}: invalid/duplicate model_sha256")
+            if not re.fullmatch(r"sha256:[a-f0-9]{64}", canonical_id) or (
+                canonical_id in seen_canonical_ids
+            ):
+                raise VerificationError(f"{context}: invalid/duplicate canonical_table_id")
+            seen_model_hashes.add(model_hash)
+            seen_canonical_ids.add(canonical_id)
+            if satisfied + refuted != PAIR_BITSET_EQUATION_COUNT:
+                raise VerificationError(f"{context}: law-count partition drift")
+            if raw_pairs != satisfied * refuted:
+                raise VerificationError(f"{context}: raw pair-count identity drift")
+            if individual > min(raw_pairs, PAIR_284_COUNT):
+                raise VerificationError(f"{context}: individual coverage outside bounds")
+            sort_key = (-individual, model_index)
+            if previous_sort_key is not None and previous_sort_key >= sort_key:
+                raise VerificationError(f"{context}: fixed coverage order drift")
+            previous_sort_key = sort_key
+            cumulative = advance_coverage_union(
+                cumulative,
+                individual,
+                marginal,
+                overlap,
+                PAIR_284_COUNT,
+                context,
+            )
+            if declared_cumulative != cumulative or cumulative > PAIR_284_COUNT:
+                raise VerificationError(f"{context}: cumulative coverage recurrence drift")
+            verify_fixed_fraction(
+                row["individual_fraction_of_284m_remaining_pairs"],
+                individual,
+                PAIR_284_COUNT,
+                f"{context}.individual_fraction",
+            )
+            verify_fixed_fraction(
+                row["incremental_fraction_of_284m_remaining_pairs"],
+                marginal,
+                PAIR_284_COUNT,
+                f"{context}.incremental_fraction",
+            )
+            verify_fixed_fraction(
+                row["cumulative_fraction_of_284m_remaining_pairs"],
+                cumulative,
+                PAIR_284_COUNT,
+                f"{context}.cumulative_fraction",
+            )
+            individual_positive += individual > 0
+            individual_sum += individual
+            individual_maximum = max(individual_maximum, individual)
+            positive_marginal += marginal > 0
+            coverage_rows.append(
+                {
+                    "coverage_rank": rank,
+                    "model_index": model_index,
+                    "order": order,
+                    "model_sha256": model_hash,
+                    "canonical_table_id": canonical_id,
+                    "remaining_pair_coverage_count": individual,
+                    "new_unique_remaining_pair_count": marginal,
+                    "overlap_remaining_pair_count": overlap,
+                    "cumulative_unique_remaining_pair_count": cumulative,
+                }
+            )
+    if (
+        len(coverage_rows) != STAGE70_CANDIDATE_COUNT
+        or coverage_artifact.get("record_count") != len(coverage_rows)
+        or not all(seen_model_indexes)
+        or individual_positive != STAGE70_INDIVIDUAL_POSITIVE_COUNT
+        or len(coverage_rows) - individual_positive != STAGE70_INDIVIDUAL_ZERO_COUNT
+        or individual_sum != STAGE70_INDIVIDUAL_COVERAGE_SUM
+        or individual_maximum != STAGE70_INDIVIDUAL_COVERAGE_MAX
+        or positive_marginal != STAGE70_POSITIVE_MARGINAL_COUNT
+        or len(coverage_rows) - positive_marginal != STAGE70_ZERO_MARGINAL_COUNT
+        or cumulative != STAGE70_FINAL_UNION_COUNT
+        or PAIR_284_COUNT - cumulative != STAGE70_FINAL_REMAINING_COUNT
+    ):
+        raise VerificationError("Stage70 coverage totals drift")
+
+    selection_artifact = require_unique_role_artifact(
+        artifacts, "selection-index", stage_dir.name
+    )
+    selection_path = safe_stage_path(stage_dir, selection_artifact["path"])
+    decisions: list[dict[str, Any]] = []
+    seen_candidate_positions = bytearray(STAGE70_CANDIDATE_COUNT)
+    with open_text_artifact(selection_path) as handle:
+        for line_number, raw_line in enumerate(
+            iter_bounded_text_lines(handle, str(selection_path)), start=1
+        ):
+            if not raw_line.strip():
+                continue
+            try:
+                decision = json.loads(raw_line)
+            except json.JSONDecodeError as exc:
+                raise VerificationError(
+                    f"invalid selection JSONL {selection_path}:{line_number}: {exc}"
+                ) from exc
+            context = f"{selection_path}:{line_number}"
+            if not isinstance(decision, dict):
+                raise VerificationError(f"non-object selection decision at {context}")
+            require_exact_fields(decision, STAGE70_SELECTION_FIELDS, [], context)
+            if line_number > len(coverage_rows):
+                raise VerificationError("Stage70 selection index has trailing decisions")
+            score = coverage_rows[line_number - 1]
+            for field in (
+                "coverage_rank",
+                "model_index",
+                "order",
+                "remaining_pair_coverage_count",
+                "new_unique_remaining_pair_count",
+                "overlap_remaining_pair_count",
+                "cumulative_unique_remaining_pair_count",
+            ):
+                if (
+                    isinstance(decision[field], bool)
+                    or not isinstance(decision[field], int)
+                    or decision[field] != score[field]
+                ):
+                    raise VerificationError(f"{context}: decision {field} drift")
+            if (
+                decision["canonical_table_id"] != score["canonical_table_id"]
+                or decision["historical_model_sha256"] != score["model_sha256"]
+            ):
+                raise VerificationError(f"{context}: decision identity drift")
+            positive = score["new_unique_remaining_pair_count"] > 0
+            expected_action = "retain" if positive else "remove"
+            expected_reason = STAGE70_POSITIVE_REASON if positive else STAGE70_ZERO_REASON
+            if (
+                decision["action"] != expected_action
+                or decision["reason_code"] != expected_reason
+            ):
+                raise VerificationError(f"{context}: decision classification drift")
+            candidate_position = decision["candidate_position"]
+            if (
+                isinstance(candidate_position, bool)
+                or not isinstance(candidate_position, int)
+                or not 0 <= candidate_position < STAGE70_CANDIDATE_COUNT
+                or seen_candidate_positions[candidate_position]
+            ):
+                raise VerificationError(f"{context}: invalid/duplicate candidate_position")
+            seen_candidate_positions[candidate_position] = 1
+            score["candidate_position"] = candidate_position
+            decisions.append(decision)
+    if (
+        len(decisions) != STAGE70_CANDIDATE_COUNT
+        or selection_artifact.get("record_count") != len(decisions)
+        or not all(seen_candidate_positions)
+    ):
+        raise VerificationError("Stage70 selection decision count/permutation drift")
+
+    if len(delta["rows"]) != len(decisions):
+        raise VerificationError("Stage70 selection/delta cardinality drift")
+    for index, (decision, delta_row) in enumerate(zip(decisions, delta["rows"])):
+        if (
+            delta_row["sequence"] != index
+            or delta_row["action"] != decision["action"]
+            or delta_row["reason_code"] != decision["reason_code"]
+            or delta_row["table_id"] != decision["canonical_table_id"]
+            or delta_row.get("source_stage_id") != STAGE50
+            or delta_row.get("source_table_id") != decision["canonical_table_id"]
+        ):
+            raise VerificationError(f"Stage70 decision/delta drift at coverage rank {index + 1}")
+
+    retained_scores = [
+        score
+        for score in coverage_rows
+        if score["new_unique_remaining_pair_count"] > 0
+    ]
+    if bank["ids"] != [score["canonical_table_id"] for score in retained_scores]:
+        raise VerificationError("Stage70 core order differs from positive decisions")
+    for core_position, score in enumerate(retained_scores):
+        if (
+            bank["orders"][core_position] != score["order"]
+            or bank["historical_ids"][core_position]
+            != "sha256:" + score["model_sha256"]
+        ):
+            raise VerificationError(
+                f"Stage70 core identity drift at retained position {core_position}"
+            )
+
+    expected_coverage_summary = {
+        "candidate_count": STAGE70_CANDIDATE_COUNT,
+        "individual_positive_count": STAGE70_INDIVIDUAL_POSITIVE_COUNT,
+        "individual_zero_count": STAGE70_INDIVIDUAL_ZERO_COUNT,
+        "individual_sum_with_overlap": STAGE70_INDIVIDUAL_COVERAGE_SUM,
+        "positive_marginal_count": STAGE70_POSITIVE_MARGINAL_COUNT,
+        "zero_marginal_count": STAGE70_ZERO_MARGINAL_COUNT,
+        "final_unique_union": STAGE70_FINAL_UNION_COUNT,
+        "remaining_uncovered": STAGE70_FINAL_REMAINING_COUNT,
+        "selection_order": (
+            "descending individual residual coverage, then ascending historical "
+            "model_index; no adaptive reranking"
+        ),
+    }
+    if summary.get("coverage") != expected_coverage_summary:
+        raise VerificationError("Stage70 coverage summary drift")
+    if summary.get("law_count_audit") != {
+        "rows": STAGE70_CANDIDATE_COUNT,
+        "assignments_checked_sum": 11_673_374_836,
+        "satisfied_and_refuted_counts_match": True,
+    }:
+        raise VerificationError("Stage70 law-count summary drift")
+
+    repository_root = stage_dir.parents[1]
+    submission_relative = (
+        "reproduction/00-submission-anchor/raw/"
+        "2026-08-31_marathon_openai-gpt-oss-120b_solver.py"
+    )
+    submission_path = repository_root / submission_relative
+    try:
+        submission_source = read_bounded_file(submission_path)
+        if hashlib.sha256(submission_source).hexdigest() != SUBMITTED_MARATHON_SHA256:
+            raise VerificationError("submitted Marathon solver SHA-256 drift")
+        submitted_payload = extract_embedded_false_solver_table_payload(
+            submission_source,
+            context=str(submission_path),
+        )
+    except Pr2PayloadError as exc:
+        raise VerificationError(f"cannot statically decode submitted false engine: {exc}") from exc
+    if (
+        submitted_payload.model_count != 1_487
+        or submitted_payload.declared_raw_bytes != 111_009
+        or submitted_payload.raw_sha256 != SUBMITTED_FALSE_TABLE_RAW_SHA256
+        or bank["records"] != list(submitted_payload.records[:1_470])
+    ):
+        raise VerificationError("Stage70 core differs from submitted payload prefix")
+    expected_submission_anchor = {
+        "submission_path": submission_relative,
+        "submission_sha256": SUBMITTED_MARATHON_SHA256,
+        "embedded_table_count": 1_487,
+        "core_prefix_count": 1_470,
+        "core_prefix_exact_record_order_match": True,
+    }
+    if summary.get("submitted_payload_anchor") != expected_submission_anchor:
+        raise VerificationError("Stage70 submitted-payload summary drift")
+    return {"coverage_rows": coverage_rows}
+
+
 def verify_raw_snapshot(path: Path, declared_count: int) -> None:
     count = 0
     seen: set[str] = set()
@@ -897,6 +2065,8 @@ def verify_table_index(
     table_ids: list[str] = []
     table_set: set[str] = set()
     historical_ids: list[str] = []
+    encoded_records: list[bytes] = []
+    orders: list[int] = []
     first_seen: dict[str, str] = {}
     provenance_source_ids: set[str] = set()
     order_counts: dict[str, int] = {}
@@ -922,6 +2092,8 @@ def verify_table_index(
                 raise VerificationError(f"duplicate canonical table_id in {index_path}: {table_id}")
             table_set.add(table_id)
             table_ids.append(table_id)
+            encoded_records.append(encoded)
+            orders.append(record["order"])
             first_seen[table_id] = record["first_seen_stage"]
             provenance_source_ids.update(
                 source["source_id"] for source in record["provenance"]
@@ -956,6 +2128,8 @@ def verify_table_index(
         "ids": table_ids,
         "id_set": table_set,
         "historical_ids": historical_ids,
+        "records": encoded_records,
+        "orders": orders,
         "first_seen": first_seen,
         "provenance_source_ids": provenance_source_ids,
         "count": len(table_ids),
@@ -1268,6 +2442,11 @@ def verify_stage(
         "skipped-model-index",
         "input-classification",
     }
+    csv_count_roles = {
+        "pair-partition",
+        "fin4-shard-index",
+        "coverage-score-index",
+    }
     delivery_binaries: dict[str, list[str]] = {}
     for artifact in artifacts:
         if artifact["role"] in line_count_roles:
@@ -1275,6 +2454,12 @@ def verify_stage(
             if artifact.get("record_count") != actual_count:
                 raise VerificationError(
                     f"record_count drift for {artifact['path']} in {stage_dir.name}"
+                )
+        if artifact["role"] in csv_count_roles:
+            actual_count = count_csv_rows(safe_stage_path(stage_dir, artifact["path"]))
+            if artifact.get("record_count") != actual_count:
+                raise VerificationError(
+                    f"CSV record_count drift for {artifact['path']} in {stage_dir.name}"
                 )
         if artifact["role"] == "delivery-binary":
             ids = table_binary_ids(safe_stage_path(stage_dir, artifact["path"]))
@@ -1348,11 +2533,24 @@ def verify_stage(
             submission_summary,
         )
 
+    pr2_semantics = None
+    if stage_dir.name == STAGE50:
+        pr2_semantics = verify_stage50_semantics(
+            stage_dir, artifacts, bank, delta, summary
+        )
+    elif stage_dir.name == STAGE60:
+        pr2_semantics = verify_stage60_semantics(stage_dir, artifacts, summary)
+    elif stage_dir.name == STAGE70:
+        pr2_semantics = verify_stage70_semantics(
+            stage_dir, artifacts, bank, delta, summary
+        )
+
     return len(artifacts), submission_count, manifest_claims, {
         "manifest": manifest,
         "bank": bank,
         "delta": delta,
         "summary": summary,
+        "pr2": pr2_semantics,
     }
 
 
@@ -1434,6 +2632,131 @@ def verify_schema_documents(root: Path) -> int:
     return len(expected)
 
 
+def verify_stage50_transition(
+    result: dict[str, Any], previous: dict[str, Any]
+) -> None:
+    bank = result["bank"]
+    previous_bank = previous["bank"]
+    semantics = result.get("pr2")
+    if bank is None or previous_bank is None or not isinstance(semantics, dict):
+        raise VerificationError("Stage50 transition lacks semantic bank evidence")
+    if previous_bank["count"] != STAGE50_INPUT_COUNT:
+        raise VerificationError("Stage50 input-bank count drift")
+
+    witness_by_position = {
+        witness["source_position"]: witness for witness in semantics["witnesses"]
+    }
+    direct_positions: list[int] = []
+    for position, record in enumerate(previous_bank["records"]):
+        if direct_affine_parameters(record) is not None:
+            direct_positions.append(position)
+    declared_direct_positions = [
+        witness["source_position"]
+        for witness in semantics["witnesses"]
+        if witness["classification"] == "direct"
+    ]
+    if direct_positions != declared_direct_positions:
+        raise VerificationError("Stage50 direct-affine classification is incomplete")
+
+    for position, witness in witness_by_position.items():
+        if not 0 <= position < previous_bank["count"]:
+            raise VerificationError("Stage50 affine source position is outside Stage40")
+        record = previous_bank["records"][position]
+        order = record[0]
+        entries = record[1:]
+        if (
+            previous_bank["ids"][position] != witness["table_id"]
+            or order != witness["order"]
+        ):
+            raise VerificationError(
+                f"Stage50 affine witness identity drift at Stage40 position {position}"
+            )
+        mapping = witness["mapping"]
+        left, right, constant = witness["parameters"]
+        for row in range(order):
+            offset = row * order
+            for column in range(order):
+                actual = mapping[entries[offset + column]]
+                expected = (
+                    left * mapping[row]
+                    + right * mapping[column]
+                    + constant
+                ) % order
+                if actual != expected:
+                    raise VerificationError(
+                        f"Stage50 affine witness fails at position {position}, "
+                        f"cell ({row}, {column})"
+                    )
+
+    previous_position = {
+        table_id: position for position, table_id in enumerate(previous_bank["ids"])
+    }
+    removed_positions = set(witness_by_position)
+    for table_id in semantics["small_delta_ids"]:
+        position = previous_position.get(table_id)
+        if position is None or position in removed_positions:
+            raise VerificationError("Stage50 small-table delta identity drift")
+        if previous_bank["orders"][position] > 4:
+            raise VerificationError("Stage50 Fin4 removal has order greater than four")
+        if direct_affine_parameters(previous_bank["records"][position]) is not None:
+            raise VerificationError("Stage50 Fin4 removal is directly scalar-affine")
+        removed_positions.add(position)
+    expected_ids = [
+        table_id
+        for position, table_id in enumerate(previous_bank["ids"])
+        if position not in removed_positions
+    ]
+    if bank["ids"] != expected_ids:
+        raise VerificationError("Stage50 stable-filter output order drift")
+
+    delivery = semantics["delivery"]
+    delivery_start = previous_bank["count"] - STAGE50_DELIVERY_COUNT
+    delivery_ids = previous_bank["ids"][delivery_start:]
+    delivery_orders = previous_bank["orders"][delivery_start:]
+    order4_offsets = [
+        offset for offset, order in enumerate(delivery_orders) if order == 4
+    ]
+    retained_delivery = [table_id for table_id in delivery_ids if table_id in bank["id_set"]]
+    if len(order4_offsets) != 1:
+        raise VerificationError("Stage50 delivery does not have one order-4 table")
+    order4_position = delivery_start + order4_offsets[0]
+    if (
+        delivery["order4_stage40_position"] != order4_position
+        or delivery["order4_table_id"] != previous_bank["ids"][order4_position]
+        or delivery["candidate_retained_table_ids"] != retained_delivery
+        or len(retained_delivery) != STAGE50_DELIVERY_RETAINED_COUNT
+    ):
+        raise VerificationError("Stage50 delivery retention audit drift")
+
+
+def verify_stage70_transition(
+    result: dict[str, Any], previous: dict[str, Any]
+) -> None:
+    bank = result["bank"]
+    candidate_bank = previous["bank"]
+    semantics = result.get("pr2")
+    if bank is None or candidate_bank is None or not isinstance(semantics, dict):
+        raise VerificationError("Stage70 transition lacks semantic bank evidence")
+    if candidate_bank["count"] != STAGE70_CANDIDATE_COUNT:
+        raise VerificationError("Stage70 candidate-bank cardinality drift")
+    positive_records: list[bytes] = []
+    for score in semantics["coverage_rows"]:
+        position = score["candidate_position"]
+        if (
+            candidate_bank["ids"][position] != score["canonical_table_id"]
+            or candidate_bank["historical_ids"][position]
+            != "sha256:" + score["model_sha256"]
+            or candidate_bank["orders"][position] != score["order"]
+        ):
+            raise VerificationError(
+                f"Stage70 candidate join drift at coverage rank {score['coverage_rank']}"
+            )
+        if score["new_unique_remaining_pair_count"] > 0:
+            positive_records.append(candidate_bank["records"][position])
+    if bank["records"] != positive_records:
+        raise VerificationError("Stage70 core records differ from positive-marginal candidates")
+
+
 def verify_stage_transitions(
     results: dict[str, dict[str, Any]], *, allow_missing_dependencies: bool = False
 ) -> None:
@@ -1487,11 +2810,17 @@ def verify_stage_transitions(
                 # A --stage selection intentionally verifies one stage in isolation.
                 continue
             raise VerificationError(f"cannot reconstruct missing dependency for {stage_id}")
-        if len(dependencies) > 1:
-            raise VerificationError(f"table stage has multiple bank dependencies: {stage_id}")
-        previous = results[dependencies[0]]["bank"] if dependencies else None
-        if dependencies and previous is None:
-            raise VerificationError(f"bank dependency has no table bank: {stage_id}")
+        bank_dependencies = [
+            dependency
+            for dependency in dependencies
+            if results[dependency]["bank"] is not None
+        ]
+        if dependencies and len(bank_dependencies) != 1:
+            raise VerificationError(
+                f"table stage must have exactly one bank dependency: {stage_id}"
+            )
+        previous_stage = results[bank_dependencies[0]] if bank_dependencies else None
+        previous = previous_stage["bank"] if previous_stage is not None else None
         working = set(previous["id_set"] if previous is not None else set())
         previous_first_seen = previous["first_seen"] if previous is not None else {}
         for row in delta["rows"]:
@@ -1532,6 +2861,52 @@ def verify_stage_transitions(
                 raise VerificationError(
                     f"new table has wrong first_seen_stage in {stage_id}: {table_id}"
                 )
+        if stage_id == STAGE50:
+            if previous_stage is None:
+                raise VerificationError("Stage50 lacks its Stage40 bank dependency")
+            verify_stage50_transition(result, previous_stage)
+        elif stage_id == STAGE70:
+            if previous_stage is None:
+                raise VerificationError("Stage70 lacks its Stage50 bank dependency")
+            verify_stage70_transition(result, previous_stage)
+
+
+def resolve_stage_directories(
+    reproduction_root: Path,
+    selected_stages: list[str] | None,
+) -> list[Path]:
+    """Resolve requested stages plus every transitive manifest dependency."""
+
+    if not selected_stages:
+        return sorted(
+            (path.parent for path in reproduction_root.glob("*/stage.json")),
+            key=lambda path: (int(path.name.split("-", 1)[0]), path.name),
+        )
+    resolved: set[str] = set()
+    pending = list(selected_stages)
+    while pending:
+        stage_id = pending.pop()
+        if not isinstance(stage_id, str) or not STAGE_RE.fullmatch(stage_id):
+            raise VerificationError(f"invalid selected stage: {stage_id!r}")
+        if stage_id in resolved:
+            continue
+        stage_dir = reproduction_root / stage_id
+        manifest_path = stage_dir / "stage.json"
+        if not stage_dir.is_dir() or not manifest_path.is_file():
+            raise VerificationError(f"stage directory does not exist: {stage_id}")
+        manifest = load_json(manifest_path)
+        dependencies = manifest.get("depends_on")
+        if not isinstance(dependencies, list) or any(
+            not isinstance(value, str) or not STAGE_RE.fullmatch(value)
+            for value in dependencies
+        ):
+            raise VerificationError(f"invalid dependency list in selected stage: {stage_id}")
+        resolved.add(stage_id)
+        pending.extend(dependencies)
+    return sorted(
+        (reproduction_root / stage_id for stage_id in resolved),
+        key=lambda path: (int(path.name.split("-", 1)[0]), path.name),
+    )
 
 
 def verify_repository(
@@ -1540,10 +2915,7 @@ def verify_repository(
     schema_count = verify_schema_documents(root)
     claims_by_id = verify_claims(root)
     reproduction_root = root / "reproduction"
-    if selected_stages:
-        stage_dirs = [reproduction_root / stage for stage in selected_stages]
-    else:
-        stage_dirs = sorted(path.parent for path in reproduction_root.glob("*/stage.json"))
+    stage_dirs = resolve_stage_directories(reproduction_root, selected_stages)
     if not stage_dirs:
         raise VerificationError("no reproduction stages found")
 
@@ -1573,9 +2945,7 @@ def verify_repository(
                 f"non-planned claim is missing from its stage manifest: {claim_id}"
             )
 
-    verify_stage_transitions(
-        stage_results, allow_missing_dependencies=bool(selected_stages)
-    )
+    verify_stage_transitions(stage_results)
 
     print(f"OK schemas: {schema_count} documents")
     print(f"OK CLAIMS.csv: {len(claims_by_id)} claims")
@@ -1594,7 +2964,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--stage",
         action="append",
         dest="stages",
-        help="verify only this stage; repeat for multiple stages",
+        help="verify this stage and all transitive dependencies; repeat as needed",
     )
     return parser.parse_args(argv)
 

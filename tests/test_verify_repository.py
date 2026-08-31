@@ -11,15 +11,21 @@ from pathlib import Path
 
 from tools.verify_repository import (
     VerificationError,
+    advance_coverage_union,
     canonical_table_bytes,
     canonical_table_id,
+    count_csv_rows,
     historical_table_id,
+    resolve_stage_directories,
     validate_delta_record,
     validate_stage_manifest_structure,
     validate_submission_record,
     validate_table_record,
     verify_identity_map,
     verify_repository,
+    verify_claims,
+    verify_stage,
+    verify_stage70_semantics,
     verify_stage_transitions,
 )
 
@@ -28,6 +34,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class CanonicalTableTests(unittest.TestCase):
+    def test_coverage_overlap_cannot_exceed_prior_union(self) -> None:
+        with self.assertRaises(VerificationError):
+            advance_coverage_union(0, 1, 0, 1, 10, "fixture")
+
     def test_table_id_includes_order_and_row_major_entries(self) -> None:
         encoded = bytes([2, 0, 1, 1, 0])
         self.assertEqual(canonical_table_bytes(2, [0, 1, 1, 0]), encoded)
@@ -83,10 +93,59 @@ class RepositoryFixtureTests(unittest.TestCase):
         self.assertEqual(artifact_count, 5)
 
     def test_full_pr1_repository_contract(self) -> None:
-        stage_count, artifact_count = verify_repository(ROOT)
+        stage_count, artifact_count = verify_repository(
+            ROOT,
+            [
+                "00-submission-anchor",
+                "10-primary-9450",
+                "20-registered-9852",
+                "30-early-deltas-9957",
+                "40-delivery-10059",
+            ],
+        )
         self.assertEqual(stage_count, 5)
         self.assertEqual(artifact_count, 37)
 
+    def test_full_pr2_repository_contract(self) -> None:
+        stage_count, artifact_count = verify_repository(ROOT)
+        self.assertEqual(stage_count, 8)
+        self.assertEqual(artifact_count, 59)
+
+    def test_stage_selection_includes_transitive_dependencies(self) -> None:
+        stage_dirs = resolve_stage_directories(
+            ROOT / "reproduction", ["70-positive-marginal-core-1470"]
+        )
+        self.assertEqual(
+            [path.name for path in stage_dirs],
+            [
+                "00-submission-anchor",
+                "10-primary-9450",
+                "20-registered-9852",
+                "30-early-deltas-9957",
+                "40-delivery-10059",
+                "50-generator-prune-3535",
+                "60-fin4-residual-284151591",
+                "70-positive-marginal-core-1470",
+            ],
+        )
+
+    def test_stage70_rejects_a_false_submission_prefix_summary(self) -> None:
+        stage_dir = ROOT / "reproduction/70-positive-marginal-core-1470"
+        _artifact_count, _submission_count, _claims, result = verify_stage(
+            stage_dir, verify_claims(ROOT)
+        )
+        summary = deepcopy(result["summary"])
+        summary["submitted_payload_anchor"][
+            "core_prefix_exact_record_order_match"
+        ] = False
+        with self.assertRaises(VerificationError):
+            verify_stage70_semantics(
+                stage_dir,
+                result["manifest"]["artifacts"],
+                result["bank"],
+                result["delta"],
+                summary,
+            )
     def test_submission_schema_rejects_an_invalid_track(self) -> None:
         index_path = ROOT / "reproduction/00-submission-anchor/submissions.jsonl"
         record = json.loads(index_path.read_text(encoding="utf-8").splitlines()[0])
@@ -130,6 +189,61 @@ class RepositoryFixtureTests(unittest.TestCase):
         with self.assertRaises(VerificationError):
             verify_stage_transitions(results)
         verify_stage_transitions(results, allow_missing_dependencies=True)
+
+    def test_table_stage_allows_two_dependencies_with_one_bank_provider(self) -> None:
+        table_id = "sha256:" + "1" * 64
+
+        def bank(first_seen: str) -> dict[str, object]:
+            return {
+                "id_set": {table_id},
+                "first_seen": {table_id: first_seen},
+                "provenance_source_ids": set(),
+            }
+
+        results = {
+            "10-bank": {
+                "manifest": {
+                    "sources": [{"source_id": "bank-source"}],
+                    "pipeline_order": 10,
+                    "depends_on": [],
+                },
+                "bank": bank("10-bank"),
+                "delta": {
+                    "rows": [{"table_id": table_id, "action": "add"}]
+                },
+            },
+            "20-evidence": {
+                "manifest": {
+                    "sources": [{"source_id": "evidence-source"}],
+                    "pipeline_order": 20,
+                    "depends_on": [],
+                },
+                "bank": None,
+                "delta": None,
+            },
+            "30-combined": {
+                "manifest": {
+                    "sources": [{"source_id": "combined-source"}],
+                    "pipeline_order": 30,
+                    "depends_on": ["10-bank", "20-evidence"],
+                },
+                "bank": bank("10-bank"),
+                "delta": {
+                    "rows": [{"table_id": table_id, "action": "retain"}]
+                },
+            },
+        }
+        verify_stage_transitions(results)
+
+    def test_csv_record_count_excludes_header_for_gzip(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            path = Path(temporary_dir) / "rows.csv.gz"
+            with gzip.open(path, "wt", encoding="utf-8", newline="") as handle:
+                writer = csv.writer(handle, lineterminator="\n")
+                writer.writerow(["id", "value"])
+                writer.writerow(["1", "a"])
+                writer.writerow(["2", "b"])
+            self.assertEqual(count_csv_rows(path), 2)
 
     def test_identity_map_rejects_wrong_first_seen_stage(self) -> None:
         entries = [0, 1, 1, 0]

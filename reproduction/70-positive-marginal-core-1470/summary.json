@@ -1,0 +1,70 @@
+{
+  "action_counts": {
+    "remove": 2065,
+    "retain": 1470
+  },
+  "bank": {
+    "canonical_id_vector_sha256": "3b2dac95bb4f10bd9a2c159155a9ba9997547ad17dfa1726ec3cb3b6ff4b8321",
+    "historical_id_vector_sha256": "d127342b656f42dece409247e1e76f84137218ee6e3f2877b46aef6b1bedb09d",
+    "order_distribution": {
+      "10": 95,
+      "11": 6,
+      "12": 180,
+      "13": 1,
+      "16": 3,
+      "20": 3,
+      "25": 2,
+      "32": 1,
+      "5": 102,
+      "6": 536,
+      "7": 29,
+      "8": 288,
+      "9": 224
+    },
+    "raw_bytes": 101870,
+    "raw_sha256": "7bbc54d33415143349c92cd4c919052ed54c1e5f20973a9b189818362654da5b",
+    "table_count": 1470
+  },
+  "coverage": {
+    "candidate_count": 3535,
+    "final_unique_union": 32336615,
+    "individual_positive_count": 2303,
+    "individual_sum_with_overlap": 48939148,
+    "individual_zero_count": 1232,
+    "positive_marginal_count": 1470,
+    "remaining_uncovered": 251814976,
+    "selection_order": "descending individual residual coverage, then ascending historical model_index; no adaptive reranking",
+    "zero_marginal_count": 2065
+  },
+  "known_gaps": [
+    "The exact historical d17_fix solver file named by the coverage manifests is no longer available at its recorded SHA-256.",
+    "Its 3,535-table payload is nevertheless bound independently: every coverage model digest maps exactly to the Stage50 published d17 bank, and the selected 1,470-record order matches the submitted solver prefix.",
+    "Normal verification checks the frozen coverage outputs structurally; replaying the historical C evaluator is optional and requires a compiler plus the large residual bitset."
+  ],
+  "law_count_audit": {
+    "assignments_checked_sum": 11673374836,
+    "rows": 3535,
+    "satisfied_and_refuted_counts_match": true
+  },
+  "metrics": {
+    "core.1470": 1470,
+    "coverage.zero_marginal": 2065
+  },
+  "raw_members": {
+    "deduplicated_coverage": "members/wubing/artifacts/runs/d17-finite-model-284m-pair-coverage-20260818/model_284m_pair_coverage_deduplicated.csv",
+    "individual_coverage": "members/wubing/artifacts/runs/d17-finite-model-284m-pair-coverage-20260818/model_284m_pair_coverage.csv"
+  },
+  "schema_version": "1.0.0",
+  "share_zip_audit": {
+    "external_members_byte_identical": 7,
+    "members": 11
+  },
+  "stage_id": "70-positive-marginal-core-1470",
+  "submitted_payload_anchor": {
+    "core_prefix_count": 1470,
+    "core_prefix_exact_record_order_match": true,
+    "embedded_table_count": 1487,
+    "submission_path": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+    "submission_sha256": "e301cbd091df1376c21ac297e1afb05decb70c34879cd6e485744d09e017c809"
+  }
+}
