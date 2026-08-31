@@ -1,0 +1,37 @@
+{
+  "category_counts": {
+    "finite_countermodel_proved": 149,
+    "finite_status_unknown": 2,
+    "general_true": 38,
+    "infinite_countermodel_required": 600
+  },
+  "matrix": {
+    "buffer_limit_bytes": 262144,
+    "chunk_bytes": 65536,
+    "column_count": 4694,
+    "compressed_bytes": 2152004,
+    "compressed_sha256": "257f9e97bac460e3dcdb74469d95783a640c797d8d3423b8e9dbef95e5db52d5",
+    "equation_count": 4694,
+    "full_json_syntax_scanned_to_eof": true,
+    "matrix_cells_scanned": 22033636,
+    "matrix_materialized": false,
+    "max_buffer_bytes_observed": 173473,
+    "max_decoded_value_bytes_observed": 107962,
+    "observed_statuses": [
+      "explicit_proof_false",
+      "explicit_proof_true",
+      "implicit_proof_false",
+      "implicit_proof_true",
+      "unknown"
+    ],
+    "row_count": 4694,
+    "selected_cells_retained": 789,
+    "uncompressed_bytes_read": 498673223
+  },
+  "one_based_ids_converted_to_zero_based_coordinates": true,
+  "projection_records": 789,
+  "schema_version": "1.0.0",
+  "stage80_screening_exact_record_match": true,
+  "stage80_screening_path": "reproduction/80-finite149/normalized/screening-decisions.jsonl.gz",
+  "stage80_screening_sha256": "1488d2f2894ad3add48912a9adc556a56e454379b3b4bd652c9ec58f23a06a24"
+}

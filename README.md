@@ -32,29 +32,43 @@ payload and 2,901-table runtime opposite closure remain deferred to PR 4. See
 [TIMELINE.md](TIMELINE.md) for the planned sequence and [CLAIMS.csv](CLAIMS.csv)
 for the claim ledger.
 
+The follow-up `81-finite149-portable-verification` stage corrects the PR 3 review
+path without changing its data: it streams the 498,673,223-byte finite-outcomes
+JSON by matrix row, parses all 17 captured Lean operator tables, records the exact
+order-22 Refutation934 provenance, and marks the 149 ETP paths as a frozen inventory
+rather than an independently replayed graph. It also retains the full Stage 80
+semantic gate by rerunning all 149 exhaustive task checks, 11 transpose derivations,
+zero-overlap and 1,470-prefix/17-suffix submission comparisons.
+
 ## Verify this checkout
 
-The verifier uses only the Python standard library and hashes files in bounded
+The scripts require **Python 3.10+** and are recommended and tested with **Python
+3.11**, matching the official competition
+[`python:3.11-slim` sandbox](https://github.com/SAIRcompetition/equational-theories-lean-stage2/blob/main/README.md#sandbox-python-environment).
+Python 3.12 is retained as an additional CI compatibility check. The verifier uses
+only the Python standard library and processes large files in bounded streams or
 chunks:
 
 ```bash
 python3 tools/verify_repository.py
-python3 reproduction/80-finite149/scripts/verify.py
+python3 reproduction/81-finite149-portable-verification/scripts/verify.py
 python3 -m unittest discover -s tests -v
 ```
 
-To regenerate the PR 1, PR 2, and PR 3 normalized outputs, deltas, summaries,
-manifests, and checksums from the committed raw snapshots:
+To regenerate the PR 1 and PR 2 outputs plus the corrected PR 3 verification layer
+from the committed raw snapshots:
 
 ```bash
 python3 tools/rebuild_pr1.py
 python3 tools/rebuild_pr2.py
-python3 reproduction/80-finite149/scripts/rebuild.py
+python3 reproduction/81-finite149-portable-verification/scripts/rebuild.py
 git diff --exit-code
 ```
 
 The PR 2 rebuild uses bounded streams for the two 489,598,720-byte uncompressed
-pair bitsets; it does not load them into memory.
+pair bitsets. The corrected PR 3 rebuild scans all 498,673,223 uncompressed
+finite-outcomes bytes with a 256 KiB application-buffer cap and retains only the
+789 requested cells. Neither path materializes its large input in memory.
 
 ## Repository layout
 

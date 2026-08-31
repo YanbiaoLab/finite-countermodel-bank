@@ -16,6 +16,10 @@ rewrite an earlier stage.
 Not every stage needs every optional directory. Omissions must be explained in its
 README.
 
+Maintained reproduction commands require Python 3.10+ and are recommended and
+tested with Python 3.11, the official competition sandbox version. CI requires
+3.11 and keeps 3.12 as an additional compatibility check.
+
 ## Canonical table identity
 
 For an operation table of order `n` (`1 <= n <= 255`):
@@ -112,3 +116,41 @@ Stage 50 静态解析 d15/d17 并重建两次稳定筛选；Stage 60 逐行流�
 位图及 256 个 Fin4 分片账本；Stage 70 按冻结排序重放 3,535 个 keep/drop 决策，并与实际
 提交 solver 的前 1,470 条记录逐条比较。由于 Stage 60 的 singleton 与完整种子链缺失，
 这里的“复现”仅指冻结产物回放和独立校验，不代表从零重跑历史 Fin4 搜索。
+
+## PR 3 capture and portable correction
+
+Stage `80-finite149` preserves the immutable finite149 snapshot and the
+`789 → 149 → 17 + 11` augmentation. Its merged historical builder materializes the
+complete finite-outcomes JSON, so normal review now uses the append-only corrective
+stage `81-finite149-portable-verification`:
+
+```bash
+python3 reproduction/81-finite149-portable-verification/scripts/rebuild.py
+python3 reproduction/81-finite149-portable-verification/scripts/verify.py
+```
+
+Stage 81 validates all 4,694 equation names, streams all 4,694 matrix rows through
+top-level EOF under a 256 KiB application-buffer cap, and retains only the 789
+requested cells. It reproduces the exact Stage 80 screening ledger, parses all 17
+captured Lean operator-table comments, and publishes the corrected effective source
+for the order-22 `F149-014` table. The same portable command reruns all 149
+exhaustive task checks, 11 transpose derivations, orientation/delta joins, exact
+zero-overlap, and submitted prefix/suffix comparisons, so replacing the historical
+high-memory command does not reduce CI semantic coverage.
+
+The correction also makes the ETP evidence boundary explicit: the 149 paths are a
+frozen inventory. The captured snapshot has the 17 table-source files but omits the
+finite graph and 13 other referenced path-source files, so it cannot replay every
+graph edge. Independent exhaustive finite-table semantics for all 149 directions
+remain available in Stage 80.
+
+Stage 81 has no `raw/` directory because it consumes the immutable Stage 80 archive,
+and no delta because it changes no table membership.
+
+## PR 3 流式修正说明
+
+Stage 81 不改动 Stage 80 的任何 raw、规范表、delta 或数量结论。它把约 499 MB 的
+finite-outcomes 解压 JSON 改为逐行扫描，只保留 789 个目标单元；同时补齐 17 份 Lean
+表的直接解析核对、Refutation934 order-22 表的实际来源记录，以及 ETP 路径只能作为冻结
+清单而不能从现有快照逐边重放的边界说明。其余 149 项穷举、11 个转置、零重叠及提交
+前后缀检查也由同一低内存入口完整重跑。

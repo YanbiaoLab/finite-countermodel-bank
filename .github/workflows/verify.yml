@@ -9,13 +9,14 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  verify-python311:
+    name: Required baseline (Python 3.11)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
       - name: Rebuild PR 1 from committed snapshots
         run: |
           python3 tools/rebuild_pr1.py
@@ -26,12 +27,25 @@ jobs:
           python3 tools/rebuild_pr2.py
           git diff --exit-code
           test -z "$(git status --porcelain --untracked-files=all)"
-      - name: Rebuild and verify PR 3 from committed snapshot
+      - name: Rebuild and verify corrected PR 3 from committed snapshot
         run: |
-          python3 reproduction/80-finite149/scripts/verify.py
+          python3 reproduction/81-finite149-portable-verification/scripts/verify.py --skip-repository-verifier
           git diff --exit-code
           test -z "$(git status --porcelain --untracked-files=all)"
       - name: Verify manifests and artifacts
         run: python3 tools/verify_repository.py
       - name: Run unit tests
         run: python3 -m unittest discover -s tests -v
+
+  verify-python312:
+    name: Additional compatibility (Python 3.12)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify portable PR 3 correction
+        run: python3 reproduction/81-finite149-portable-verification/scripts/verify.py --skip-repository-verifier
+      - name: Run portable-parser unit tests
+        run: python3 -m unittest tests.test_stage81_streaming -v

@@ -1,0 +1,146 @@
+{
+  "correction_scope": {
+    "changes_stage80_membership_or_counts": false,
+    "preserves_stage80_raw_and_generated_artifacts": true,
+    "replaces_high_memory_stage80_rebuild_for_normal_review": true
+  },
+  "finite_outcomes_streaming": {
+    "category_counts": {
+      "finite_countermodel_proved": 149,
+      "finite_status_unknown": 2,
+      "general_true": 38,
+      "infinite_countermodel_required": 600
+    },
+    "matrix": {
+      "buffer_limit_bytes": 262144,
+      "chunk_bytes": 65536,
+      "column_count": 4694,
+      "compressed_bytes": 2152004,
+      "compressed_sha256": "257f9e97bac460e3dcdb74469d95783a640c797d8d3423b8e9dbef95e5db52d5",
+      "equation_count": 4694,
+      "full_json_syntax_scanned_to_eof": true,
+      "matrix_cells_scanned": 22033636,
+      "matrix_materialized": false,
+      "max_buffer_bytes_observed": 173473,
+      "max_decoded_value_bytes_observed": 107962,
+      "observed_statuses": [
+        "explicit_proof_false",
+        "explicit_proof_true",
+        "implicit_proof_false",
+        "implicit_proof_true",
+        "unknown"
+      ],
+      "row_count": 4694,
+      "selected_cells_retained": 789,
+      "uncompressed_bytes_read": 498673223
+    },
+    "one_based_ids_converted_to_zero_based_coordinates": true,
+    "projection_records": 789,
+    "schema_version": "1.0.0",
+    "stage80_screening_exact_record_match": true,
+    "stage80_screening_path": "reproduction/80-finite149/normalized/screening-decisions.jsonl.gz",
+    "stage80_screening_sha256": "1488d2f2894ad3add48912a9adc556a56e454379b3b4bd652c9ec58f23a06a24"
+  },
+  "lean_source_tables": {
+    "captured_sources_parsed": 17,
+    "exact_matches": 17
+  },
+  "path_evidence_boundary": {
+    "captured_source_count": 17,
+    "declared_source_count": 30,
+    "edge_replay_performed": false,
+    "missing_source_count": 13
+  },
+  "python": {
+    "minimum": "3.10",
+    "official_sandbox_image": "python:3.11-slim",
+    "recommended_and_required_ci_baseline": "3.11",
+    "standard_library_only": true
+  },
+  "refutation934": {
+    "all_direct_order22_reductions_agree": true,
+    "closed_substructure": true,
+    "corrected_effective_provenance": {
+      "base_model_id": "ofc14_n24_dc261bc901be",
+      "derivation": "closed induced substructure of the official order-24 Lean table",
+      "effective_order": 22,
+      "effective_source_path": "reproduction/80-finite149/raw/finite149-source-snapshot.tar.gz#source/refutation934/order24_coverage_reductions.json",
+      "effective_source_record": "directions[problem_id=order4_full_04004172_0854_1045].best.table_rows",
+      "effective_table_id": "sha256:8a1868e8b86dca79df6029dcd8344375b18e9c0b0b4d0b2e25fa19e1591c2b3c",
+      "official_lean_source": "equational_theories/Generated/All4x4Tables/Refutation934.lean",
+      "official_order": 24,
+      "schema_version": "1.0.0",
+      "stable_id": "F149-014",
+      "supersedes_stage80_record": "reproduction/80-finite149/normalized/base-tables.jsonl.gz#stable_id=F149-014"
+    },
+    "direct_reduction_problem_ids": [
+      "order4_full_04004172_0854_1045"
+    ],
+    "effective_table_matches_stage80_F149_014": true,
+    "official_lean_table_canonical_id": "sha256:729f28c1b34eb0d9faea32e3bde0c6a71ff7de182a9eed8c661e12781609524c",
+    "official_order": 24,
+    "official_source": "equational_theories/Generated/All4x4Tables/Refutation934.lean",
+    "schema_version": "1.0.0",
+    "substitute_compact_json_sha256": "94bd3759173b7dd6e501da7df0011aa57f9a4e39754c37a15c64ac3ddf673d3c",
+    "substitute_order": 22,
+    "substitute_table_canonical_id": "sha256:8a1868e8b86dca79df6029dcd8344375b18e9c0b0b4d0b2e25fa19e1591c2b3c",
+    "substructure_subset_in_official_carrier": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      7,
+      8,
+      9,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ]
+  },
+  "schema_version": "1.0.0",
+  "stage80_inputs": {
+    "finite_outcomes_compressed_sha256": "257f9e97bac460e3dcdb74469d95783a640c797d8d3423b8e9dbef95e5db52d5",
+    "outer_archive_member_bytes": 3520259,
+    "outer_archive_members": 28,
+    "raw_snapshot_sha256": "15dcc1152d014e4a18996d160f0471e85e3c47f7227450c1c2ed2b8bf1dbc237",
+    "source_snapshot_captured_at": "2026-08-31T18:00:00+08:00"
+  },
+  "stage80_portable_semantics": {
+    "append_order_exact_records": 17,
+    "base_binary_exact_records": 17,
+    "core_prefix_exact_records": 1470,
+    "delta_add_records": 17,
+    "delta_derive_records": 11,
+    "etp_path_inventory_records_validated": 149,
+    "exhaustive_assignment_count": 1535666,
+    "exhaustive_direction_exact_record_matches": 149,
+    "full_stage80_semantic_replacement": true,
+    "orientation_usage": {
+      "direct": 129,
+      "transpose": 20
+    },
+    "refutation934_five_task_exact_record_matches": 5,
+    "required_transpose_exact_records": 11,
+    "schema_version": "1.0.0",
+    "stage80_artifacts_modified": false,
+    "submitted_record_count": 1487,
+    "suffix_exact_records": 17,
+    "zero_overlap_with_core1470": {
+      "base_tables": 0,
+      "oriented_assets": 0
+    }
+  },
+  "stage_id": "81-finite149-portable-verification"
+}
