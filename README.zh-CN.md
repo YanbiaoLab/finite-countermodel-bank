@@ -17,8 +17,11 @@ PR 2 复现 10,059 → 3,535 的稳定精简，验证冻结的 Fin4
 该核心与 Marathon 实际提交的前 1,470 条嵌入记录逐条一致。由于 singleton 输入和完整
 种子链缺失，Fin4 阶段明确属于冻结产物回放，而非从零重跑。
 
-finite149 增补及最终 payload 集成仍按时间顺序、一次一个 PR 加入。阶段安排见
-[TIMELINE.md](TIMELINE.md)，各项数字及其验证状态见 [CLAIMS.csv](CLAIMS.csv)。
+PR 3 已保存并复现 finite149 增补：789 个无提交方向筛到 149 个有限反模型方向，由
+17 张稳定基表及 11 张必要转置覆盖（原方向使用 129 次，转置使用 20 次）；同时完成与
+前 1,470 张核心表的规范字节零重叠检查，并验证 Refutation934 官方 order-24 表的
+order-22 闭子表替代。累计 1,487 payload 与 2,901 张运行时 opposite closure 仍留给
+PR 4。阶段安排见 [TIMELINE.md](TIMELINE.md)，各项数字及其验证状态见 [CLAIMS.csv](CLAIMS.csv)。
 
 ## 校验当前 checkout
 
@@ -26,14 +29,16 @@ finite149 增补及最终 payload 集成仍按时间顺序、一次一个 PR 加
 
 ```bash
 python3 tools/verify_repository.py
+python3 reproduction/80-finite149/scripts/verify.py
 python3 -m unittest discover -s tests -v
 ```
 
-从已提交 raw 快照重建 PR 1 与 PR 2 的全部规范输出、delta、summary、manifest 与校验和：
+从已提交 raw 快照重建 PR 1、PR 2 与 PR 3 的全部规范输出、delta、summary、manifest 与校验和：
 
 ```bash
 python3 tools/rebuild_pr1.py
 python3 tools/rebuild_pr2.py
+python3 reproduction/80-finite149/scripts/rebuild.py
 git diff --exit-code
 ```
 

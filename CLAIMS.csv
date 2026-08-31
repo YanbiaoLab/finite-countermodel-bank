@@ -31,19 +31,19 @@ pairs.fin4_covered,60-fin4-residual-284151591,frozen Fin4-attributed directed-pa
 pairs.residual,60-fin4-residual-284151591,residual directed pairs,284151591,pairs,324157667 - 40006076 with subset and per-source checks,verified,reproduction/60-fin4-residual-284151591/summary.json
 coverage.zero_marginal,70-positive-marginal-core-1470,zero-marginal candidates,2065,tables,fixed-order replay of frozen deduplicated residual coverage,verified,reproduction/70-positive-marginal-core-1470/summary.json
 core.1470,70-positive-marginal-core-1470,positive-marginal embedded core,1470,tables,3535 - 2065 and exact submitted-payload prefix match,verified,reproduction/70-positive-marginal-core-1470/summary.json
-finite149.no_submission_directions,80-finite149,order-4 experiment directions with no generated submission,789,directions,starting point of finite149 audit,planned,
-finite149.directions,80-finite149,official false proof_false directions,149,directions,audit of 789 no-submission directions,planned,
-finite149.base_tables,80-finite149,exact base tables,17,tables,exact reduction of 149 directions,planned,
-finite149.required_transposes,80-finite149,required strict opposite orientations,11,tables,task-specific orientation audit,planned,
-finite149.oriented_assets,80-finite149,task-specific oriented tables,28,tables,17 + 11,planned,
-finite149.original_uses,80-finite149,directions using original orientation,129,directions,coverage assignment,planned,
-finite149.transpose_uses,80-finite149,directions using transpose orientation,20,directions,coverage assignment,planned,
-finite149.core_overlap,80-finite149,exact overlaps with prior 1470-table core,0,tables,exact byte identity check,planned,
-finite149.official_payload_tables,80-finite149,byte-exact official payload tables,16,tables,17 appended records minus substitute,planned,
-finite149.substitute_tables,80-finite149,verified substitute payload tables,1,tables,order-22 Refutation934 closed substructure,planned,
-refutation934.official_order,80-finite149,official Refutation934 table order,24,elements,official Lean finite-refutation source,planned,
-refutation934.substitute_order,80-finite149,substitute Refutation934 table order,22,elements,verified closed substructure,planned,
-refutation934.covered_tasks,80-finite149,tasks covered by Refutation934 substitute,5,directions,direct exhaustive checks,planned,
+finite149.no_submission_directions,80-finite149,order-4 experiment directions with no generated submission,789,directions,starting point of finite149 audit,verified,reproduction/80-finite149/summary.json
+finite149.directions,80-finite149,official false proof_false directions,149,directions,audit of 789 no-submission directions,verified,reproduction/80-finite149/summary.json
+finite149.base_tables,80-finite149,exact base tables,17,tables,exact reduction of 149 directions,verified,reproduction/80-finite149/summary.json
+finite149.required_transposes,80-finite149,required strict opposite orientations,11,tables,task-specific orientation audit,verified,reproduction/80-finite149/summary.json
+finite149.oriented_assets,80-finite149,task-specific oriented tables,28,tables,17 + 11,verified,reproduction/80-finite149/summary.json
+finite149.original_uses,80-finite149,directions using original orientation,129,directions,coverage assignment,verified,reproduction/80-finite149/summary.json
+finite149.transpose_uses,80-finite149,directions using transpose orientation,20,directions,coverage assignment,verified,reproduction/80-finite149/summary.json
+finite149.core_overlap,80-finite149,exact overlaps with prior 1470-table core,0,tables,exact byte identity check,verified,reproduction/80-finite149/summary.json
+finite149.official_payload_tables,80-finite149,byte-exact official payload tables,16,tables,17 appended records minus substitute,verified,reproduction/80-finite149/summary.json
+finite149.substitute_tables,80-finite149,verified substitute payload tables,1,tables,order-22 Refutation934 closed substructure,verified,reproduction/80-finite149/summary.json
+refutation934.official_order,80-finite149,official Refutation934 table order,24,elements,official Lean finite-refutation source,verified,reproduction/80-finite149/summary.json
+refutation934.substitute_order,80-finite149,substitute Refutation934 table order,22,elements,verified closed substructure,verified,reproduction/80-finite149/summary.json
+refutation934.covered_tasks,80-finite149,tasks covered by Refutation934 substitute,5,directions,direct exhaustive checks,verified,reproduction/80-finite149/summary.json
 payload.embedded,90-payload-1487,embedded payload records,1487,tables,1470 + 17,planned,
 payload.declared_embedded,90-payload-1487,solver-declared embedded table count,1487,tables,static solver declaration,planned,
 payload.decoded_embedded,90-payload-1487,decoded embedded table count,1487,tables,payload decoder audit,planned,
