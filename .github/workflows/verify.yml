@@ -21,6 +21,11 @@ jobs:
           python3 tools/rebuild_pr1.py
           git diff --exit-code
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Rebuild PR 2 from committed snapshots
+        run: |
+          python3 tools/rebuild_pr2.py
+          git diff --exit-code
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Verify manifests and artifacts
         run: python3 tools/verify_repository.py
       - name: Run unit tests

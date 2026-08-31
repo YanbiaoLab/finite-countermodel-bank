@@ -1,0 +1,175 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "attributes": {
+        "archive_format": "deterministic-tar-gzip-v1",
+        "uncompressed_source_bytes": 758714
+      },
+      "bytes": 319547,
+      "media_type": "application/gzip",
+      "path": "raw/d15-d17-prune-snapshot.tar.gz",
+      "record_count": 5,
+      "role": "raw-snapshot",
+      "sha256": "92882a129706a950226472bc88e09c12befe98b70786035fdac8a7224c648fb3",
+      "source_ids": [
+        "stage50-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 2191,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "b7c19cf38a96f119a4608015894eedde72a6bfb94859472d89f9dca8baf0d2ae",
+      "source_ids": [
+        "stage50-prior-bank",
+        "stage50-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 489120,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/tables.jsonl.gz",
+      "record_count": 3535,
+      "role": "table-index",
+      "sha256": "c11d458d1338e76609528620c1e52c45c5e46fe491e897db139532704fd3229d",
+      "source_ids": [
+        "stage50-prior-bank",
+        "stage50-local-snapshot"
+      ]
+    },
+    {
+      "attributes": {
+        "canonical_id_vector_sha256": "1bf3bc87ac9b5c8d6ffece79a8014eb9b26086336e8552ec34cebc3bc9211888",
+        "encoding": "uint8-order-row-major-v1",
+        "historical_id_vector_sha256": "8809417a8cab6990434f26474a44b2c22afd4501186ac2be908eab0db1227bc3",
+        "order_distribution": {
+          "10": 142,
+          "11": 12,
+          "12": 359,
+          "13": 1,
+          "16": 3,
+          "20": 3,
+          "25": 2,
+          "32": 1,
+          "5": 187,
+          "6": 1256,
+          "7": 31,
+          "8": 803,
+          "9": 735
+        },
+        "raw_bytes": 237631,
+        "raw_sha256": "7cb270a88641bb5ac6c43ddc22afd7395f54321afa3925454fe15f60d02de02b",
+        "table_count": 3535
+      },
+      "bytes": 237631,
+      "media_type": "application/octet-stream",
+      "path": "normalized/tables.bin",
+      "record_count": 3535,
+      "role": "table-binary",
+      "sha256": "7cb270a88641bb5ac6c43ddc22afd7395f54321afa3925454fe15f60d02de02b",
+      "source_ids": [
+        "stage50-prior-bank",
+        "stage50-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 285867,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/table-id-map.csv.gz",
+      "record_count": 3535,
+      "role": "identity-map",
+      "sha256": "804d252b491ddf66638c75f0cb7920a50871fd2e7982f85d6d6ee03648c48b32",
+      "source_ids": [
+        "stage50-prior-bank",
+        "stage50-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 338349,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 6524,
+      "role": "membership-delta",
+      "sha256": "b43767594e81e61a7aa199ffe31c12c976956cb42eb6e9e7f520076a3d530288",
+      "source_ids": [
+        "stage50-prior-bank",
+        "stage50-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 12074,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "verification/scalar-affine-witnesses.jsonl.gz",
+      "record_count": 241,
+      "role": "affine-classification",
+      "sha256": "33ea08f0e8606d249e174ccc72349051089ee582a9df9b0b70357d1c4795e8d7",
+      "source_ids": [
+        "stage50-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 8352,
+      "media_type": "application/json",
+      "path": "verification/delivery-102-retention.json",
+      "role": "delivery-audit",
+      "sha256": "c09f8e375c2ee2a4eb97d14af71fbde8b360bc659983e17d701697fca44718ba",
+      "source_ids": [
+        "stage50-prior-bank",
+        "stage50-local-snapshot"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T15:30:00+08:00",
+  "claims": [
+    "delivery.order4",
+    "delivery.candidate_retained",
+    "prune.scalar_affine",
+    "prune.order_le_4",
+    "candidate.3535"
+  ],
+  "depends_on": [
+    "40-delivery-10059"
+  ],
+  "notes": [
+    "The 227 direct affine rows are cross-checked against the historical audit; fourteen further exact tables have explicit carrier-relabeling witnesses.",
+    "Both filters are stable: retained tables preserve their d15/Stage40 order, and the result matches the published d17 payload byte for byte."
+  ],
+  "pipeline_order": 50,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T15:30:00+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/40-delivery-10059/normalized/tables.bin",
+      "notes": [
+        "Committed evidence from an earlier reproduction stage."
+      ],
+      "source_id": "stage50-prior-bank"
+    },
+    {
+      "captured_at": "2026-08-31T15:30:00+08:00",
+      "kind": "local-filesystem-snapshot",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "math-distill-equational-stage2: d15/d17 table payloads, direct-affine audit, and d17 change report",
+      "notes": [
+        "The members/wubing tree was ignored by the source repository. The revision is context only; archive and member hashes identify the captured bytes."
+      ],
+      "revision": "6d8b449071a9168b3ddb35f77533e093833c70a4",
+      "source_id": "stage50-local-snapshot"
+    }
+  ],
+  "stage_id": "50-generator-prune-3535",
+  "status": "verified",
+  "title": "Generator and Fin4 pruning: 10,059 - 241 - 6,283 = 3,535",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 tools/verify_repository.py --stage 50-generator-prune-3535",
+    "notes": [
+      "Run python3 tools/rebuild_pr2.py first to regenerate PR 2 normalized outputs from committed snapshots.",
+      "Large bitsets are processed as bounded forward-only streams."
+    ]
+  }
+}

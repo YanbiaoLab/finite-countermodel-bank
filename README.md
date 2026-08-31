@@ -18,8 +18,15 @@ after registry deduplication, 9,957 after the d1/d2 deltas, and 10,059 after the
 JiaMing deliveries. The final 102 explicit report countermodels are independently
 rechecked by exhaustive assignment enumeration.
 
-Later pruning, residual-coverage selection, finite149 augmentation, and payload
-integration will be added in chronological, reviewable stages. See
+PR 2 reconstructs the stable pruning from 10,059 to 3,535 tables, validates the
+frozen Fin4 transition from 324,157,667 targeted pairs to a 284,151,591-pair
+residual, and replays the fixed-order positive-marginal selection of the 1,470-table
+core. The core matches the first 1,470 embedded records of the submitted Marathon
+solver exactly. The Fin4 stage is explicitly a frozen-artifact replay: missing
+singleton and seed-chain inputs prevent a from-scratch rerun.
+
+The finite149 augmentation and final payload integration will be added in later
+chronological, reviewable stages. See
 [TIMELINE.md](TIMELINE.md) for the planned sequence and [CLAIMS.csv](CLAIMS.csv)
 for the claim ledger.
 
@@ -33,13 +40,17 @@ python3 tools/verify_repository.py
 python3 -m unittest discover -s tests -v
 ```
 
-To regenerate every PR 1 normalized bank, delta, summary, manifest, and checksum
-from the committed raw snapshots:
+To regenerate the PR 1 and PR 2 normalized outputs, deltas, summaries, manifests,
+and checksums from the committed raw snapshots:
 
 ```bash
 python3 tools/rebuild_pr1.py
+python3 tools/rebuild_pr2.py
 git diff --exit-code
 ```
+
+The PR 2 rebuild uses bounded streams for the two 489,598,720-byte uncompressed
+pair bitsets; it does not load them into memory.
 
 ### Repository layout
 
@@ -76,10 +87,15 @@ False Solver 的复现记录。
 ### 当前状态
 
 PR 0 固定仓库规范，并保存从 SAIR 实际下载的四份提交文件。PR 1 按四个独立阶段复现
-历史表库累积：9,450 → 9,852 → 9,957 → 10,059；其中最后两批 102 个显式反模型还会
-逐题穷举复核 source 与 target。
+历史表库累积：9,450 → 9,852 → 9,957 → 10,059；其中最后两批 102 个显式反模型已逐题
+穷举复核 source 与 target。
 
-后续精简、残余覆盖筛选、finite149 增补及 payload 集成仍按时间顺序、一次一个 PR 加入。阶段安排见
+PR 2 复现 10,059 → 3,535 的稳定精简，验证冻结的 Fin4
+324,157,667 → 284,151,591 有向对转移，并按固定顺序重放正边际筛选，得到 1,470 表核心库；
+该核心与 Marathon 实际提交的前 1,470 条嵌入记录逐条一致。由于 singleton 输入和完整
+种子链缺失，Fin4 阶段明确属于冻结产物回放，而非从零重跑。
+
+finite149 增补及最终 payload 集成仍按时间顺序、一次一个 PR 加入。阶段安排见
 [TIMELINE.md](TIMELINE.md)，各项数字及其验证状态见 [CLAIMS.csv](CLAIMS.csv)。
 
 ### 校验当前 checkout
@@ -91,12 +107,15 @@ python3 tools/verify_repository.py
 python3 -m unittest discover -s tests -v
 ```
 
-从已提交 raw 快照重建 PR 1 的全部规范表、delta、summary、manifest 与校验和：
+从已提交 raw 快照重建 PR 1 与 PR 2 的全部规范输出、delta、summary、manifest 与校验和：
 
 ```bash
 python3 tools/rebuild_pr1.py
+python3 tools/rebuild_pr2.py
 git diff --exit-code
 ```
+
+PR 2 重建器以有界流处理两份解压后各 489,598,720 字节的 pair bitset，不会将其整体载入内存。
 
 ### 证据规范
 

@@ -1,0 +1,202 @@
+{
+  "$schema": "../../schemas/stage-manifest.schema.json",
+  "artifacts": [
+    {
+      "attributes": {
+        "archive_format": "deterministic-tar-gzip-v1",
+        "uncompressed_source_bytes": 1858479
+      },
+      "bytes": 1090841,
+      "media_type": "application/gzip",
+      "path": "raw/d17-284m-coverage-snapshot.tar.gz",
+      "record_count": 13,
+      "role": "raw-snapshot",
+      "sha256": "e2ed1caac2f800c3fae6af7da4413d1381af5f0c988a772740595366875d06f8",
+      "source_ids": [
+        "stage70-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 2693,
+      "media_type": "application/json",
+      "path": "summary.json",
+      "role": "stage-summary",
+      "sha256": "a52f0201419abb27791992b7a51eaad68d64e4f95a15fae8e5985ac261765a6d",
+      "source_ids": [
+        "stage70-candidate-bank",
+        "stage70-residual-bitset",
+        "stage70-submission-anchor",
+        "stage70-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 221015,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/tables.jsonl.gz",
+      "record_count": 1470,
+      "role": "table-index",
+      "sha256": "329784f9532fa178f2ee9072be3bd7601a74798ef45fe54c6187fe912334384c",
+      "source_ids": [
+        "stage70-candidate-bank",
+        "stage70-local-snapshot"
+      ]
+    },
+    {
+      "attributes": {
+        "canonical_id_vector_sha256": "3b2dac95bb4f10bd9a2c159155a9ba9997547ad17dfa1726ec3cb3b6ff4b8321",
+        "encoding": "uint8-order-row-major-v1",
+        "historical_id_vector_sha256": "d127342b656f42dece409247e1e76f84137218ee6e3f2877b46aef6b1bedb09d",
+        "order_distribution": {
+          "10": 95,
+          "11": 6,
+          "12": 180,
+          "13": 1,
+          "16": 3,
+          "20": 3,
+          "25": 2,
+          "32": 1,
+          "5": 102,
+          "6": 536,
+          "7": 29,
+          "8": 288,
+          "9": 224
+        },
+        "raw_bytes": 101870,
+        "raw_sha256": "7bbc54d33415143349c92cd4c919052ed54c1e5f20973a9b189818362654da5b",
+        "table_count": 1470
+      },
+      "bytes": 101870,
+      "media_type": "application/octet-stream",
+      "path": "normalized/tables.bin",
+      "record_count": 1470,
+      "role": "table-binary",
+      "sha256": "7bbc54d33415143349c92cd4c919052ed54c1e5f20973a9b189818362654da5b",
+      "source_ids": [
+        "stage70-candidate-bank",
+        "stage70-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 119600,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/table-id-map.csv.gz",
+      "record_count": 1470,
+      "role": "identity-map",
+      "sha256": "40f1042ada96f3970bd626a1b6622f329536145f6445e03e6df4f6af42e05f2a",
+      "source_ids": [
+        "stage70-candidate-bank",
+        "stage70-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 362662,
+      "media_type": "text/csv+gzip",
+      "path": "normalized/coverage-scores.csv.gz",
+      "record_count": 3535,
+      "role": "coverage-score-index",
+      "sha256": "60b1e3986f0d592a28f932c0b6b79d42e05fff2ba46509af6c13bf1be3c001fa",
+      "source_ids": [
+        "stage70-candidate-bank",
+        "stage70-residual-bitset",
+        "stage70-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 348945,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/selection-decisions.jsonl.gz",
+      "record_count": 3535,
+      "role": "selection-index",
+      "sha256": "d3ad3f1c370cd05c88fa57eb89433aa733d61bfae33ebf5c8d2686ea0a3a61c0",
+      "source_ids": [
+        "stage70-candidate-bank",
+        "stage70-residual-bitset",
+        "stage70-local-snapshot"
+      ]
+    },
+    {
+      "bytes": 218304,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "delta.jsonl.gz",
+      "record_count": 3535,
+      "role": "membership-delta",
+      "sha256": "9074cd548a99d1bd6b1d1948b85504462bbc8776d7385a4c81a44eed0dc11009",
+      "source_ids": [
+        "stage70-candidate-bank",
+        "stage70-residual-bitset",
+        "stage70-local-snapshot"
+      ]
+    }
+  ],
+  "captured_at": "2026-08-31T15:30:00+08:00",
+  "claims": [
+    "coverage.zero_marginal",
+    "core.1470"
+  ],
+  "depends_on": [
+    "00-submission-anchor",
+    "50-generator-prune-3535",
+    "60-fin4-residual-284151591"
+  ],
+  "notes": [
+    "The historical order is frozen individual-coverage ranking, not adaptive greedy reranking.",
+    "Every historical compact-JSON model digest maps to exactly one Stage50 canonical table, and every keep/drop decision is explicit.",
+    "The 1,470 retained records match the submitted solver's first 1,470 embedded records in exact order."
+  ],
+  "pipeline_order": 70,
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "captured_at": "2026-08-31T15:30:00+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/50-generator-prune-3535/normalized/tables.jsonl.gz",
+      "notes": [
+        "Committed evidence from an earlier reproduction stage."
+      ],
+      "source_id": "stage70-candidate-bank"
+    },
+    {
+      "captured_at": "2026-08-31T15:30:00+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/60-fin4-residual-284151591/normalized/284M_remaining_pairs.bitset.gz",
+      "notes": [
+        "Committed evidence from an earlier reproduction stage."
+      ],
+      "source_id": "stage70-residual-bitset"
+    },
+    {
+      "captured_at": "2026-08-31T15:30:00+08:00",
+      "kind": "authenticated-web-download",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+      "notes": [
+        "Committed evidence from an earlier reproduction stage."
+      ],
+      "source_id": "stage70-submission-anchor"
+    },
+    {
+      "captured_at": "2026-08-31T15:30:00+08:00",
+      "kind": "local-filesystem-snapshot",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "math-distill-equational-stage2: d17 law counts and 284M individual/deduplicated coverage run",
+      "notes": [
+        "The members/wubing tree was ignored by the source repository. The revision is context only; archive and member hashes identify the captured bytes."
+      ],
+      "revision": "6d8b449071a9168b3ddb35f77533e093833c70a4",
+      "source_id": "stage70-local-snapshot"
+    }
+  ],
+  "stage_id": "70-positive-marginal-core-1470",
+  "status": "verified",
+  "title": "Positive-marginal core: 3,535 - 2,065 = 1,470",
+  "verification": {
+    "checksum_file": "SHA256SUMS",
+    "command": "python3 tools/verify_repository.py --stage 70-positive-marginal-core-1470",
+    "notes": [
+      "Run python3 tools/rebuild_pr2.py first to regenerate PR 2 normalized outputs from committed snapshots.",
+      "Large bitsets are processed as bounded forward-only streams."
+    ]
+  }
+}

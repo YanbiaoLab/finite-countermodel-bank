@@ -1,0 +1,65 @@
+{
+  "action_counts": {},
+  "bank": {},
+  "bitset_validation": {
+    "diagonal_bits_all_zero": true,
+    "original_active_sources": 41696,
+    "original_uncompressed_sha256": "f3cce217528adee2305e618a81a1fdb7399c6732523bb60f055b1d5acf61f383",
+    "out_of_range_bits_all_zero": true,
+    "residual_active_sources": 41696,
+    "residual_is_subset": true,
+    "residual_uncompressed_sha256": "03f4a7eccc7df811756fc5da361a647b49b9064f35b2b14730362fc3fb810756",
+    "row_stride_bytes": 7824,
+    "rows_checked": 62576
+  },
+  "directed_pair_partition": {
+    "fin2_or_fin3_covered": 2285032108,
+    "fin4_incremental_covered": 40006076,
+    "full_nonreflexive_universe": 3915693200,
+    "identity_after_fin4": "2285032108 + 1306503425 + 40006076 + 284151591 = 3915693200",
+    "identity_before_fin4": "2285032108 + 1306503425 + 324157667 = 3915693200",
+    "residual_after_fin4": 284151591,
+    "singleton_true": 1306503425,
+    "targeted_after_prior_filters": 324157667
+  },
+  "fin4_enumeration": {
+    "all_fin4_isomorphism_classes": 178981952,
+    "bitslice_classes_skipped_as_derived": 41257191,
+    "bitslice_interval_isomorphism_classes": 120727754,
+    "bitslice_model_signatures_evaluated": 79470563,
+    "bitslice_opposite_signatures_derived": 41257191,
+    "elapsed_seconds_sum": 14809.401932,
+    "maximum_engine_rss_bytes": 504709120,
+    "ranges_contiguous_and_gapless": true,
+    "raw_labeled_tables_scanned": 4294967296,
+    "scalar_isomorphism_classes": 58254198,
+    "shards": 256
+  },
+  "known_gaps": [
+    "The singleton_family_mask.u8 and singleton_primary.u8 inputs named by the 324M manifest are no longer present in the sibling checkout.",
+    "The Fin4 runner's equations.bin and the complete 6,173-model seed-generation chain are unavailable.",
+    "This stage therefore replays and independently validates frozen exact artifacts; it does not claim a from-scratch regeneration of the 324M universe or the historical Fin4 search."
+  ],
+  "metrics": {
+    "pairs.fin4_covered": 40006076,
+    "pairs.residual": 284151591,
+    "pairs.target": 324157667
+  },
+  "resource_boundary": {
+    "bitset_copy_and_validation": "two bounded gzip streams plus one 7,824-byte row per bitset",
+    "historical_maximum_engine_rss_bytes": 504709120,
+    "historical_shard_elapsed_seconds_sum": 14809.401932
+  },
+  "row_ledger": {
+    "rows": 62576,
+    "totals": {
+      "fin23_covered_target_count": 2285032108,
+      "fin4_covered_target_count": 40006076,
+      "residual_284m_target_count": 284151591,
+      "singleton_true_target_count": 1306503425,
+      "targeted_324m_target_count": 324157667
+    }
+  },
+  "schema_version": "1.0.0",
+  "stage_id": "60-fin4-residual-284151591"
+}
