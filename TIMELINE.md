@@ -22,8 +22,8 @@ raw files.
 | PR 2 | `70-positive-marginal-core-1470` | 3,535 − 2,065 → 1,470 | Residual coverage scores, fixed selection order, keep/drop delta, submission-prefix match | Merged in PR #4 |
 | PR 3 | `80-finite149` | 789 no-submission directions → 149 finite directions → 17 base tables + 11 required opposite orientations | Official-path inventory, exhaustive task checks, zero-overlap audit, Refutation934 substitution record | Merged in PR #7 |
 | PR 3 correction | `81-finite149-portable-verification` | Same Stage 80 data; bounded replay and provenance correction | 789-cell streamed projection, full 149-task/transpose/overlap/suffix semantic gate, 17 Lean-source comparisons, corrected Refutation934 source, explicit path boundary | Merged in PR #8 |
-| PR 4 | `90-payload-1487` | 1,470 + 17 → 1,487 embedded records | Exact inner-payload builder, canonical byte stream, XZ/Base85 literal, static submitted-source comparison | Verified in this PR |
-| PR 4 | `100-opposite-closure-2901` | 1,487 + 1,414 missing strict transposes → 2,901 | Derivation ledger, exact-byte dedup report, historical first-seen joins, submitted-code audit, runtime scan manifest | Verified in this PR |
+| PR 4 | `90-payload-1487` | 1,470 + 17 → 1,487 embedded records | Exact inner-payload builder, canonical byte stream, XZ/Base85 literal, static submitted-source comparison | Merged in PR #9 |
+| PR 4 | `100-opposite-closure-2901` | 1,487 + 1,414 missing strict transposes → 2,901 | Derivation ledger, exact-byte dedup report, historical first-seen joins, submitted-code audit, runtime scan manifest | Merged in PR #9 |
 
 The PR boundaries are intentional. PR 1 preserves historical accumulation; PR 2
 records later pruning, frozen Fin4 residual validation, and coverage-based

@@ -17,6 +17,7 @@ from tools.verify_repository import (
     canonical_table_id,
     count_csv_rows,
     historical_table_id,
+    require_supported_python,
     resolve_stage_directories,
     validate_delta_record,
     validate_stage_manifest_structure,
@@ -37,6 +38,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class CanonicalTableTests(unittest.TestCase):
+    def test_requires_python310(self) -> None:
+        with self.assertRaisesRegex(VerificationError, "Python 3.10\\+"):
+            require_supported_python((3, 9, 6))
+        require_supported_python((3, 10, 0))
+
     def test_coverage_overlap_cannot_exceed_prior_union(self) -> None:
         with self.assertRaises(VerificationError):
             advance_coverage_union(0, 1, 0, 1, 10, "fixture")
