@@ -153,7 +153,7 @@
       "license_status": "not-specified; no license grant inferred",
       "locator": "math-distill-equational-stage2: false solver drafts d1, d2, d4, d6, and d8",
       "notes": [
-        "The members/wubing tree was ignored by the source repository. The revision is context only; archive and member hashes identify the captured bytes."
+        "The captured member tree was ignored by the source repository. The revision is context only; archive and member hashes identify the captured bytes."
       ],
       "revision": "6d8b449071a9168b3ddb35f77533e093833c70a4",
       "source_id": "stage30-local-snapshot"

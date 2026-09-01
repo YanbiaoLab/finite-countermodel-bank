@@ -1,4 +1,4 @@
-# Reproduction timeline / 复现时间线
+# Reproduction timeline
 
 This file is the review order for reconstructing the False Solver data lineage.
 Historical raw bytes and scientific claims are not silently replaced after merge.
@@ -6,11 +6,7 @@ A correction adds a manifested artifact or superseding stage; a repository-wide
 terminology migration may update maintained script names and manifest commands
 while preserving the raw bytes, transitions, and claims.
 
-本文档规定 False Solver 数据血缘的复现及 review 顺序。合并后不静默替换历史 raw 字节
-或科学结论；内容修正应增加带 manifest 的文件或后继阶段。全仓库术语迁移可以更新受维护
-脚本的名称及 manifest 命令，但必须保留 raw 字节、阶段转移与结论。
-
-## Phase, Stage, and GitHub history / Phase、Stage 与 GitHub 历史
+## Phase, Stage, and GitHub history
 
 | Phase | Stage | Transition or anchor | Required evidence | GitHub history |
 | --- | --- | --- | --- | --- |
@@ -36,13 +32,7 @@ complete outer solver launcher. `PR` in the final column refers only to the actu
 GitHub pull request in which the evidence was merged; Phase numbers are independent
 of PR numbers.
 
-Phase 边界用于避免把数据流中不同时间点的证据混在一起：Phase 1 保存历史累积，Phase 2
-保存后续精简、冻结 Fin4 residual 校验及覆盖筛选，Phase 3 单独保存 finite149 增补及其
-可移植修正，Phase 4 精确重建内层有限表 payload 与运行时 opposite closure，但不声称
-重建完整外层 solver。末列的 `PR` 仅表示证据实际合入时使用的 GitHub pull request，
-与 Phase 编号相互独立。
-
-## Arithmetic checkpoints / 数量检查点
+## Arithmetic checkpoints
 
 ```text
 9,450 + 402                                      = 9,852
@@ -70,19 +60,13 @@ embedded payload entries. The Stage 100 delta is relative to Stage 90 membership
 while 1,397 are first seen in Stage 100. `CLAIMS.csv` is authoritative for claim
 status.
 
-## Source routing / 源文件入口
+## Source routing
 
 Paths below are relative to the sibling `math-distill-equational-stage2` checkout.
 Stages 10–40 are fixed by the raw snapshots in Phase 1, Stages 50–70 by the raw
 snapshots in Phase 2, and Stage 80 by the deterministic raw snapshot in Phase 3.
-Stages
-81, 90, and 100 consume only immutable artifacts already committed to this
+Stages 81, 90, and 100 consume only immutable artifacts already committed to this
 repository; they require no new sibling-checkout capture.
-
-以下路径相对于同级 `math-distill-equational-stage2` checkout。Stage 10–40 已由
-Phase 1 的 raw 快照固定，Stage 50–70 已由 Phase 2 的 raw 快照固定，Stage 80 已由
-Phase 3 的确定性 raw 快照固定；Stage 81、90 与 100 只使用本仓库已提交的不可变产物，
-不需要再次从 sibling checkout 抓取数据。
 
 | Stage | Audited starting point |
 | --- | --- |
@@ -98,7 +82,7 @@ Phase 3 的确定性 raw 快照固定；Stage 81、90 与 100 只使用本仓库
 | `90-payload-1487` | Committed Stage 70 core, Stage 80 base records, Stage 81 corrected provenance, and the four Stage 00 submitted solver anchors |
 | `100-opposite-closure-2901` | Exact Stage 90 payload, its transitive historical table indexes (including Stage 80 required transposes), and the generic transpose-closure functions statically parsed from the committed Stage 00 false engine |
 
-Many `members/wubing/` paths are ignored by the sibling repository. A file copied
+Many source paths listed above are ignored by the sibling repository. A file copied
 from such a path must be labeled as a captured local snapshot with capture time and
 hash, not represented as content from a Git commit unless the bytes are actually
 reachable from that commit.
@@ -109,7 +93,7 @@ complete 6,173-model seed-generation chain. Its evidence supports exact replay a
 validation of the frozen bitsets and ledgers, not regeneration from those missing
 earliest inputs.
 
-## Stage acceptance contract / 阶段验收规范
+## Stage acceptance contract
 
 A stage is complete only when all applicable items are present:
 

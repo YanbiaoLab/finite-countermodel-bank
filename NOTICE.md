@@ -20,9 +20,14 @@ Third-party files must retain applicable copyright, attribution, and license
 notices. If the relevant rights are unknown, the manifest must say so; uncertainty
 must not be converted into an assumed open-source license.
 
-Phase 1 raw archives are local filesystem snapshots from ignored `members/wubing/`
-paths in the sibling `math-distill-equational-stage2` checkout. The surrounding Git
-revision is recorded only as context and does not identify those ignored bytes.
+Public-facing descriptions use neutral stage and artifact labels rather than
+contributor names. Personal identifiers remain only when they are literal parts of
+immutable upstream paths, historical archive filenames, or other provenance
+locators; those strings are retained so the recorded source location stays exact.
+
+Phase 1 raw archives are local filesystem snapshots from ignored member paths in
+the sibling `math-distill-equational-stage2` checkout. The surrounding Git revision
+is recorded only as context and does not identify those ignored bytes.
 Each deterministic archive and every derived artifact is identified by its own
 SHA-256. No source-specific license grant was found, so the corresponding stage
 manifests use `not-specified; no license grant inferred`.
