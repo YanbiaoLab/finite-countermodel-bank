@@ -49,5 +49,15 @@ credential markers, private-key blocks, or host-specific absolute paths. As with
 Phase 1, the manifests record `not-specified; no license grant inferred` for these
 sources.
 
+The Stage 81 companion finite149 graph/path snapshot contains files from
+`teorth/equational_theories`. That upstream repository identifies the material as
+Apache-2.0. The exact upstream license text is retained as
+`source/license/LICENSE` inside
+`reproduction/81-finite149-portable-verification/raw/finite149-path-source-snapshot.tar.gz`
+with SHA-256
+`c6be243aa954228fc83b68a08e769bf3c561a64fb515cbbd470046d006c18bbf`.
+No upstream `NOTICE` or `NOTICE.txt` file was present at the pinned revision; the
+Stage 81 metadata records that absence rather than inventing a notice.
+
 See `LICENSES/README.md` for the primary-license scope and how future
 source-specific license texts will be recorded.

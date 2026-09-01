@@ -46,10 +46,14 @@
     "exact_matches": 17
   },
   "path_evidence_boundary": {
-    "captured_source_count": 17,
+    "captured_source_count": 30,
     "declared_source_count": 30,
-    "edge_replay_performed": false,
-    "missing_source_count": 13
+    "edge_instances_replayed": 405,
+    "edge_replay_performed": true,
+    "failed_edges": 0,
+    "missing_source_count": 0,
+    "shortest_path_search_performed": false,
+    "unique_directed_edges_replayed": 159
   },
   "python": {
     "minimum": "3.10",

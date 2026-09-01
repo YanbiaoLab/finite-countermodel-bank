@@ -1,0 +1,110 @@
+{
+  "algorithm": {
+    "captured_source": "source/upstream/show_proof.html",
+    "captured_source_sha256": "0117a9a3c1d8aa5188b263b2d8aa40394b20e26f380d98718058ce6d392190f2",
+    "ported_rules": [
+      "i",
+      "f",
+      "u",
+      "neg",
+      "dual",
+      "weight",
+      "insertion-order-first-wins"
+    ],
+    "shortest_path_search_performed": false,
+    "upstream_graph_builder_rerun": false,
+    "validation_claim": "all edges of the frozen paths exist under the pinned graph-construction semantics"
+  },
+  "counts": {
+    "dual_edge_instances": 40,
+    "dual_paths": 20,
+    "edge_instances": 405,
+    "failed_edges": 0,
+    "path_nodes": 170,
+    "paths": 149,
+    "reversed_only_edges": 0,
+    "source_files": 30,
+    "source_mismatches": 0,
+    "unique_directed_edges": 159
+  },
+  "dual_mapping": {
+    "implications_js_sha256": "223fe63a555c6c421d02b23d7613fdd652917c11fc71feec5e81e3c1e085edab",
+    "pair_count": 2305,
+    "standalone_matches_implications_js": true
+  },
+  "edge_kind_instances": {
+    "facts-refuted": 129,
+    "facts-refuted-dual": 20,
+    "facts-satisfied": 129,
+    "facts-satisfied-dual": 20,
+    "implication": 19,
+    "implication-negated": 88
+  },
+  "graph_construction": {
+    "all_equations": 4714,
+    "facts_nodes_allocated": 2238,
+    "graph_entries_parsed": 11897,
+    "tracked_edge_winners": 165,
+    "unconditional_entries": 0
+  },
+  "graph_input": {
+    "embedded_full_entries_used": true,
+    "finite_graph_bytes": 9042748,
+    "finite_graph_sha256": "d609274eeb8289cf28596463626c1e6e3af21c24f76a5bb06167ef6a88a2f679",
+    "separate_full_entries_identity_checked": true,
+    "separate_full_entries_sha256": "c33dc30ee4630764b7e9c34addad9a4236b14611aee61834a32c503585cb98d3",
+    "separate_full_entries_used_for_replay": false
+  },
+  "lean_kernel_compilation_performed": false,
+  "license": {
+    "identifier": "Apache-2.0",
+    "text_member": "source/license/LICENSE",
+    "text_sha256": "c6be243aa954228fc83b68a08e769bf3c561a64fb515cbbd470046d006c18bbf",
+    "upstream_notice_file_present": false
+  },
+  "raw_archive": {
+    "member_count": 20,
+    "sha256": "127e420e469b1a97d942f851542d99e03d4c30d5f73ec26ada0d04ff97f175df",
+    "total_declared_uncompressed_bytes": 15118005
+  },
+  "source_edge_instances": {
+    "equational_theories/Generated/All4x4Tables/Refutation36.lean": 52,
+    "equational_theories/Generated/All4x4Tables/Refutation39.lean": 4,
+    "equational_theories/Generated/All4x4Tables/Refutation870.lean": 50,
+    "equational_theories/Generated/All4x4Tables/Refutation888.lean": 2,
+    "equational_theories/Generated/All4x4Tables/Refutation918.lean": 18,
+    "equational_theories/Generated/All4x4Tables/Refutation921.lean": 12,
+    "equational_theories/Generated/All4x4Tables/Refutation925.lean": 16,
+    "equational_theories/Generated/All4x4Tables/Refutation926.lean": 76,
+    "equational_theories/Generated/All4x4Tables/Refutation927.lean": 4,
+    "equational_theories/Generated/All4x4Tables/Refutation928.lean": 4,
+    "equational_theories/Generated/All4x4Tables/Refutation930.lean": 4,
+    "equational_theories/Generated/All4x4Tables/Refutation932.lean": 8,
+    "equational_theories/Generated/All4x4Tables/Refutation933.lean": 6,
+    "equational_theories/Generated/All4x4Tables/Refutation934.lean": 10,
+    "equational_theories/Generated/All4x4Tables/Refutation936.lean": 8,
+    "equational_theories/Generated/All4x4Tables/Refutation938.lean": 8,
+    "equational_theories/Generated/All4x4Tables/Refutation939.lean": 16,
+    "equational_theories/Generated/MagmaEgg/small/_000.lean": 6,
+    "equational_theories/Generated/MagmaEgg/small/_001.lean": 4,
+    "equational_theories/Generated/SimpleRewrites/theorems/Rewrite_wz_yx_zy.lean": 1,
+    "equational_theories/Generated/SimpleRewrites/theorems/Rewrite_wz_zx.lean": 5,
+    "equational_theories/Generated/SimpleRewrites/theorems/Rewrite_yx.lean": 16,
+    "equational_theories/Generated/SimpleRewrites/theorems/Rewrite_yx_zy.lean": 14,
+    "equational_theories/Generated/SimpleRewrites/theorems/Rewrite_zx.lean": 13,
+    "equational_theories/Generated/SimpleRewrites/theorems/Rewrite_zy.lean": 10,
+    "equational_theories/Generated/TrivialBruteforce/theorems/Apply.lean": 4,
+    "equational_theories/Generated/TrivialBruteforce/theorems/RewriteCombinations.lean": 1,
+    "equational_theories/Generated/TrivialBruteforce/theorems/RewriteHypothesis.lean": 8,
+    "equational_theories/Generated/VampireProven/Proofs2.lean": 21,
+    "equational_theories/Generated/VampireProven/Proofs4.lean": 4
+  },
+  "streaming": {
+    "application_tail_limit_bytes": 2097152,
+    "full_entries_files": 1171,
+    "full_json_materialized": false,
+    "graph_bytes_streamed": 9042748,
+    "marker_hits": 1,
+    "tail_bytes_retained": 2097152
+  }
+}

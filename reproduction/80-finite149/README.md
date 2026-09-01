@@ -150,3 +150,9 @@ the upstream ETP graph builder, the historical distributed search, or Judge v3.
 Those external outcomes are preserved by exact source bytes, pinned revisions, and
 hashes; the table semantics used here are checked independently over every finite
 assignment.
+
+The append-only
+[`81-finite149-portable-verification`](../81-finite149-portable-verification/)
+companion now supplies the graph/path files absent from this historical snapshot
+and validates all 405 edges of the 149 frozen paths. It still does not rerun the
+upstream graph builder, shortest-path discovery, Judge v3, or Lean compilation.

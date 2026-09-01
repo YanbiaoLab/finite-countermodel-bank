@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Rebuild Phase 3's portable Stage 81 evidence from committed Stage 80 inputs.
+"""Rebuild Phase 3's portable Stage 81 evidence from committed inputs.
 
 This maintained Phase-level entry delegates to the manifested, stage-local
 bounded-memory builder. It does not run the historical high-memory Stage 80 rebuild
-path: the earliest graph inputs remain incomplete, and the full-JSON implementation
-is not the portable review workflow.
+path, upstream graph extraction/build, or shortest-path discovery. The committed
+Stage 81 companion snapshot is sufficient to validate every frozen path edge.
 """
 
 from __future__ import annotations

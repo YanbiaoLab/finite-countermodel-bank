@@ -1,0 +1,62 @@
+{
+  "equations": 62576,
+  "files": {
+    "eq_size5.txt": {
+      "bytes": 2666870,
+      "historical_bytes_exact": true,
+      "sha256": "7fb9c0e85bee412baa7030bafec311c65a75502a2c25bdd0b94171b324585b1d"
+    },
+    "equation_mirror_map.bin": {
+      "bytes": 250316,
+      "historical_bytes_exact": true,
+      "sha256": "b3f3f577c986890fc4ab7eb594396cf246c6f855107c4ff02cdbd8795865a96a"
+    },
+    "equations.bin": {
+      "bytes": 928334,
+      "historical_bytes_exact": true,
+      "sha256": "263b6d3fb1c6a84a4503742f11a4f2e6ac3a00a64e1f0a57fc002699ef7be7f9"
+    },
+    "singleton_family_mask.u8": {
+      "bytes": 62576,
+      "historical_bytes_exact": true,
+      "sha256": "a237aefe72909539cf61e821a41117d33d1c7632da2303890cd03490226e64ec"
+    },
+    "singleton_primary.u8": {
+      "bytes": 62576,
+      "historical_bytes_exact": true,
+      "sha256": "d159b628010fadd4a66bd4feb0e7278354247e265b988b4f773ce2d6b9a01fff"
+    }
+  },
+  "mirror_fixed_points": 202,
+  "mirror_two_cycles": 31187,
+  "resource_boundary": {
+    "large_bitsets_materialized": false,
+    "maximum_bounded_csv_member_bytes": 4194304,
+    "reconstructed_output_bytes": 3970672
+  },
+  "schema": "stage60-seedfree-input-reconstruction-v1",
+  "scope_boundary": "These five files match the historical bytes. This does not recover or replay the historical 6,173-model seed-generation/provenance chain.",
+  "singleton_family_counts": {
+    "0": 41697,
+    "1": 569,
+    "4": 2663,
+    "5": 2858,
+    "6": 8874,
+    "7": 5915
+  },
+  "singleton_primary_counts": {
+    "0": 41697,
+    "1": 9342,
+    "2": 8874,
+    "3": 2663
+  },
+  "source": {
+    "archive": "reproduction/60-fin4-residual-284151591/raw/fin4-residual-snapshot.tar.gz",
+    "archive_sha256": "589f3b272fb970c9b995e6d9433dc3deec66241a2cf061be230254445704d9d0",
+    "equations_member": "members/wubing/data/324M_remaining_pairs/order5_equations.csv",
+    "equations_member_sha256": "62b9fa9d5b5fa0ef499e7a9b30ae3e244485e4cc62e996de99c39897a74bdc7c",
+    "source_rows_member": "members/wubing/data/324M_remaining_pairs/324M_remaining_pairs_by_source.csv",
+    "source_rows_member_sha256": "0e00485f6a0c6c2aa53a915c99f886f5d868d566d7f9f333106c9ebec996a882"
+  },
+  "status": "historical-bytes-exact"
+}

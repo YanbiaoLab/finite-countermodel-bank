@@ -36,9 +36,9 @@
     "shards": 256
   },
   "known_gaps": [
-    "The singleton_family_mask.u8 and singleton_primary.u8 inputs named by the 324M manifest are no longer present in the sibling checkout.",
-    "The Fin4 runner's equations.bin and the complete 6,173-model seed-generation chain are unavailable.",
-    "This stage therefore replays and independently validates frozen exact artifacts; it does not claim a from-scratch regeneration of the 324M universe or the historical Fin4 search."
+    "The complete historical 6,173-model seed-generation/provenance chain remains unavailable and is intentionally not used by the new result-level runner.",
+    "The completed seed-free run demonstrates the exact result-level outcome, not the historical seeded execution order or provenance chain.",
+    "The upstream 324M universe is not regenerated from the earliest Fin2/Fin3 and singleton discovery inputs."
   ],
   "metrics": {
     "pairs.fin4_covered": 40006076,
@@ -48,7 +48,9 @@
   "resource_boundary": {
     "bitset_copy_and_validation": "two bounded gzip streams plus one 7,824-byte row per bitset",
     "historical_maximum_engine_rss_bytes": 504709120,
-    "historical_shard_elapsed_seconds_sum": 14809.401932
+    "historical_shard_elapsed_seconds_sum": 14809.401932,
+    "seedfree_full_run_maximum_engine_rss_bytes": 504840192,
+    "seedfree_full_run_successful_shard_wall_seconds_sum": 1850.0023908340045
   },
   "row_ledger": {
     "rows": 62576,
@@ -61,5 +63,136 @@
     }
   },
   "schema_version": "1.0.0",
+  "seedfree_outcome_rerun": {
+    "engine_smoke_test": "scripts/smoke_test_engines.py",
+    "enumeration_method": "seed-free-all-bitslice-opposite-result-level",
+    "evidence_capture": "scripts/capture_seedfree_evidence.py",
+    "full_run_demonstrated_in_repository": true,
+    "full_run_evidence_report": "verification/seedfree-full-run.json",
+    "full_run_sanitized_logs": "verification/seedfree-full-run-logs.jsonl.gz",
+    "full_run_validation": {
+      "accounting": {
+        "authoritative_bitset_difference": 40006076,
+        "canonical_models": 178981952,
+        "canonical_models_skipped_as_derived": 89460896,
+        "evaluated_plus_derived": 178981952,
+        "evaluated_plus_skipped": 178981952,
+        "model_signatures_evaluated": 89521056,
+        "opposite_signatures_derived": 89460896,
+        "raw_tables_scanned": 4294967296,
+        "retry_boundary": "A retry after an interrupted in-place shard can preserve partial clears. In that case successful-attempt covered-pair totals are intentionally not claimed as a complete attribution ledger; final bitset difference/hash is authoritative.",
+        "successful_attempt_coverage_attribution_complete": true,
+        "successful_attempt_covered_pairs_sum": 40006076
+      },
+      "bitsets": {
+        "residual_284m": {
+          "bytes": 489598720,
+          "sha256": "03f4a7eccc7df811756fc5da361a647b49b9064f35b2b14730362fc3fb810756"
+        },
+        "source_324m": {
+          "bytes": 489598720,
+          "sha256": "f3cce217528adee2305e618a81a1fdb7399c6732523bb60f055b1d5acf61f383"
+        }
+      },
+      "compiler_engine": {
+        "compiler_executable_name": "clang",
+        "compiler_version_first_line": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+        "engine_sha256": "bfa1f675fefb8a127a7e68b7502212b9a0404a534c46ff4b2aab4a4cbdf69a0e",
+        "engine_source_sha256": "c1a1a761126d696ddd4fa2c3958042b71b2d8aa50e463448f57819757bacc189"
+      },
+      "completed_at": "2026-09-01T06:50:17.096119Z",
+      "configuration": {
+        "range_count": 4294967296,
+        "range_end": 4294967296,
+        "range_start": 0,
+        "shard_count": 256,
+        "shard_size": 16777216
+      },
+      "enumeration_method": "seed-free-all-bitslice-opposite-result-level",
+      "evidence_files": {
+        "report": {
+          "bytes": 295129,
+          "sha256": "003c7cbf40c9c03a335f73339d9150620b4969f04695305d8c238a4d2f8e712b"
+        },
+        "sanitized_logs": {
+          "bytes": 62736,
+          "sha256": "653b73ed982593465b789115812b1069a70570af649a1ca9300703868dcc16e0"
+        }
+      },
+      "historical_seed_chain_used": false,
+      "maximum_engine_rss_bytes": 504840192,
+      "pair_bitset_stream_validation": {
+        "diagonal_bits_all_zero": true,
+        "expected_rows": "normalized/pair-partition-by-source.csv.gz",
+        "original_active_sources": 41696,
+        "original_popcount": 324157667,
+        "out_of_range_bits_all_zero": true,
+        "removed_popcount": 40006076,
+        "residual_active_sources": 41696,
+        "residual_is_subset": true,
+        "residual_popcount": 284151591,
+        "rows_checked": 62576,
+        "validator": "tools.phase2_common.validate_pair_bitset_streams"
+      },
+      "retry_status": {
+        "any_retried_shards": false,
+        "failed_attempt_resources_fully_accounted": true,
+        "retried_shard_indexes": [],
+        "successful_attempt_coverage_attribution_complete": true
+      },
+      "sanitized_log_rows": 5376,
+      "sanitized_stderr_lines": 5120,
+      "shards": 256,
+      "status": "validated-exact",
+      "timing": {
+        "engine_elapsed_seconds_sum": 1829.541131,
+        "engine_system_cpu_seconds_sum": 105.64716,
+        "engine_user_cpu_seconds_sum": 16319.442509999999,
+        "failed_attempt_resources_fully_accounted": true,
+        "retry_resource_boundary": "If a shard was retried, these sums exclude resource use from failed or interrupted attempts and are therefore lower bounds for the whole run.",
+        "scope": "successful shard attempts recorded in completed_shards",
+        "shard_wall_seconds_sum": 1850.0023908340045
+      }
+    },
+    "historical_seed_chain_used": false,
+    "reconstructed_files": {
+      "eq_size5.txt": {
+        "bytes": 2666870,
+        "historical_bytes_exact": true,
+        "sha256": "7fb9c0e85bee412baa7030bafec311c65a75502a2c25bdd0b94171b324585b1d"
+      },
+      "equation_mirror_map.bin": {
+        "bytes": 250316,
+        "historical_bytes_exact": true,
+        "sha256": "b3f3f577c986890fc4ab7eb594396cf246c6f855107c4ff02cdbd8795865a96a"
+      },
+      "equations.bin": {
+        "bytes": 928334,
+        "historical_bytes_exact": true,
+        "sha256": "263b6d3fb1c6a84a4503742f11a4f2e6ac3a00a64e1f0a57fc002699ef7be7f9"
+      },
+      "singleton_family_mask.u8": {
+        "bytes": 62576,
+        "historical_bytes_exact": true,
+        "sha256": "a237aefe72909539cf61e821a41117d33d1c7632da2303890cd03490226e64ec"
+      },
+      "singleton_primary.u8": {
+        "bytes": 62576,
+        "historical_bytes_exact": true,
+        "sha256": "d159b628010fadd4a66bd4feb0e7278354247e265b988b4f773ce2d6b9a01fff"
+      }
+    },
+    "reconstructed_input_status": "historical-bytes-exact",
+    "runner": "scripts/run_seedfree.py",
+    "runner_consumed_reconstructed_files": [
+      "equations.bin",
+      "equation_mirror_map.bin"
+    ],
+    "support_or_upstream_files_not_consumed_by_runner": [
+      "eq_size5.txt",
+      "singleton_family_mask.u8",
+      "singleton_primary.u8"
+    ]
+  },
   "stage_id": "60-fin4-residual-284151591"
 }

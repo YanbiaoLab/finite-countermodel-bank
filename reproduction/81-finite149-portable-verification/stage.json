@@ -28,33 +28,80 @@
       ]
     },
     {
-      "bytes": 68495,
+      "bytes": 21901,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "normalized/path-edge-replay.jsonl.gz",
+      "record_count": 405,
+      "role": "path-edge-replay",
+      "sha256": "ae998837c72eb325bb83677edbe05dc2c414c0de861d920d5f48460a3615001e",
+      "source_ids": [
+        "stage81-stage80-evidence",
+        "stage81-finite149-path-snapshot"
+      ]
+    },
+    {
+      "attributes": {
+        "member_count": 20,
+        "uncompressed_bytes": 15118005
+      },
+      "bytes": 961095,
+      "media_type": "application/gzip",
+      "path": "raw/finite149-path-source-snapshot.tar.gz",
+      "role": "path-source-snapshot",
+      "sha256": "127e420e469b1a97d942f851542d99e03d4c30d5f73ec26ada0d04ff97f175df",
+      "source_ids": [
+        "stage81-finite149-path-snapshot"
+      ]
+    },
+    {
+      "bytes": 18720,
+      "media_type": "text/x-python",
+      "path": "scripts/capture_path_sources.py",
+      "role": "capture-script",
+      "sha256": "c98ac5718c5b1a472f864c2d2598b37ad938b04d37363b0ac673d0fbfb08667a",
+      "source_ids": [
+        "stage81-correction-code"
+      ]
+    },
+    {
+      "bytes": 30097,
+      "media_type": "text/x-python",
+      "path": "scripts/path_replay.py",
+      "role": "path-replay-script",
+      "sha256": "b6f1b92938055418b70a03f0cbc758ec6290064d393eef2bb2669598ed3dc2b1",
+      "source_ids": [
+        "stage81-correction-code"
+      ]
+    },
+    {
+      "bytes": 71243,
       "media_type": "text/x-python",
       "path": "scripts/rebuild.py",
       "role": "rebuild-script",
-      "sha256": "67b2cb1b342d37be7a2351f47ecd256c30d5d5335efa0063b3da3d5eaecd0733",
+      "sha256": "732b932c695c5e90ba18a7d9bee7ca2d87cc00584f6fee57a3394f0e36922258",
       "source_ids": [
         "stage81-correction-code"
       ]
     },
     {
-      "bytes": 5570,
+      "bytes": 6866,
       "media_type": "text/x-python",
       "path": "scripts/verify.py",
       "role": "verification-script",
-      "sha256": "749676b8be87e541e7e583e930afd6e0ebea4818bfdc03a2d16714a32721da55",
+      "sha256": "197ea80d759aa580a39446fa7a263018abf261f218bf9e920b160924ceb323e9",
       "source_ids": [
         "stage81-correction-code"
       ]
     },
     {
-      "bytes": 5170,
+      "bytes": 5315,
       "media_type": "application/json",
       "path": "summary.json",
       "role": "correction-summary",
-      "sha256": "592f7496d33e96ff23461628baa4b65b0f24b8661f2d73fbccfe7755d95eb618",
+      "sha256": "8a6365a6e28803e5abf8d8967afc61437025c916921a75474ed890981f516a07",
       "source_ids": [
         "stage81-stage80-evidence",
+        "stage81-finite149-path-snapshot",
         "stage81-official-runtime-doc"
       ]
     },
@@ -70,13 +117,26 @@
       ]
     },
     {
-      "bytes": 2929,
+      "bytes": 4749,
+      "media_type": "application/json",
+      "path": "verification/path-edge-replay-audit.json",
+      "record_count": 405,
+      "role": "path-edge-replay-audit",
+      "sha256": "5e30f2fcd12638c07fbfb62ad48fd0ab9215109746dc8a65969f2fdab57337f2",
+      "source_ids": [
+        "stage81-stage80-evidence",
+        "stage81-finite149-path-snapshot"
+      ]
+    },
+    {
+      "bytes": 884,
       "media_type": "application/json",
       "path": "verification/path-evidence-boundary.json",
       "role": "evidence-boundary",
-      "sha256": "7f3f856daa4dd274ff55be7d9fc22257e23b6542f0edfd0fd3df07142b17fa13",
+      "sha256": "2f9b54c38be8075f611f424b0ca8d8090d38d562f9c0cccf49524224658c7694",
       "source_ids": [
-        "stage81-stage80-evidence"
+        "stage81-stage80-evidence",
+        "stage81-finite149-path-snapshot"
       ]
     },
     {
@@ -112,7 +172,7 @@
       ]
     }
   ],
-  "captured_at": "2026-08-31T19:05:54+08:00",
+  "captured_at": "2026-09-01T12:00:00+08:00",
   "claims": [],
   "depends_on": [
     "80-finite149"
@@ -122,14 +182,15 @@
     "The nested 498,673,223-byte finite-outcomes JSON is parsed to top-level EOF one matrix row at a time under a 256 KiB application buffer cap.",
     "All 17 captured official Lean operator-table comments are parsed and compared with the historical table rows.",
     "The portable verifier also reruns all 149 exhaustive task checks, the 11 transpose derivations, 129/20 orientation split, zero-overlap check, delta/order joins, and exact 1,470-prefix/17-suffix submission comparison.",
-    "The 149 ETP paths remain a frozen inventory because the finite graph and 13 of 30 referenced path-source files were not captured; direct finite-table semantics remain exhaustively checked in Stage 80.",
+    "All 30 referenced Lean path sources, the pinned finite graph, dual mapping, graph-construction page, and companion full_entries identity are captured; all 405 edges of the 149 frozen paths replay with zero failures or reversed-only matches.",
+    "The edge replay validates the frozen paths only. It does not rerun upstream graph extraction/building, historical discovery, shortest-path search, Judge v3, Lean kernel compilation, or complete outer/Lean certificate generation.",
     "Python 3.10+ is required; Python 3.11 is the recommended and required CI baseline aligned with the official python:3.11-slim sandbox."
   ],
   "pipeline_order": 81,
   "schema_version": "1.0.0",
   "sources": [
     {
-      "captured_at": "2026-08-31T19:05:54+08:00",
+      "captured_at": "2026-09-01T12:00:00+08:00",
       "kind": "repository-snapshot",
       "license_status": "inherits the per-source status recorded by Stage 80",
       "locator": "reproduction/80-finite149",
@@ -141,14 +202,27 @@
       "source_id": "stage81-stage80-evidence"
     },
     {
-      "captured_at": "2026-08-31T19:05:54+08:00",
+      "captured_at": "2026-09-01T12:00:00+08:00",
+      "kind": "third-party",
+      "license_status": "Apache-2.0; exact license text is included in the raw snapshot",
+      "locator": "reproduction/81-finite149-portable-verification/raw/finite149-path-source-snapshot.tar.gz",
+      "notes": [
+        "Raw snapshot SHA-256: 127e420e469b1a97d942f851542d99e03d4c30d5f73ec26ada0d04ff97f175df",
+        "finite_graph.json and implications.js are pinned to the site snapshot recorded with upstream commit 730c20724c9f076eec1c1a98eec232a0ea8f4c5c; full_entries.json is separately pinned to e5a88a1479011ece4aad8e3c2e7e5c0ebc0a5b2a.",
+        "The separate full_entries.json identity is checked but replay uses finite_graph.json#full_entries, matching the captured show_proof.html consumer."
+      ],
+      "revision": "730c20724c9f076eec1c1a98eec232a0ea8f4c5c",
+      "source_id": "stage81-finite149-path-snapshot"
+    },
+    {
+      "captured_at": "2026-09-01T12:00:00+08:00",
       "kind": "generated",
       "license_status": "Apache-2.0 repository code",
       "locator": "reproduction/81-finite149-portable-verification/scripts",
       "source_id": "stage81-correction-code"
     },
     {
-      "captured_at": "2026-08-31T19:05:54+08:00",
+      "captured_at": "2026-09-01T12:00:00+08:00",
       "kind": "third-party",
       "license_status": "upstream repository documentation; see upstream licensing",
       "locator": "https://github.com/SAIRcompetition/equational-theories-lean-stage2/blob/817a4653bf762584931d49c6714c9fcfab7df66a/README.md#sandbox-python-environment",
@@ -161,7 +235,7 @@
   ],
   "stage_id": "81-finite149-portable-verification",
   "status": "verified",
-  "title": "portable finite149 verification and provenance correction",
+  "title": "portable finite149 verification, provenance correction, and path replay",
   "verification": {
     "checksum_file": "SHA256SUMS",
     "command": "python3 reproduction/81-finite149-portable-verification/scripts/verify.py",

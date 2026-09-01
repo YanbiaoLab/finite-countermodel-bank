@@ -63,6 +63,8 @@ from tools.phase2_stage70 import (
     ZERO_MARGINAL_COUNT,
     derive_positive_marginal_core,
 )
+from tools.stage60_seedfree import reconstruction_report_for_repository
+from tools.stage60_full_run_evidence import validate_committed_full_run_evidence
 from tools.rebuild_phase1 import (
     Table,
     atomic_binary,
@@ -656,6 +658,17 @@ def build_stage60(root: Path) -> dict:
     ensure(full_summary["enumeration"]["raw_labeled_tables_scanned"] == 2**32, "Fin4 full-summary scan drift")
     ensure(full_summary["enumeration"]["all_fin4_isomorphism_classes"] == 178_981_952, "Fin4 full-summary class drift")
 
+    reconstruction_report = reconstruction_report_for_repository(root)
+    write_json(
+        stage_dir / "verification/seedfree-input-reconstruction.json",
+        reconstruction_report,
+    )
+    full_run = validate_committed_full_run_evidence(
+        root,
+        stage_dir / "verification/seedfree-full-run.json",
+        stage_dir / "verification/seedfree-full-run-logs.jsonl.gz",
+    )
+
     summary = {
         "schema_version": SCHEMA_VERSION,
         "stage_id": STAGE60,
@@ -689,17 +702,49 @@ def build_stage60(root: Path) -> dict:
         },
         "row_ledger": partition,
         "fin4_enumeration": enumeration,
+        "seedfree_outcome_rerun": {
+            "reconstructed_input_status": reconstruction_report["status"],
+            "reconstructed_files": reconstruction_report["files"],
+            "runner": "scripts/run_seedfree.py",
+            "engine_smoke_test": "scripts/smoke_test_engines.py",
+            "evidence_capture": "scripts/capture_seedfree_evidence.py",
+            "enumeration_method": "seed-free-all-bitslice-opposite-result-level",
+            "historical_seed_chain_used": False,
+            "full_run_demonstrated_in_repository": (
+                full_run["status"] == "validated-exact"
+            ),
+            "full_run_evidence_report": "verification/seedfree-full-run.json",
+            "full_run_sanitized_logs": (
+                "verification/seedfree-full-run-logs.jsonl.gz"
+            ),
+            "full_run_validation": full_run,
+            "runner_consumed_reconstructed_files": [
+                "equations.bin",
+                "equation_mirror_map.bin",
+            ],
+            "support_or_upstream_files_not_consumed_by_runner": [
+                "eq_size5.txt",
+                "singleton_family_mask.u8",
+                "singleton_primary.u8",
+            ],
+        },
         "resource_boundary": {
             "historical_maximum_engine_rss_bytes": enumeration["maximum_engine_rss_bytes"],
             "historical_shard_elapsed_seconds_sum": enumeration["elapsed_seconds_sum"],
+            "seedfree_full_run_maximum_engine_rss_bytes": full_run[
+                "maximum_engine_rss_bytes"
+            ],
+            "seedfree_full_run_successful_shard_wall_seconds_sum": full_run[
+                "timing"
+            ]["shard_wall_seconds_sum"],
             "bitset_copy_and_validation": (
                 "two bounded gzip streams plus one 7,824-byte row per bitset"
             ),
         },
         "known_gaps": [
-            "The singleton_family_mask.u8 and singleton_primary.u8 inputs named by the 324M manifest are no longer present in the sibling checkout.",
-            "The Fin4 runner's equations.bin and the complete 6,173-model seed-generation chain are unavailable.",
-            "This stage therefore replays and independently validates frozen exact artifacts; it does not claim a from-scratch regeneration of the 324M universe or the historical Fin4 search.",
+            "The complete historical 6,173-model seed-generation/provenance chain remains unavailable and is intentionally not used by the new result-level runner.",
+            "The completed seed-free run demonstrates the exact result-level outcome, not the historical seeded execution order or provenance chain.",
+            "The upstream 324M universe is not regenerated from the earliest Fin2/Fin3 and singleton discovery inputs.",
         ],
     }
     write_json(stage_dir / "summary.json", summary)
@@ -985,6 +1030,7 @@ def finalize_phase2(root: Path, summaries: dict[str, dict]) -> None:
     s50_prior = "stage50-prior-bank"
     s60_local = "stage60-local-snapshot"
     s60_eq = "stage60-equation-index"
+    s60_code = "stage60-seedfree-tooling"
     s70_local = "stage70-local-snapshot"
     s70_candidate = "stage70-candidate-bank"
     s70_residual = "stage70-residual-bitset"
@@ -1030,19 +1076,38 @@ def finalize_phase2(root: Path, summaries: dict[str, dict]) -> None:
         sources=[
             source_record(s60_eq, "repository-snapshot", "reproduction/10-primary-9450/raw/primary-recovery-snapshot.tar.gz#members/wubing/data/324M_remaining_pairs/order5_equations.csv", upstream=True),
             source_record(s60_local, "local-filesystem-snapshot", "math-distill-equational-stage2: stable 324M/284M packages plus scalar and bit-sliced Fin4 shard records"),
+            {
+                "source_id": s60_code,
+                "kind": "generated",
+                "locator": "repository-authored deterministic Stage60 seed-free tooling",
+                "captured_at": CAPTURED_AT,
+                "license_status": LICENSE_STATUS,
+                "notes": [
+                    "The tooling reconstructs byte-exact Stage60 support/upstream files from the committed snapshot and runs a new result-level method without the historical seed chain."
+                ],
+            },
         ],
         artifact_specs=[
             dict(relative="raw/fin4-residual-snapshot.tar.gz", role="raw-snapshot", media_type="application/gzip", source_ids=[s60_local], record_count=285, attributes={"archive_format": "deterministic-tar-gzip-v1", "uncompressed_source_bytes": 996151568}),
-            dict(relative="summary.json", role="stage-summary", media_type="application/json", source_ids=[s60_eq, s60_local]),
+            dict(relative="summary.json", role="stage-summary", media_type="application/json", source_ids=[s60_eq, s60_local, s60_code]),
             dict(relative="normalized/324M_remaining_pairs.bitset.gz", role="pair-bitset", media_type="application/gzip", source_ids=[s60_local], attributes={"encoding": "o5rpair1-gzip-v1", "uncompressed_bytes": BITSET_BYTES, "uncompressed_sha256": BITSET324_SHA256, "set_bits": 324157667}),
             dict(relative="normalized/284M_remaining_pairs.bitset.gz", role="pair-bitset", media_type="application/gzip", source_ids=[s60_local], attributes={"encoding": "o5rpair1-gzip-v1", "uncompressed_bytes": BITSET_BYTES, "uncompressed_sha256": BITSET284_SHA256, "set_bits": 284151591}),
             dict(relative="normalized/pair-partition-by-source.csv.gz", role="pair-partition", media_type="text/csv+gzip", source_ids=[s60_eq, s60_local], record_count=62576),
             dict(relative="normalized/fin4-shards.csv.gz", role="fin4-shard-index", media_type="text/csv+gzip", source_ids=[s60_local], record_count=256),
+            dict(relative="scripts/reconstruct_inputs.py", role="reconstruction-script", media_type="text/x-python", source_ids=[s60_code]),
+            dict(relative="scripts/run_seedfree.py", role="runner-script", media_type="text/x-python", source_ids=[s60_code]),
+            dict(relative="scripts/smoke_test_engines.py", role="engine-smoke-test", media_type="text/x-python", source_ids=[s60_code]),
+            dict(relative="scripts/capture_seedfree_evidence.py", role="evidence-capture-script", media_type="text/x-python", source_ids=[s60_code]),
+            dict(relative="verification/seedfree-input-reconstruction.json", role="input-reconstruction-audit", media_type="application/json", source_ids=[s60_eq, s60_local, s60_code]),
+            dict(relative="verification/seedfree-full-run.json", role="full-run-evidence", media_type="application/json", source_ids=[s60_eq, s60_local, s60_code], record_count=256),
+            dict(relative="verification/seedfree-full-run-logs.jsonl.gz", role="full-run-logs", media_type="application/x-ndjson+gzip", source_ids=[s60_eq, s60_local, s60_code], record_count=summaries[STAGE60]["seedfree_outcome_rerun"]["full_run_validation"]["sanitized_log_rows"]),
         ],
         notes=[
             "324,157,667 is the targeted universe after Fin2/3 coverage and singleton-true exclusions, not the full 3,915,693,200 directed nonreflexive universe.",
             "The normalized gzip mirrors make exact standard-library verification portable; their decompressed bytes equal the captured bitsets.",
-            "Unavailable upstream seed inputs are listed in summary.json, so this stage is intentionally labeled frozen-artifact replay rather than from-scratch regeneration.",
+            "Five standalone-missing Stage60 support/upstream files are now reconstructed byte-for-byte; only equations.bin and the mirror map are consumed by the new runner, while the singleton masks belong to upstream 324M construction.",
+            "The guarded seed-free all-bitslice runner is a new result-level method. Its complete 256-shard 2^32 run finished without retries and reproduced the committed 284,151,591-pair residual byte for byte.",
+            "The committed full-run report and sanitized logs bind all shard summaries, input and implementation hashes, resource measurements, and streamed bitset validation without claiming historical seeded-order replay.",
         ],
     )
 

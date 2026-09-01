@@ -21,11 +21,17 @@ from pathlib import Path, PurePosixPath
 from typing import BinaryIO, Iterable
 
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(SCRIPT_DIR))
+import path_replay  # noqa: E402
+
+
 STAGE_ID = "81-finite149-portable-verification"
 STAGE80 = "80-finite149"
 STAGE70 = "70-positive-marginal-core-1470"
 SCHEMA_VERSION = "1.0.0"
-CAPTURED_AT = "2026-08-31T19:05:54+08:00"
+CAPTURED_AT = "2026-09-01T12:00:00+08:00"
 RAW_MEMBER = "source/upstream/finite_outcomes.json.gz"
 EXPECTED_EQUATION_COUNT = 4_694
 EXPECTED_SELECTED_CELLS = 789
@@ -1409,52 +1415,31 @@ def build(
         pretty_json_bytes(semantic_audit),
     )
 
-    declared_path_sources: set[str] = set()
-    for row in path_manifest:
-        declared_path_sources.add(row["official_source"])
-        declared_path_sources.update(
-            value for value in row["proof_path_sources"].split(";") if value
-        )
-    captured_official_sources = {
-        name.removeprefix("source/official_sources/")
-        for name in members
-        if name.startswith("source/official_sources/")
-    }
-    ensure(
-        len(declared_path_sources)
-        == int(bundle_manifest["counts"]["official_source_files"]),
-        "declared path-source count drift",
+    path_raw = script_source_stage / "raw/finite149-path-source-snapshot.tar.gz"
+    edge_replay_bytes, path_audit, path_boundary = path_replay.replay(
+        raw_snapshot, path_raw
     )
-    ensure(
-        captured_official_sources.issubset(declared_path_sources),
-        "captured official table source absent from path inventory",
+    path_boundary = {**path_boundary, "schema_version": SCHEMA_VERSION}
+    path_boundary["independent_finite_table_semantics_available"] = True
+    path_boundary["independent_semantics_evidence"] = (
+        "reproduction/80-finite149/verification/coverage-exhaustive.jsonl.gz"
     )
-    missing_path_sources = sorted(declared_path_sources - captured_official_sources)
-    finite_graph_captured = any("finite_graph" in name for name in members)
-    ensure(not finite_graph_captured, "unexpected finite graph in Stage 80 snapshot")
-    path_boundary = {
-        "captured_official_source_count": len(captured_official_sources),
-        "captured_official_sources": sorted(captured_official_sources),
-        "declared_path_source_count": len(declared_path_sources),
-        "edge_replay_performed": False,
-        "finite_graph_captured": False,
-        "finite_graph_expected_sha256": bundle_manifest["upstream"][
-            "finite_graph_sha256"
-        ],
-        "independent_finite_table_semantics_available": True,
-        "independent_semantics_evidence": (
-            "reproduction/80-finite149/verification/coverage-exhaustive.jsonl.gz"
-        ),
-        "interpretation": (
-            "The 149 ETP paths are a hash-pinned frozen inventory. Their graph edges "
-            "are not independently replayable from the captured Stage 80 snapshot."
-        ),
-        "missing_path_source_count": len(missing_path_sources),
-        "missing_path_sources": missing_path_sources,
-        "path_inventory_rows": len(path_manifest),
-        "path_source_closure_complete": not missing_path_sources,
-        "schema_version": SCHEMA_VERSION,
-    }
+    path_boundary["interpretation"] = (
+        "All 405 edges of the 149 hash-pinned paths replay under the captured "
+        "show_proof.html graph semantics. This validates the frozen paths; it does "
+        "not rerun historical discovery, upstream extraction, shortest-path search, "
+        "or Lean kernel compilation."
+    )
+    write_bytes(
+        output_stage,
+        "normalized/path-edge-replay.jsonl.gz",
+        edge_replay_bytes,
+    )
+    write_bytes(
+        output_stage,
+        "verification/path-edge-replay-audit.json",
+        pretty_json_bytes(path_audit),
+    )
     write_bytes(
         output_stage,
         "verification/path-evidence-boundary.json",
@@ -1473,10 +1458,18 @@ def build(
             "exact_matches": len(lean_rows),
         },
         "path_evidence_boundary": {
-            "captured_source_count": len(captured_official_sources),
-            "declared_source_count": len(declared_path_sources),
-            "edge_replay_performed": False,
-            "missing_source_count": len(missing_path_sources),
+            "captured_source_count": path_boundary["captured_path_source_files"],
+            "declared_source_count": path_boundary["captured_path_source_files"],
+            "edge_instances_replayed": path_boundary["edge_instances_replayed"],
+            "edge_replay_performed": path_boundary["edge_replay_performed"],
+            "failed_edges": path_boundary["failed_edges"],
+            "missing_source_count": len(path_boundary["missing_path_source_files"]),
+            "shortest_path_search_performed": path_boundary[
+                "shortest_path_search_performed"
+            ],
+            "unique_directed_edges_replayed": path_boundary[
+                "unique_directed_edges_replayed"
+            ],
         },
         "python": {
             "minimum": "3.10",
@@ -1500,6 +1493,7 @@ def build(
 
     stage80_source = ["stage81-stage80-evidence"]
     code_source = ["stage81-correction-code"]
+    graph_source = ["stage81-finite149-path-snapshot"]
     artifact_specs = [
         artifact(
             output_stage,
@@ -1525,6 +1519,44 @@ def build(
         ),
         artifact(
             output_stage,
+            "normalized/path-edge-replay.jsonl.gz",
+            "path-edge-replay",
+            "application/x-ndjson+gzip",
+            ["stage81-stage80-evidence", "stage81-finite149-path-snapshot"],
+            record_count=path_audit["counts"]["edge_instances"],
+        ),
+        artifact(
+            output_stage,
+            "raw/finite149-path-source-snapshot.tar.gz",
+            "path-source-snapshot",
+            "application/gzip",
+            graph_source,
+            source_path=path_raw,
+            attributes={
+                "member_count": path_audit["raw_archive"]["member_count"],
+                "uncompressed_bytes": path_audit["raw_archive"][
+                    "total_declared_uncompressed_bytes"
+                ],
+            },
+        ),
+        artifact(
+            output_stage,
+            "scripts/capture_path_sources.py",
+            "capture-script",
+            "text/x-python",
+            code_source,
+            source_path=script_source_stage / "scripts/capture_path_sources.py",
+        ),
+        artifact(
+            output_stage,
+            "scripts/path_replay.py",
+            "path-replay-script",
+            "text/x-python",
+            code_source,
+            source_path=script_source_stage / "scripts/path_replay.py",
+        ),
+        artifact(
+            output_stage,
             "scripts/rebuild.py",
             "rebuild-script",
             "text/x-python",
@@ -1544,7 +1576,11 @@ def build(
             "summary.json",
             "correction-summary",
             "application/json",
-            ["stage81-stage80-evidence", "stage81-official-runtime-doc"],
+            [
+                "stage81-stage80-evidence",
+                "stage81-finite149-path-snapshot",
+                "stage81-official-runtime-doc",
+            ],
         ),
         artifact(
             output_stage,
@@ -1556,10 +1592,18 @@ def build(
         ),
         artifact(
             output_stage,
+            "verification/path-edge-replay-audit.json",
+            "path-edge-replay-audit",
+            "application/json",
+            ["stage81-stage80-evidence", "stage81-finite149-path-snapshot"],
+            record_count=path_audit["counts"]["edge_instances"],
+        ),
+        artifact(
+            output_stage,
             "verification/path-evidence-boundary.json",
             "evidence-boundary",
             "application/json",
-            stage80_source,
+            ["stage81-stage80-evidence", "stage81-finite149-path-snapshot"],
         ),
         artifact(
             output_stage,
@@ -1603,7 +1647,8 @@ def build(
             "The nested 498,673,223-byte finite-outcomes JSON is parsed to top-level EOF one matrix row at a time under a 256 KiB application buffer cap.",
             "All 17 captured official Lean operator-table comments are parsed and compared with the historical table rows.",
             "The portable verifier also reruns all 149 exhaustive task checks, the 11 transpose derivations, 129/20 orientation split, zero-overlap check, delta/order joins, and exact 1,470-prefix/17-suffix submission comparison.",
-            "The 149 ETP paths remain a frozen inventory because the finite graph and 13 of 30 referenced path-source files were not captured; direct finite-table semantics remain exhaustively checked in Stage 80.",
+            "All 30 referenced Lean path sources, the pinned finite graph, dual mapping, graph-construction page, and companion full_entries identity are captured; all 405 edges of the 149 frozen paths replay with zero failures or reversed-only matches.",
+            "The edge replay validates the frozen paths only. It does not rerun upstream graph extraction/building, historical discovery, shortest-path search, Judge v3, Lean kernel compilation, or complete outer/Lean certificate generation.",
             "Python 3.10+ is required; Python 3.11 is the recommended and required CI baseline aligned with the official python:3.11-slim sandbox.",
         ],
         "pipeline_order": 81,
@@ -1620,6 +1665,19 @@ def build(
                 ],
                 "revision": "be7d492ed4651f1193c823238ef528f32afc90d1",
                 "source_id": "stage81-stage80-evidence",
+            },
+            {
+                "captured_at": CAPTURED_AT,
+                "kind": "third-party",
+                "license_status": "Apache-2.0; exact license text is included in the raw snapshot",
+                "locator": "reproduction/81-finite149-portable-verification/raw/finite149-path-source-snapshot.tar.gz",
+                "notes": [
+                    f"Raw snapshot SHA-256: {path_replay.EXPECTED_STAGE81_RAW_SHA256}",
+                    "finite_graph.json and implications.js are pinned to the site snapshot recorded with upstream commit 730c20724c9f076eec1c1a98eec232a0ea8f4c5c; full_entries.json is separately pinned to e5a88a1479011ece4aad8e3c2e7e5c0ebc0a5b2a.",
+                    "The separate full_entries.json identity is checked but replay uses finite_graph.json#full_entries, matching the captured show_proof.html consumer.",
+                ],
+                "revision": "730c20724c9f076eec1c1a98eec232a0ea8f4c5c",
+                "source_id": "stage81-finite149-path-snapshot",
             },
             {
                 "captured_at": CAPTURED_AT,
@@ -1642,7 +1700,7 @@ def build(
         ],
         "stage_id": STAGE_ID,
         "status": "verified",
-        "title": "portable finite149 verification and provenance correction",
+        "title": "portable finite149 verification, provenance correction, and path replay",
         "verification": {
             "checksum_file": "SHA256SUMS",
             "command": (

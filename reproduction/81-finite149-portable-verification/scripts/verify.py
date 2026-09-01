@@ -56,7 +56,13 @@ def main() -> int:
         roles = {row["path"]: row["role"] for row in manifest["artifacts"]}
         compared: list[str] = []
         for relative in artifact_paths:
-            if roles[relative] in {"rebuild-script", "verification-script"}:
+            if roles[relative] in {
+                "capture-script",
+                "path-replay-script",
+                "path-source-snapshot",
+                "rebuild-script",
+                "verification-script",
+            }:
                 continue
             expected = stage / Path(PurePosixPath(relative))
             actual = regenerated / Path(PurePosixPath(relative))
@@ -89,8 +95,39 @@ def main() -> int:
         "exact_matches": 17,
     }:
         raise RuntimeError("Lean source-table audit drift")
-    if summary["path_evidence_boundary"]["edge_replay_performed"]:
-        raise RuntimeError("Stage 81 must not claim an unavailable ETP edge replay")
+    path_boundary = summary["path_evidence_boundary"]
+    if (
+        not path_boundary["edge_replay_performed"]
+        or path_boundary["edge_instances_replayed"] != 405
+        or path_boundary["unique_directed_edges_replayed"] != 159
+        or path_boundary["failed_edges"] != 0
+        or path_boundary["missing_source_count"] != 0
+        or path_boundary["shortest_path_search_performed"]
+    ):
+        raise RuntimeError("Stage 81 finite149 path-edge replay drift")
+    path_audit = json.loads(
+        (stage / "verification/path-edge-replay-audit.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    if path_audit["counts"] != {
+        **path_audit["counts"],
+        "edge_instances": 405,
+        "failed_edges": 0,
+        "path_nodes": 170,
+        "paths": 149,
+        "reversed_only_edges": 0,
+        "source_files": 30,
+        "source_mismatches": 0,
+        "unique_directed_edges": 159,
+    }:
+        raise RuntimeError("Stage 81 path audit count drift")
+    if (
+        path_audit["algorithm"]["shortest_path_search_performed"]
+        or path_audit["algorithm"]["upstream_graph_builder_rerun"]
+        or path_audit["lean_kernel_compilation_performed"]
+    ):
+        raise RuntimeError("Stage 81 path replay overstates its verification scope")
     if summary["correction_scope"]["changes_stage80_membership_or_counts"]:
         raise RuntimeError("corrective layer unexpectedly changes Stage 80 membership")
     semantics = summary["stage80_portable_semantics"]
