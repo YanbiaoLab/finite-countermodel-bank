@@ -11,9 +11,10 @@ the repository's primary license.
 
 The artifacts in `reproduction/00-submission-anchor/raw/` are archive copies of
 solver source files submitted by team `EQT02-T00037` to the SAIR Mathematics
-Distillation Challenge — Equational Theories Stage 2. They were downloaded from
-the authenticated team submission page on 2026-08-31. The archive does not copy
-the SAIR site, its interface, or third-party page content.
+Distillation Challenge — Equational Theories Stage 2. Four were downloaded from
+the authenticated team submission page on 2026-08-31 and are retained as
+historical evidence; four current replacements were downloaded on 2026-09-01. The
+archive does not copy the SAIR site, its interface, or third-party page content.
 
 Each later stage must record its source and rights status in `stage.json`.
 Third-party files must retain applicable copyright, attribution, and license

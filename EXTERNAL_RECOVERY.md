@@ -157,9 +157,11 @@ do not collapse it into a single pass/fail total.
 ## ER-OUTER — complete outer solver regeneration
 
 Current evidence extracts and rebuilds the exact inner finite-table payload, and
-it hash-pins the two byte-distinct outer launcher blobs found in the four submitted
-anchors. It does not regenerate the complete launcher source. The current hashes
-and sizes are recorded in the
+it hash-pins the two byte-distinct outer launcher blobs found in the four current
+2026-09-01 submitted anchors: 490,289-byte Solo and 499,149-byte Marathon. The four
+superseded 2026-08-31 launcher files are retained as separately indexed historical
+evidence. The repository does not regenerate the complete launcher source. The
+current hashes and sizes are recorded in the
 [submitted-payload audit](reproduction/90-payload-1487/verification/submitted-payload-audit.json).
 
 Recover:
@@ -168,14 +170,15 @@ Recover:
   launcher variant;
 - the complete builder and all non-table generated fragments, embedded assets,
   configuration, and version metadata;
-- the exact input-to-submission mapping for all four anchors; and
+- the exact input-to-submission mapping for all four current anchors; and
 - deterministic formatting, compression, encoding, newline, and build-environment
   settings.
 
 Acceptance requires a clean build that produces the exact launcher bytes for all
-four submission anchors, including both distinct blob hashes and sizes. Matching
-only the embedded table literal is insufficient. The comparison must also prove
-that no unrecorded post-build edit is needed.
+four current submission anchors, including both distinct blob hashes and sizes.
+Historical replay may separately target the four superseded 2026-08-31 anchors.
+Matching only the embedded table literal is insufficient. The comparison must also
+prove that no unrecorded post-build edit is needed.
 
 ## ER-LEAN — aggregate and submission certificates
 

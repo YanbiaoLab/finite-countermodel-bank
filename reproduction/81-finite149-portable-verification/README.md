@@ -31,9 +31,9 @@ To avoid any CI coverage regression, the portable verifier also reruns the rest 
 the material Stage 80 semantics under bounded memory: all 149 exhaustive
 source/target evaluations, the 11 exact transpose derivations, the 129/20
 orientation split, the 17-add/11-derive delta joins, zero overlap with the 1,470
-core records, and the exact submitted 1,470-prefix/17-suffix order. It compares the
-fresh 149 exhaustive records and all five Refutation934 task records with the
-committed Stage 80 audits. The aggregate result is
+core records, and the exact historical 2026-08-31 submitted
+1,470-prefix/17-suffix order. It compares the fresh 149 exhaustive records and all
+five Refutation934 task records with the committed Stage 80 audits. The aggregate result is
 `verification/stage80-portable-semantic-audit.json`.
 
 ## Lean tables and Refutation934

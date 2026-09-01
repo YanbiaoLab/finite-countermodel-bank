@@ -72,7 +72,7 @@ from tools.phase4_common import (  # noqa: E402
 )
 
 
-CAPTURED_AT = "2026-08-31T20:45:41+08:00"
+CAPTURED_AT = "2026-09-01T14:25:07+08:00"
 MERGED_INPUT_REVISION = "8618129a58fd3680dc4c57c08c1090db0db0ab03"
 
 
@@ -563,7 +563,7 @@ def build_stage90(
         "depends_on": [STAGE70, STAGE81],
         "notes": [
             "The exact embedded stream is Stage 70's 1,470 records followed by Stage 80's 17 base records; Stage 81 supplies their corrected effective provenance.",
-            "The XZ stream is regenerated with CRC64 and preset 9|PRESET_EXTREME, then Python Base85 encoded and compared byte for byte with all four submitted false engines.",
+            "The XZ stream is regenerated with CRC64 and preset 9|PRESET_EXTREME, then Python Base85 encoded and compared byte for byte with all four current submitted false engines.",
             "This stage reconstructs the inner finite-table payload, not the complete outer launcher.",
             "No raw directory is added because every input is already an immutable manifested artifact in a dependency stage.",
         ],
@@ -591,7 +591,7 @@ def build_stage90(
                 "kind": "repository-snapshot",
                 "license_status": "not-specified; authenticated submission bytes",
                 "locator": SUBMISSION_RELATIVE,
-                "revision": MERGED_INPUT_REVISION,
+                "revision": SUBMISSION_SHA256,
                 "source_id": "stage90-submission-anchor",
             },
             {
@@ -1164,7 +1164,7 @@ def build_stage100(
                 "kind": "repository-snapshot",
                 "license_status": "not-specified; authenticated submission bytes",
                 "locator": SUBMISSION_RELATIVE,
-                "revision": MERGED_INPUT_REVISION,
+                "revision": SUBMISSION_SHA256,
                 "source_id": "stage100-runtime-algorithm-anchor",
             },
             {

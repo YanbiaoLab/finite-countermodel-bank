@@ -2,10 +2,10 @@
   "$schema": "../../schemas/stage-manifest.schema.json",
   "schema_version": "1.0.0",
   "stage_id": "00-submission-anchor",
-  "title": "SAIR Stage 2 submitted solver anchors",
+  "title": "SAIR Stage 2 current and historical submitted solver anchors",
   "pipeline_order": 0,
   "status": "captured",
-  "captured_at": "2026-08-31T11:40:50+08:00",
+  "captured_at": "2026-09-01T14:25:07+08:00",
   "depends_on": [],
   "claims": [
     "submission.participations",
@@ -21,7 +21,19 @@
       "captured_at": "2026-08-31T11:40:50+08:00",
       "license_status": "not-specified",
       "notes": [
-        "Captured from the authenticated page for team EQT02-T00037.",
+        "Historical capture from the authenticated page for team EQT02-T00037.",
+        "The SAIR UI displayed participation timestamps without an explicit timezone.",
+        "Owner and team-member email addresses are intentionally excluded from this archive."
+      ]
+    },
+    {
+      "source_id": "sair-stage2-team-submissions-20260901",
+      "kind": "authenticated-web-download",
+      "locator": "https://competition.sair.foundation/competitions/mathematics-distillation-challenge-equational-theories-stage2/submissions",
+      "captured_at": "2026-09-01T14:25:07+08:00",
+      "license_status": "not-specified",
+      "notes": [
+        "Current capture from the authenticated page for team EQT02-T00037 after the four participation files were replaced on 2026-09-01.",
         "The SAIR UI displayed participation timestamps without an explicit timezone.",
         "Owner and team-member email addresses are intentionally excluded from this archive."
       ]
@@ -32,6 +44,15 @@
       "path": "submissions.jsonl",
       "role": "submission-index",
       "media_type": "application/x-ndjson",
+      "bytes": 3062,
+      "sha256": "a74fd09a467586523f87f2129ebfc0641de32e1da2df817e0b709dc9f824aacd",
+      "record_count": 4,
+      "source_ids": ["sair-stage2-team-submissions-20260901"]
+    },
+    {
+      "path": "submissions-20260831.jsonl",
+      "role": "historical-submission-index",
+      "media_type": "application/x-ndjson",
       "bytes": 3066,
       "sha256": "27f4384818fa012542a5f8833d4ec233a8f23f30dd035e172d99cde4f22d6d89",
       "record_count": 4,
@@ -39,7 +60,7 @@
     },
     {
       "path": "raw/2026-08-31_solo_google-gemma-4-31b-it_solver.py",
-      "role": "submitted-solver",
+      "role": "historical-submitted-solver",
       "media_type": "text/x-python",
       "bytes": 490327,
       "sha256": "f8b845e42a0007fc576d22235597fcccc85316d581c72c758f3f35cc9b65ec19",
@@ -53,7 +74,7 @@
     },
     {
       "path": "raw/2026-08-31_solo_openai-gpt-oss-120b_solver.py",
-      "role": "submitted-solver",
+      "role": "historical-submitted-solver",
       "media_type": "text/x-python",
       "bytes": 490327,
       "sha256": "f8b845e42a0007fc576d22235597fcccc85316d581c72c758f3f35cc9b65ec19",
@@ -67,7 +88,7 @@
     },
     {
       "path": "raw/2026-08-31_marathon_google-gemma-4-31b-it_solver.py",
-      "role": "submitted-solver",
+      "role": "historical-submitted-solver",
       "media_type": "text/x-python",
       "bytes": 498047,
       "sha256": "e301cbd091df1376c21ac297e1afb05decb70c34879cd6e485744d09e017c809",
@@ -81,7 +102,7 @@
     },
     {
       "path": "raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
-      "role": "submitted-solver",
+      "role": "historical-submitted-solver",
       "media_type": "text/x-python",
       "bytes": 498047,
       "sha256": "e301cbd091df1376c21ac297e1afb05decb70c34879cd6e485744d09e017c809",
@@ -92,16 +113,75 @@
         "model_name": "gpt-oss-120b",
         "submitted_at_display": "Aug 31, 2026, 10:48 AM"
       }
+    },
+    {
+      "path": "raw/2026-09-01_solo_google-gemma-4-31b-it_solver.py",
+      "role": "submitted-solver",
+      "media_type": "text/x-python",
+      "bytes": 490289,
+      "sha256": "cdec40c1a31db314d94dd079a51064fa284627f7641749132e1787e85fd3971e",
+      "source_ids": ["sair-stage2-team-submissions-20260901"],
+      "attributes": {
+        "track": "solo",
+        "model_provider": "Google",
+        "model_name": "Gemma 4 31B",
+        "submitted_at_display": "Sep 1, 2026, 02:21 PM"
+      }
+    },
+    {
+      "path": "raw/2026-09-01_solo_openai-gpt-oss-120b_solver.py",
+      "role": "submitted-solver",
+      "media_type": "text/x-python",
+      "bytes": 490289,
+      "sha256": "cdec40c1a31db314d94dd079a51064fa284627f7641749132e1787e85fd3971e",
+      "source_ids": ["sair-stage2-team-submissions-20260901"],
+      "attributes": {
+        "track": "solo",
+        "model_provider": "OpenAI",
+        "model_name": "gpt-oss-120b",
+        "submitted_at_display": "Sep 1, 2026, 02:22 PM"
+      }
+    },
+    {
+      "path": "raw/2026-09-01_marathon_google-gemma-4-31b-it_solver.py",
+      "role": "submitted-solver",
+      "media_type": "text/x-python",
+      "bytes": 499149,
+      "sha256": "18c1ccec4724837440362b8f08433d2eb73296d71e1e81054fc9cca6f3f07284",
+      "source_ids": ["sair-stage2-team-submissions-20260901"],
+      "attributes": {
+        "track": "marathon",
+        "model_provider": "Google",
+        "model_name": "Gemma 4 31B",
+        "submitted_at_display": "Sep 1, 2026, 02:22 PM"
+      }
+    },
+    {
+      "path": "raw/2026-09-01_marathon_openai-gpt-oss-120b_solver.py",
+      "role": "submitted-solver",
+      "media_type": "text/x-python",
+      "bytes": 499149,
+      "sha256": "18c1ccec4724837440362b8f08433d2eb73296d71e1e81054fc9cca6f3f07284",
+      "source_ids": ["sair-stage2-team-submissions-20260901"],
+      "attributes": {
+        "track": "marathon",
+        "model_provider": "OpenAI",
+        "model_name": "gpt-oss-120b",
+        "submitted_at_display": "Sep 1, 2026, 02:22 PM"
+      }
     }
   ],
   "verification": {
     "checksum_file": "SHA256SUMS",
     "command": "python3 tools/verify_repository.py --stage 00-submission-anchor",
     "notes": [
-      "Verification hashes the files but does not execute the downloaded solver code."
+      "Verification hashes all current and historical files but does not execute downloaded solver code.",
+      "Submission claims and participation semantics are computed from the current submissions.jsonl index."
     ]
   },
   "notes": [
-    "Both model submissions within a track are byte-identical, but all four paths are retained as separate participation anchors."
+    "submissions.jsonl is the current four-participation anchor captured on 2026-09-01.",
+    "submissions-20260831.jsonl and the 2026-08-31 raw files preserve the superseded historical capture.",
+    "Within each capture, both model submissions for a track are byte-identical."
   ]
 }

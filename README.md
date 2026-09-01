@@ -25,8 +25,9 @@ False Solver.
 
 ## Current status
 
-Phase 0 establishes the repository contract and captures the four solver files that
-were actually submitted to SAIR.
+Phase 0 establishes the repository contract and captures the four current solver
+files downloaded from SAIR on 2026-09-01. The four superseded 2026-08-31 files and
+their original index remain hash-pinned as historical submission evidence.
 
 Phase 1 reconstructs the historical finite-table accumulation as four separately
 reviewable stages: 9,450 primary tables, 9,852
@@ -38,7 +39,8 @@ Phase 2 reconstructs the stable pruning from 10,059 to 3,535 tables, validates t
 frozen Fin4 transition from 324,157,667 targeted pairs to a 284,151,591-pair
 residual, and replays the fixed-order positive-marginal selection of the 1,470-table
 core. The core matches the first 1,470 embedded records of the submitted Marathon
-solver exactly. Stage 60 now byte-exactly reconstructs five standalone-missing
+solver from the historical 2026-08-31 capture exactly. Stage 60 now byte-exactly
+reconstructs five standalone-missing
 support/upstream files and provides a guarded, resumable seed-free result-level
 runner. The runner consumes the reconstructed equation binary and mirror map, not
 the two upstream singleton masks. A complete 256-shard `2^32` run finished without
@@ -65,7 +67,7 @@ paths with zero missing or reversed-only edges. This validates those recorded
 paths; it does not rerun upstream graph extraction/building, shortest-path search,
 or Lean compilation. Stage 81 also retains the full Stage 80 semantic gate by
 rerunning all 149 exhaustive task checks, 11 transpose derivations, zero-overlap,
-and 1,470-prefix/17-suffix submission comparisons.
+and historical 2026-08-31 submission 1,470-prefix/17-suffix comparisons.
 
 Phase 4 reconstructs the exact inner finite-table payload as the Stage 70 core
 followed by the Stage 80 augmentation: 1,470 + 17 = 1,487 records, 111,009 raw
@@ -76,8 +78,8 @@ runtime-oriented scan records. These 1,414 tables are runtime-derived and are no
 additional embedded payload records. Seventeen exact derived records have earlier
 repository history (six in Stage 10 and eleven in Stage 80), so only 1,397 receive
 Stage 100 as their historical `first_seen_stage`. The evidence reconstructs the
-inner table payload and transformation, not the complete 498,047-byte outer solver
-launcher.
+inner table payload and transformation, not the complete current outer solver
+launchers (490,289-byte Solo and 499,149-byte Marathon blobs).
 
 ## Reproducibility scope
 
@@ -134,8 +136,8 @@ pair bitsets. The corrected Phase 3 rebuild scans all 498,673,223 uncompressed
 finite-outcomes bytes with a 256 KiB application-buffer cap and retains only the
 789 requested cells. Neither path materializes its large input in memory.
 The Phase 4 rebuild handles only the bounded 111,009-byte embedded stream and its
-215,433-byte runtime closure; submitted Python files are parsed as data and never
-imported or executed.
+215,433-byte runtime closure; the current 2026-09-01 submitted Python files are
+parsed as data and never imported or executed.
 
 ## Repository layout
 

@@ -141,7 +141,7 @@
       "path": "verification/submitted-payload-audit.json",
       "record_count": 4,
       "role": "payload-audit",
-      "sha256": "6795c309b87d0fcd6336ddc713682f48cc38b67baf6c45831f1c71de90279977",
+      "sha256": "43812d93e9a3069a6909bc3473726d222c298518e48dea8c861e037c8b635e4c",
       "source_ids": [
         "stage90-core-input",
         "stage90-finite149-input",
@@ -150,7 +150,7 @@
       ]
     }
   ],
-  "captured_at": "2026-08-31T20:45:41+08:00",
+  "captured_at": "2026-09-01T14:25:07+08:00",
   "claims": [
     "payload.embedded",
     "payload.declared_embedded",
@@ -162,7 +162,7 @@
   ],
   "notes": [
     "The exact embedded stream is Stage 70's 1,470 records followed by Stage 80's 17 base records; Stage 81 supplies their corrected effective provenance.",
-    "The XZ stream is regenerated with CRC64 and preset 9|PRESET_EXTREME, then Python Base85 encoded and compared byte for byte with all four submitted false engines.",
+    "The XZ stream is regenerated with CRC64 and preset 9|PRESET_EXTREME, then Python Base85 encoded and compared byte for byte with all four current submitted false engines.",
     "This stage reconstructs the inner finite-table payload, not the complete outer launcher.",
     "No raw directory is added because every input is already an immutable manifested artifact in a dependency stage."
   ],
@@ -170,7 +170,7 @@
   "schema_version": "1.0.0",
   "sources": [
     {
-      "captured_at": "2026-08-31T20:45:41+08:00",
+      "captured_at": "2026-09-01T14:25:07+08:00",
       "kind": "repository-snapshot",
       "license_status": "inherits the per-source status recorded by Stage 70",
       "locator": "reproduction/70-positive-marginal-core-1470",
@@ -178,7 +178,7 @@
       "source_id": "stage90-core-input"
     },
     {
-      "captured_at": "2026-08-31T20:45:41+08:00",
+      "captured_at": "2026-09-01T14:25:07+08:00",
       "kind": "repository-snapshot",
       "license_status": "inherits the per-source status recorded by Stages 80 and 81",
       "locator": "reproduction/81-finite149-portable-verification (including transitive Stage 80 data)",
@@ -186,15 +186,15 @@
       "source_id": "stage90-finite149-input"
     },
     {
-      "captured_at": "2026-08-31T20:45:41+08:00",
+      "captured_at": "2026-09-01T14:25:07+08:00",
       "kind": "repository-snapshot",
       "license_status": "not-specified; authenticated submission bytes",
-      "locator": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
-      "revision": "8618129a58fd3680dc4c57c08c1090db0db0ab03",
+      "locator": "reproduction/00-submission-anchor/raw/2026-09-01_marathon_openai-gpt-oss-120b_solver.py",
+      "revision": "18c1ccec4724837440362b8f08433d2eb73296d71e1e81054fc9cca6f3f07284",
       "source_id": "stage90-submission-anchor"
     },
     {
-      "captured_at": "2026-08-31T20:45:41+08:00",
+      "captured_at": "2026-09-01T14:25:07+08:00",
       "kind": "generated",
       "license_status": "Apache-2.0 repository code",
       "locator": "tools/phase4_common.py and tools/rebuild_phase4.py",

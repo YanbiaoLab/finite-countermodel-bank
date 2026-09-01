@@ -137,7 +137,7 @@
       "media_type": "application/json",
       "path": "verification/submitted-runtime-code-audit.json",
       "role": "runtime-code-audit",
-      "sha256": "18324121de8c11c86aec0edf13923ec4520ed2d19c2a63f26778b83cb51fdd06",
+      "sha256": "6f763c5893d3d9dd23c769a186866f0845ec7dd6114bce2e418fa7f14e5829f4",
       "source_ids": [
         "stage100-payload-input",
         "stage100-runtime-algorithm-anchor",
@@ -145,7 +145,7 @@
       ]
     }
   ],
-  "captured_at": "2026-08-31T20:45:41+08:00",
+  "captured_at": "2026-09-01T14:25:07+08:00",
   "claims": [
     "closure.added",
     "closure.runtime"
@@ -165,22 +165,22 @@
   "schema_version": "1.0.0",
   "sources": [
     {
-      "captured_at": "2026-08-31T20:45:41+08:00",
+      "captured_at": "2026-09-01T14:25:07+08:00",
       "kind": "repository-snapshot",
       "license_status": "inherits the per-source status recorded by Stage 90",
       "locator": "reproduction/90-payload-1487",
       "source_id": "stage100-payload-input"
     },
     {
-      "captured_at": "2026-08-31T20:45:41+08:00",
+      "captured_at": "2026-09-01T14:25:07+08:00",
       "kind": "repository-snapshot",
       "license_status": "not-specified; authenticated submission bytes",
-      "locator": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
-      "revision": "8618129a58fd3680dc4c57c08c1090db0db0ab03",
+      "locator": "reproduction/00-submission-anchor/raw/2026-09-01_marathon_openai-gpt-oss-120b_solver.py",
+      "revision": "18c1ccec4724837440362b8f08433d2eb73296d71e1e81054fc9cca6f3f07284",
       "source_id": "stage100-runtime-algorithm-anchor"
     },
     {
-      "captured_at": "2026-08-31T20:45:41+08:00",
+      "captured_at": "2026-09-01T14:25:07+08:00",
       "kind": "generated",
       "license_status": "Apache-2.0 repository code",
       "locator": "tools/phase4_common.py and tools/rebuild_phase4.py",
