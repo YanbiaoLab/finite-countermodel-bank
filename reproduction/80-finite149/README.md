@@ -14,8 +14,9 @@ Stages 90 and 100.
 > instead; its merge history is recorded in [`TIMELINE.md`](../../TIMELINE.md).
 > Stage 81 also parses all 17 Lean table sources, corrects the effective
 > `F149-014` provenance, reruns the 149-task/transpose/overlap/submission-suffix
-> semantic gate, and records that the frozen ETP paths cannot be replayed edge by
-> edge from the captured files.
+> semantic gate, and uses its companion snapshot to replay all 405 edge instances
+> in the 149 frozen ETP paths. This validates the recorded paths without rerunning
+> upstream graph construction or shortest-path discovery.
 
 ## Frozen screening
 

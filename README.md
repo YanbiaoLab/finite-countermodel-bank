@@ -7,6 +7,34 @@ pipeline that selected them. Its first concrete dataset is the reproduction reco
 for the [SAIR Mathematics Distillation Challenge — Equational Theories Stage 2](https://competition.sair.foundation/competitions/mathematics-distillation-challenge-equational-theories-stage2/overview)
 False Solver.
 
+## How the 1,487 embedded tables were built
+
+The submitted False Solver embeds exactly **1,487 finite-table records**: a
+1,470-table coverage-selected core followed by 17 finite149 base records. This
+repository rebuilds their 111,009-byte canonical payload and matches the submitted
+XZ/Base85 table literal byte for byte. Counts below use exact canonical record bytes,
+not isomorphism classes.
+
+| Pipeline step | Count transition | Meaning and strongest check |
+| --- | --- | --- |
+| **Phase 1 · Stages 10–40** | `9,450 → 9,852 → 9,957 → 10,059` | Add 402 registry records, a net addition of 105 records from the early deltas, and 102 delivered records through exact membership deltas; exhaustively check the final 102 countermodels. |
+| **Phase 2 · Stage 50** | `10,059 − 241 scalar-affine − 6,283 order≤4 = 3,535` | Apply explicit affine witnesses and the order-at-most-4 removal ledger; match the historical d17 bank exactly. |
+| **Phase 2 · Stages 60–70** | `3,535 − 2,065 zero-marginal = 1,470` | Select against the verified 284,151,591-pair residual in fixed order; match the historical submitted solver prefix exactly. |
+| **Phase 3 · Stages 80–81** | `789 no-submission directions → 149 finite-countermodel directions → 17 direct base records` | Exhaustively check all 149 tasks; verify zero overlap with the core and an exact historical submitted solver suffix. |
+| **Phase 4 · Stage 90** | `1,470 + 17 = 1,487 embedded records` | Rebuild the exact 111,009-byte canonical stream and submitted XZ/Base85 literal. |
+| **Phase 4 · Stage 100** | `1,487 + 1,414 missing transposes = 2,901 runtime records` | Replay the generic opposite closure; the 1,414 records are runtime-derived orientations, not additional embedded payload. |
+
+Only the 17 direct finite149 base records are appended to the payload. The 11
+distinct strict transposes needed by 20 of the 149 task directions are not appended;
+they occur among the 1,414 transposes derived by the generic runtime closure.
+
+Phase 0 hash-pins the current and historical submitted solver files used to verify
+this lineage; it does not change table membership. The full stage sequence, evidence
+requirements, and GitHub history remain in [TIMELINE.md](TIMELINE.md), while
+[CLAIMS.csv](CLAIMS.csv) is the authoritative claim ledger. The evidence reconstructs
+the inner table payload and its runtime transformation, not the complete outer solver
+launchers.
+
 ## Terminology
 
 - **Phase** is a stable high-level pipeline group, numbered 0–4.
@@ -14,72 +42,6 @@ False Solver.
   `00`, `10`, `20`, …, `100`.
 - **PR** refers only to actual GitHub development history, recorded in
   [TIMELINE.md](TIMELINE.md).
-
-| Phase | Included stages | Auxiliary description |
-| --- | --- | --- |
-| Phase 0 | Stage 00 | Submission anchor |
-| Phase 1 | Stages 10–40 | Historical accumulation |
-| Phase 2 | Stages 50–70 | Pruning and core selection |
-| Phase 3 | Stages 80–81 | finite149 augmentation and portable correction |
-| Phase 4 | Stages 90–100 | Payload and runtime closure |
-
-## Current status
-
-Phase 0 establishes the repository contract and captures the four current solver
-files downloaded from SAIR on 2026-09-01. The four superseded 2026-08-31 files and
-their original index remain hash-pinned as historical submission evidence.
-
-Phase 1 reconstructs the historical finite-table accumulation as four separately
-reviewable stages: 9,450 primary tables, 9,852
-after registry deduplication, 9,957 after the d1/d2 deltas, and 10,059 after the
-two explicit-table deliveries. The final 102 explicit report countermodels are
-independently rechecked by exhaustive assignment enumeration.
-
-Phase 2 reconstructs the stable pruning from 10,059 to 3,535 tables, validates the
-frozen Fin4 transition from 324,157,667 targeted pairs to a 284,151,591-pair
-residual, and replays the fixed-order positive-marginal selection of the 1,470-table
-core. The core matches the first 1,470 embedded records of the submitted Marathon
-solver from the historical 2026-08-31 capture exactly. Stage 60 now byte-exactly
-reconstructs five standalone-missing
-support/upstream files and provides a guarded, resumable seed-free result-level
-runner. The runner consumes the reconstructed equation binary and mirror map, not
-the two upstream singleton masks. A complete 256-shard `2^32` run finished without
-retries and reproduced the committed 284,151,591-pair residual exactly, including
-the SHA-256 of its 489,598,720 bytes. The original seeded execution and provenance
-chain remain unavailable.
-
-Phase 3 captures and reproduces the finite149 augmentation: the 789 no-submission
-directions reduce to 149 finite-countermodel directions covered by 17 stable base
-tables and 11 required transposes (129 direct uses and 20 transpose uses). It also
-verifies zero byte overlap with the 1,470-table core and the order-22 closed-subtable
-replacement for the official order-24 Refutation934 table. The cumulative 1,487
-payload and runtime opposite closure are published by Phase 4. See
-[TIMELINE.md](TIMELINE.md) for the stage sequence and [CLAIMS.csv](CLAIMS.csv) for
-the claim ledger.
-
-The follow-up `81-finite149-portable-verification` stage corrects the Phase 3 review
-path without changing its data: it streams the 498,673,223-byte finite-outcomes
-JSON by matrix row, parses all 17 captured Lean operator tables, records the exact
-order-22 Refutation934 provenance, and captures the hash-pinned finite graph,
-graph-construction page, dual mapping, and all 30 referenced Lean path sources. It
-replays all 405 edge instances (159 unique directed edges) in the 149 frozen ETP
-paths with zero missing or reversed-only edges. This validates those recorded
-paths; it does not rerun upstream graph extraction/building, shortest-path search,
-or Lean compilation. Stage 81 also retains the full Stage 80 semantic gate by
-rerunning all 149 exhaustive task checks, 11 transpose derivations, zero-overlap,
-and historical 2026-08-31 submission 1,470-prefix/17-suffix comparisons.
-
-Phase 4 reconstructs the exact inner finite-table payload as the Stage 70 core
-followed by the Stage 80 augmentation: 1,470 + 17 = 1,487 records, 111,009 raw
-bytes. It reproduces the submitted XZ/Base85 table literal byte for byte, then
-statically replays the pinned generic opposite-closure algorithm. Of the 1,487
-embedded records, 1,414 have a missing strict transpose, producing 2,901 distinct
-runtime-oriented scan records. These 1,414 tables are runtime-derived and are not
-additional embedded payload records. Seventeen exact derived records have earlier
-repository history (six in Stage 10 and eleven in Stage 80), so only 1,397 receive
-Stage 100 as their historical `first_seen_stage`. The evidence reconstructs the
-inner table payload and transformation, not the complete current outer solver
-launchers (490,289-byte Solo and 499,149-byte Marathon blobs).
 
 ## Reproducibility scope
 
