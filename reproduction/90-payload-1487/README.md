@@ -1,4 +1,4 @@
-# Stage 90 — exact 1,487-record payload / 精确重建 1,487 条 payload
+# Stage 90 — exact 1,487-record payload
 
 This stage constructs the exact finite-table byte stream embedded in the submitted
 False Solver:
@@ -7,10 +7,7 @@ False Solver:
 1,470 Stage 70 core records + 17 Stage 80 finite149 base records = 1,487
 ```
 
-本阶段按提交顺序连接 Stage 70 的 1,470 张核心表与 Stage 80 的 17 张 finite149
-基表，并使用 Stage 81 的修正来源记录，得到实际提交中嵌入的 1,487 条有限表 payload。
-
-## Inputs and provenance / 输入与来源
+## Inputs and provenance
 
 - `reproduction/70-positive-marginal-core-1470/normalized/tables.bin`:
   1,470 records, 101,870 bytes.
@@ -26,10 +23,7 @@ There is no `raw/` directory. Every input byte is already immutable and manifest
 in a dependency stage; recapturing the current sibling development checkout would
 not reproduce the historical state.
 
-本阶段不增加 `raw/`：所有输入已经由依赖阶段冻结并写入 manifest。尤其不能重新抓取当前
-sibling checkout 来替代历史快照。
-
-## Exact payload and bundle / 精确 payload 与压缩包
+## Exact payload and bundle
 
 The reconstructed canonical stream is:
 
@@ -65,25 +59,22 @@ Python's default LZMA preset and non-extreme preset 9 do not reproduce these byt
 The required CI baseline is Python 3.11; Python 3.12 is an additional exact-output
 check.
 
-## Reproduce / 复现
+## Reproduce
 
 From the repository root, using Python 3.11:
 
 ```bash
-python3 tools/rebuild_pr4.py
-python3 tools/verify_pr4.py
+python3 tools/rebuild_phase4.py
+python3 tools/verify_phase4.py
 ```
 
-`verify_pr4.py` rebuilds both PR 4 stages in a temporary directory, compares every
+`verify_phase4.py` rebuilds both Phase 4 stages in a temporary directory, compares every
 manifested artifact and manifest byte for byte, and then runs the repository-level
 semantic verifier.
 
-## Evidence boundary / 证据边界
+## Evidence boundary
 
 This stage reconstructs the exact inner table stream and its XZ/Base85 literal. It
 does not claim to regenerate the complete 498,047-byte outer solver launcher or to
 execute submitted code. All four submitted launchers are statically inspected and
 contain the same false-engine source and the same table payload.
-
-本阶段的逐字节结论只针对内层有限表 payload 及其 XZ/Base85 字面量，不声称从零重建整个
-外层 solver，也不执行提交代码。

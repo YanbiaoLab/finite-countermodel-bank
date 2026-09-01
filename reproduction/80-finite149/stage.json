@@ -151,11 +151,11 @@
       ]
     },
     {
-      "bytes": 52775,
+      "bytes": 52778,
       "media_type": "text/x-python",
       "path": "scripts/rebuild.py",
       "role": "rebuild-script",
-      "sha256": "316ad2c38a492175e1f00ab1c31fbea614a6602334c9e547fcd4057534b4f272",
+      "sha256": "a59895e846dd47c942bd9ff1fc3406efaf90cf49a272ac7da95b5fb5d708e26f",
       "source_ids": [
         "stage80-historical-snapshot"
       ]
@@ -259,7 +259,7 @@
   ],
   "notes": [
     "This stage publishes only the 17-record augmentation and 11 task-required transposes, never the cumulative 1,487-record payload.",
-    "The 2,901-record runtime opposite closure is deferred to PR 4.",
+    "The 2,901-record runtime opposite closure is deferred to Phase 4.",
     "All 149 task directions and the five Refutation934 directions are exhaustively evaluated over every assignment."
   ],
   "pipeline_order": 80,

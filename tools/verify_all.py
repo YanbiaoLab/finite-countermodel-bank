@@ -44,10 +44,10 @@ def verification_steps(repository: Path, executable: str) -> list[tuple[str, lis
             ],
         ),
         (
-            "Regenerate and verify the exact PR 4 stages",
+            "Regenerate and verify the exact Phase 4 stages",
             [
                 executable,
-                str(repository / "tools/verify_pr4.py"),
+                str(repository / "tools/verify_phase4.py"),
                 "--skip-repository-verifier",
             ],
         ),

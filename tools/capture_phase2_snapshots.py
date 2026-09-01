@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Capture the ignored local PR 2 sources as deterministic tar.gz snapshots.
+"""Capture the ignored local Phase 2 sources as deterministic tar.gz snapshots.
 
-This is the only PR 2 command that reads the sibling development checkout.
+This is the only Phase 2 command that reads the sibling development checkout.
 The portable rebuild reads only the archives produced here and earlier committed
 reproduction stages.  Large bitsets are copied into the tar stream in bounded
 chunks; they are never materialized in memory.
@@ -16,7 +16,7 @@ import sys
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools.pr1_common import sha256_path, write_deterministic_tar_gz
+from tools.phase1_common import sha256_path, write_deterministic_tar_gz
 
 
 STAGE50 = "50-generator-prune-3535"

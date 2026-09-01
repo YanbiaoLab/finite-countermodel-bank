@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Low-memory helpers for PR 2's 10,059 -> 3,535 table pruning.
+"""Low-memory helpers for Phase 2's 10,059 -> 3,535 table pruning.
 
 Historical solver files are treated strictly as data.  This module parses only
 top-level literal assignments with :mod:`ast`; it never imports or executes a

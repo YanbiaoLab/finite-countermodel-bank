@@ -1,38 +1,54 @@
 # Finite Countermodel Bank
 
-English | [简体中文](README.zh-CN.md)
+English | [Simplified Chinese](README.zh-CN.md)
 
 This repository is a provenance-first archive for finite countermodels and the
 pipeline that selected them. Its first concrete dataset is the reproduction record
-for the SAIR Mathematics Distillation Challenge — Equational Theories Stage 2
+for the [SAIR Mathematics Distillation Challenge — Equational Theories Stage 2](https://competition.sair.foundation/competitions/mathematics-distillation-challenge-equational-theories-stage2/overview)
 False Solver.
+
+## Terminology
+
+- **Phase** is a stable high-level pipeline group, numbered 0–4.
+- **Stage** is a concrete, independently verifiable evidence unit, numbered
+  `00`, `10`, `20`, …, `100`.
+- **PR** refers only to actual GitHub development history, recorded in
+  [TIMELINE.md](TIMELINE.md).
+
+| Phase | Included stages | Auxiliary description |
+| --- | --- | --- |
+| Phase 0 | Stage 00 | Submission anchor |
+| Phase 1 | Stages 10–40 | Historical accumulation |
+| Phase 2 | Stages 50–70 | Pruning and core selection |
+| Phase 3 | Stages 80–81 | finite149 augmentation and portable correction |
+| Phase 4 | Stages 90–100 | Payload and runtime closure |
 
 ## Current status
 
-PR 0 establishes the repository contract and captures the four solver files that
-were actually submitted to SAIR. PR 1 reconstructs the historical finite-table
+Phase 0 establishes the repository contract and captures the four solver files that
+were actually submitted to SAIR. Phase 1 reconstructs the historical finite-table
 accumulation as four separately reviewable stages: 9,450 primary tables, 9,852
 after registry deduplication, 9,957 after the d1/d2 deltas, and 10,059 after the two
 JiaMing deliveries. The final 102 explicit report countermodels are independently
 rechecked by exhaustive assignment enumeration.
 
-PR 2 reconstructs the stable pruning from 10,059 to 3,535 tables, validates the
+Phase 2 reconstructs the stable pruning from 10,059 to 3,535 tables, validates the
 frozen Fin4 transition from 324,157,667 targeted pairs to a 284,151,591-pair
 residual, and replays the fixed-order positive-marginal selection of the 1,470-table
 core. The core matches the first 1,470 embedded records of the submitted Marathon
 solver exactly. The Fin4 stage is explicitly a frozen-artifact replay: missing
 singleton and seed-chain inputs prevent a from-scratch rerun.
 
-PR 3 captures and reproduces the finite149 augmentation: the 789 no-submission
+Phase 3 captures and reproduces the finite149 augmentation: the 789 no-submission
 directions reduce to 149 finite-countermodel directions covered by 17 stable base
 tables and 11 required transposes (129 direct uses and 20 transpose uses). It also
 verifies zero byte overlap with the 1,470-table core and the order-22 closed-subtable
 replacement for the official order-24 Refutation934 table. The cumulative 1,487
-payload and runtime opposite closure are completed in PR 4. See
+payload and runtime opposite closure are published by Phase 4. See
 [TIMELINE.md](TIMELINE.md) for the stage sequence and [CLAIMS.csv](CLAIMS.csv) for
 the claim ledger.
 
-The follow-up `81-finite149-portable-verification` stage corrects the PR 3 review
+The follow-up `81-finite149-portable-verification` stage corrects the Phase 3 review
 path without changing its data: it streams the 498,673,223-byte finite-outcomes
 JSON by matrix row, parses all 17 captured Lean operator tables, records the exact
 order-22 Refutation934 provenance, and marks the 149 ETP paths as a frozen inventory
@@ -40,7 +56,7 @@ rather than an independently replayed graph. It also retains the full Stage 80
 semantic gate by rerunning all 149 exhaustive task checks, 11 transpose derivations,
 zero-overlap and 1,470-prefix/17-suffix submission comparisons.
 
-PR 4 reconstructs the exact inner finite-table payload as the Stage 70 core
+Phase 4 reconstructs the exact inner finite-table payload as the Stage 70 core
 followed by the Stage 80 augmentation: 1,470 + 17 = 1,487 records, 111,009 raw
 bytes. It reproduces the submitted XZ/Base85 table literal byte for byte, then
 statically replays the pinned generic opposite-closure algorithm. Of the 1,487
@@ -63,7 +79,7 @@ or competition environment.
 | Deterministic rebuild from committed snapshots | Stages 10–50 reconstruct the `9,450 → 10,059 → 3,535` table lineage from captured inputs; Stages 81, 90, and 100 regenerate the portable finite149 evidence, exact 1,487-record payload, and 2,901-record runtime closure. | Historical programs and submitted solvers are parsed as data rather than executed. |
 | Frozen-artifact replay | Stages 60 and 70 validate the pinned 324M/284M bitsets and replay the fixed `3,535 → 1,470` selection from frozen coverage reports; the 149 ETP paths remain a hash-pinned inventory. | The historical Fin4/C evaluator and ETP proof graph are not rerun. |
 | Independent semantic and invariant checks | The 102 Stage 40 countermodels and all 149 finite149 directions are exhaustively checked; table identity, transpose, overlap, bitset, prefix/suffix, and payload invariants are recomputed. | These checks validate committed tables and results, not how the original search discovered them. |
-| Full rerun from earliest discovery inputs | **Not available.** | Missing inputs include the Stage 10 mining/generator inputs, Stage 40 SAT logs, Stage 50 d16.2, Stage 60 singleton masks/`equations.bin`/complete seed chain, and the full finite149 graph/path sources. The repository also does not rerun Judge v3 or regenerate the complete outer solver and Lean certificates. |
+| Full rerun of the historical discovery pipeline from its earliest inputs | **Not possible with the currently preserved inputs.** | Missing inputs include the Stage 10 mining/generator inputs, Stage 40 SAT logs, Stage 50 d16.2, Stage 60 singleton masks/`equations.bin`/complete seed chain, and the full finite149 graph/path sources. The repository also does not rerun Judge v3 or regenerate the complete outer solver and Lean certificates. |
 
 Accordingly, this repository supports artifact-level reproducibility from committed
 evidence, not a from-scratch replay of the entire discovery and competition
@@ -83,26 +99,26 @@ python3 tools/verify_all.py
 ```
 
 The unified entry point fails immediately on Python older than 3.10 and runs the
-repository verifier, the bounded Stage 81 verifier, the exact PR 4 verifier, and the
-unit tests with the same interpreter. Each verifier remains directly runnable for
-stage-targeted review.
+repository verifier, the bounded Stage 81 verifier, the exact Phase 4 verifier,
+and the unit tests with the same interpreter. Each verifier remains directly
+runnable for stage-targeted review.
 
-To regenerate the PR 1 and PR 2 outputs, the corrected PR 3 verification layer,
-and both PR 4 stages from committed inputs:
+To regenerate the Phase 1 and Phase 2 outputs, the corrected Phase 3 verification
+layer, and both Phase 4 stages from committed inputs:
 
 ```bash
-python3 tools/rebuild_pr1.py
-python3 tools/rebuild_pr2.py
-python3 reproduction/81-finite149-portable-verification/scripts/rebuild.py
-python3 tools/rebuild_pr4.py
+python3 tools/rebuild_phase1.py
+python3 tools/rebuild_phase2.py
+python3 tools/rebuild_phase3.py
+python3 tools/rebuild_phase4.py
 git diff --exit-code
 ```
 
-The PR 2 rebuild uses bounded streams for the two 489,598,720-byte uncompressed
-pair bitsets. The corrected PR 3 rebuild scans all 498,673,223 uncompressed
+The Phase 2 rebuild uses bounded streams for the two 489,598,720-byte uncompressed
+pair bitsets. The corrected Phase 3 rebuild scans all 498,673,223 uncompressed
 finite-outcomes bytes with a 256 KiB application-buffer cap and retains only the
 789 requested cells. Neither path materializes its large input in memory.
-The PR 4 rebuild handles only the bounded 111,009-byte embedded stream and its
+The Phase 4 rebuild handles only the bounded 111,009-byte embedded stream and its
 215,433-byte runtime closure; submitted Python files are parsed as data and never
 imported or executed.
 
@@ -115,7 +131,7 @@ imported or executed.
 | `schemas/` | Versioned machine-readable record contracts |
 | `tools/` | Streaming validation and reconstruction helpers |
 | `CLAIMS.csv` | One row per numerical or provenance claim |
-| `TIMELINE.md` | PR boundaries, stage order, and acceptance criteria |
+| `TIMELINE.md` | Phase grouping, stage order, GitHub PR history, and acceptance criteria |
 | `NOTICE.md`, `LICENSES/` | Provenance and rights-status notices |
 
 ## Evidence model

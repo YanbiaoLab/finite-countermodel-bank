@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Capture the ignored local PR 1 sources into deterministic tar.gz snapshots.
+"""Capture the ignored local Phase 1 sources into deterministic tar.gz snapshots.
 
-This is the only PR 1 command that reads the sibling development checkout.  The
+This is the only Phase 1 command that reads the sibling development checkout.  The
 reconstruction command reads only the committed archives produced here.
 """
 
@@ -13,7 +13,7 @@ import sys
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.pr1_common import sha256_path, write_deterministic_tar_gz
+from tools.phase1_common import sha256_path, write_deterministic_tar_gz
 
 
 STAGES = (

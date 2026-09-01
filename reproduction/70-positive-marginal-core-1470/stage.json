@@ -195,7 +195,7 @@
     "checksum_file": "SHA256SUMS",
     "command": "python3 tools/verify_repository.py --stage 70-positive-marginal-core-1470",
     "notes": [
-      "Run python3 tools/rebuild_pr2.py first to regenerate PR 2 normalized outputs from committed snapshots.",
+      "Run python3 tools/rebuild_phase2.py first to regenerate Phase 2 normalized outputs from committed snapshots.",
       "Large bitsets are processed as bounded forward-only streams."
     ]
   }
