@@ -37,8 +37,8 @@ python3 tools/rebuild_phase1.py
 python3 tools/verify_repository.py --stage 30-early-deltas-9957
 ```
 
-All captured `members/wubing` files were ignored in the sibling checkout, so the
-archive hash—not the surrounding Git revision—is their immutable identity.
+All captured member files were ignored in the sibling checkout, so the archive
+hash—not the surrounding Git revision—is their immutable identity.
 
 ## Evidence boundary
 

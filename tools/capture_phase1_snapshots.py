@@ -109,8 +109,11 @@ def paths_for_stage(source: Path, stage: str) -> tuple[str, list[Path]]:
         return "d1-d2-d4-d6-d8-snapshot.tar.gz", paths
 
     if stage == "40-delivery-10059":
-        jiaming = source / "members/wubing/data/processed/jiaming"
-        paths = [require(jiaming / "交付.md"), require(jiaming / "剩余252题_false挖掘交付_52题.md")]
+        delivery_root = source / "members/wubing/data/processed/jiaming"
+        paths = [
+            require(delivery_root / "交付.md"),
+            require(delivery_root / "剩余252题_false挖掘交付_52题.md"),
+        ]
         d11 = source / DRAFT_ROOT / "d11"
         paths.extend(
             require(d11 / name)

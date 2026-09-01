@@ -26,11 +26,13 @@ False Solver.
 ## Current status
 
 Phase 0 establishes the repository contract and captures the four solver files that
-were actually submitted to SAIR. Phase 1 reconstructs the historical finite-table
-accumulation as four separately reviewable stages: 9,450 primary tables, 9,852
-after registry deduplication, 9,957 after the d1/d2 deltas, and 10,059 after the two
-JiaMing deliveries. The final 102 explicit report countermodels are independently
-rechecked by exhaustive assignment enumeration.
+were actually submitted to SAIR.
+
+Phase 1 reconstructs the historical finite-table accumulation as four separately
+reviewable stages: 9,450 primary tables, 9,852
+after registry deduplication, 9,957 after the d1/d2 deltas, and 10,059 after the
+two explicit-table deliveries. The final 102 explicit report countermodels are
+independently rechecked by exhaustive assignment enumeration.
 
 Phase 2 reconstructs the stable pruning from 10,059 to 3,535 tables, validates the
 frozen Fin4 transition from 324,157,667 targeted pairs to a 284,151,591-pair

@@ -1,7 +1,7 @@
 # Stage 40 — two deliveries to 10,059
 
-This stage preserves the two JiaMing deliveries separately, then appends them in
-their report chronology:
+This stage preserves the two explicit-table deliveries separately, then appends
+them in their report chronology:
 
 ```text
 2026-08-05T17:38:49Z: 50 tables

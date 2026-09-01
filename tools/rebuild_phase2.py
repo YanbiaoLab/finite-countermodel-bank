@@ -82,7 +82,7 @@ STAGE70 = "70-positive-marginal-core-1470"
 CAPTURED_AT = "2026-08-31T15:30:00+08:00"
 SOURCE_CONTEXT_REVISION = "6d8b449071a9168b3ddb35f77533e093833c70a4"
 SOURCE_NOTE = (
-    "The members/wubing tree was ignored by the source repository. The revision "
+    "The captured member tree was ignored by the source repository. The revision "
     "is context only; archive and member hashes identify the captured bytes."
 )
 LICENSE_STATUS = "not-specified; no license grant inferred"

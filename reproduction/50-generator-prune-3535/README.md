@@ -63,5 +63,5 @@ file was unavailable for capture. Consequently this stage does not claim to reru
 the lost d16.2 builder. It reconstructs the complete 241-table classification from
 the 227 captured direct-affine rows, 14 explicit relabeling witnesses, and the exact
 d15-to-d17 payload transition. All five captured files are identified by the raw
-archive hash in `stage.json`; ignored `members/wubing` paths are not represented as
+archive hash in `stage.json`; ignored member paths are not represented as
 Git-tracked history.

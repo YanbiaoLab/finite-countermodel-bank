@@ -53,8 +53,8 @@ from tools.phase1_common import (
 CAPTURED_AT = "2026-08-31T14:40:52+08:00"
 SOURCE_CONTEXT_REVISION = "6d8b449071a9168b3ddb35f77533e093833c70a4"
 SOURCE_NOTE = (
-    "The members/wubing tree was ignored by the source repository. The revision is "
-    "context only; archive and member hashes identify the captured bytes."
+    "The captured member tree was ignored by the source repository. The revision "
+    "is context only; archive and member hashes identify the captured bytes."
 )
 LICENSE_STATUS = "not-specified; no license grant inferred"
 BITSET_BYTES = (62_576 + 7) // 8
@@ -2047,7 +2047,7 @@ def finalize_phase1(root: Path, summaries: dict[str, dict]) -> None:
     finalize_stage(
         root,
         stage_id=STAGE40,
-        title="Two JiaMing deliveries: 9,957 + 50 + 52 = 10,059",
+        title="Two explicit-table deliveries: 9,957 + 50 + 52 = 10,059",
         pipeline_order=40,
         depends_on=[STAGE30],
         claims=[
@@ -2065,7 +2065,12 @@ def finalize_phase1(root: Path, summaries: dict[str, dict]) -> None:
                 f"reproduction/{STAGE10}/raw/primary-recovery-snapshot.tar.gz#members/wubing/data/324M_remaining_pairs/order5_equations.csv",
                 upstream=True,
             ),
-            source_record(local40, "local-filesystem-snapshot", "math-distill-equational-stage2: two JiaMing delivery reports and d11 integration evidence"),
+            source_record(
+                local40,
+                "local-filesystem-snapshot",
+                "math-distill-equational-stage2: two explicit-table delivery "
+                "reports and d11 integration evidence",
+            ),
         ],
         artifact_specs=[
             dict(relative="raw/jiaming-d11-snapshot.tar.gz", role="raw-snapshot", media_type="application/gzip", source_ids=[local40], record_count=7, attributes={"archive_format": "deterministic-tar-gzip-v1", "uncompressed_source_bytes": 505277}),
