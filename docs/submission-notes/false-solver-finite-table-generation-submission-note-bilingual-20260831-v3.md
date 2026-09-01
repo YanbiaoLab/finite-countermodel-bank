@@ -32,6 +32,8 @@ Exact payload integration. The 17 appended records are 16 byte-exact official ta
 Generic opposite closure. At runtime the solver generates the strict transpose of every embedded table whose transpose is absent. This generic table transformation adds 1,414 distinct transposes to the 1,487 embedded records, producing a 2,901-table oriented runtime scan. These are runtime-derived models, not extra payload records or problem-ID branches.
 
 Validation and proof boundary. Decoding checks order, length, and entry range; exact row-major deduplication does not merge isomorphic byte-distinct tables. Coverage data, graph paths, and rankings guide selection, never proof. At runtime a table is used only after rechecking the source and finding a target counterassignment. The certificate must pass the official Lean judge.
+
+For details, see https://github.com/YanbiaoLab/finite-countermodel-bank
 ```
 
 ## 中文对照
@@ -66,6 +68,8 @@ finite149 增补。后续离线审计从一次 order-4 全量实验未生成提�
 通用相反运算闭包（opposite closure）。运行时，solver 会为库中尚不存在严格转置的每张嵌入表动态生成转置表。这一通用变换为 1,487 张嵌入记录补充 1,414 张精确不同的转置表，形成 2,901 张有向表的运行时扫描库；这些表不是额外载荷记录，也不是题目 ID 分支。
 
 验证与证明边界。解码时检查阶数、记录长度和表项范围，并按行优先完整内容精确去重；同构但字节不同的表不会合并。覆盖数据、证明图路径和排名只用于发现与筛选，不作为证明。运行时只有在 solver 重新穷举确认实际源方程恒真并找到目标方程的具体反例赋值后，表才会被使用；生成的证书还必须通过官方 Lean 评判器。
+
+详细情况请见：https://github.com/YanbiaoLab/finite-countermodel-bank
 ```
 
 ## Internal verification notes
