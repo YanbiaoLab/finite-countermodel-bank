@@ -38,8 +38,13 @@ Phase 2 reconstructs the stable pruning from 10,059 to 3,535 tables, validates t
 frozen Fin4 transition from 324,157,667 targeted pairs to a 284,151,591-pair
 residual, and replays the fixed-order positive-marginal selection of the 1,470-table
 core. The core matches the first 1,470 embedded records of the submitted Marathon
-solver exactly. The Fin4 stage is explicitly a frozen-artifact replay: missing
-singleton and seed-chain inputs prevent a from-scratch rerun.
+solver exactly. Stage 60 now byte-exactly reconstructs five standalone-missing
+support/upstream files and provides a guarded, resumable seed-free result-level
+runner. The runner consumes the reconstructed equation binary and mirror map, not
+the two upstream singleton masks. A complete 256-shard `2^32` run finished without
+retries and reproduced the committed 284,151,591-pair residual exactly, including
+the SHA-256 of its 489,598,720 bytes. The original seeded execution and provenance
+chain remain unavailable.
 
 Phase 3 captures and reproduces the finite149 augmentation: the 789 no-submission
 directions reduce to 149 finite-countermodel directions covered by 17 stable base
@@ -53,10 +58,14 @@ the claim ledger.
 The follow-up `81-finite149-portable-verification` stage corrects the Phase 3 review
 path without changing its data: it streams the 498,673,223-byte finite-outcomes
 JSON by matrix row, parses all 17 captured Lean operator tables, records the exact
-order-22 Refutation934 provenance, and marks the 149 ETP paths as a frozen inventory
-rather than an independently replayed graph. It also retains the full Stage 80
-semantic gate by rerunning all 149 exhaustive task checks, 11 transpose derivations,
-zero-overlap and 1,470-prefix/17-suffix submission comparisons.
+order-22 Refutation934 provenance, and captures the hash-pinned finite graph,
+graph-construction page, dual mapping, and all 30 referenced Lean path sources. It
+replays all 405 edge instances (159 unique directed edges) in the 149 frozen ETP
+paths with zero missing or reversed-only edges. This validates those recorded
+paths; it does not rerun upstream graph extraction/building, shortest-path search,
+or Lean compilation. Stage 81 also retains the full Stage 80 semantic gate by
+rerunning all 149 exhaustive task checks, 11 transpose derivations, zero-overlap,
+and 1,470-prefix/17-suffix submission comparisons.
 
 Phase 4 reconstructs the exact inner finite-table payload as the Stage 70 core
 followed by the Stage 80 augmentation: 1,470 + 17 = 1,487 records, 111,009 raw
@@ -78,14 +87,18 @@ or competition environment.
 
 | Level | Covered here | Evidence boundary |
 | --- | --- | --- |
-| Deterministic rebuild from committed snapshots | Stages 10–50 reconstruct the `9,450 → 10,059 → 3,535` table lineage from captured inputs; Stages 81, 90, and 100 regenerate the portable finite149 evidence, exact 1,487-record payload, and 2,901-record runtime closure. | Historical programs and submitted solvers are parsed as data rather than executed. |
-| Frozen-artifact replay | Stages 60 and 70 validate the pinned 324M/284M bitsets and replay the fixed `3,535 → 1,470` selection from frozen coverage reports; the 149 ETP paths remain a hash-pinned inventory. | The historical Fin4/C evaluator and ETP proof graph are not rerun. |
+| Deterministic rebuild from committed snapshots | Stages 10–50 reconstruct the `9,450 → 10,059 → 3,535` table lineage from captured inputs; Stage 60 reconstructs five historical support/upstream files byte for byte; Stages 81, 90, and 100 regenerate the portable finite149 evidence, exact 1,487-record payload, and 2,901-record runtime closure. | Historical programs and submitted solvers are normally parsed as data rather than executed. Stage 81 reconstructs only the graph edges needed by the frozen paths. |
+| Frozen-artifact replay | Stages 60 and 70 validate the pinned 324M/284M bitsets and replay the fixed `3,535 → 1,470` selection from frozen coverage reports. Stage 81 validates every edge of the 149 hash-pinned ETP paths against the captured graph entries and source files. | The normal rebuild does not rerun Fin4 enumeration, upstream graph extraction/build, path discovery, or shortest-path search. Stage 60 separately provides an optional new seed-free result-level C runner. |
 | Independent semantic and invariant checks | The 102 Stage 40 countermodels and all 149 finite149 directions are exhaustively checked; table identity, transpose, overlap, bitset, prefix/suffix, and payload invariants are recomputed. | These checks validate committed tables and results, not how the original search discovered them. |
-| Full rerun of the historical discovery pipeline from its earliest inputs | **Not possible with the currently preserved inputs.** | Missing inputs include the Stage 10 mining/generator inputs, Stage 40 SAT logs, Stage 50 d16.2, Stage 60 singleton masks/`equations.bin`/complete seed chain, and the full finite149 graph/path sources. The repository also does not rerun Judge v3 or regenerate the complete outer solver and Lean certificates. |
+| Independent Stage 60 outcome rerun | **Demonstrated with committed evidence.** | A new seed-free result-level method exhaustively scanned all `2^32` order-4 tables in 256 shards, completed without retries, and reproduced the committed 284,151,591-pair residual byte for byte. The evidence includes every shard summary, sanitized logs, exact input/implementation hashes, resource measurements, and an independent streamed bitset validation. This does not recover the historical seed-generation/provenance chain. |
+| Byte-for-byte replay of the historical discovery and competition workflow | **Blocked by unrecovered historical inputs and environments.** | Outstanding blockers include the Stage 10 mining/export inputs, Stage 40 SAT runner inputs and raw journals, the Stage 50 d16.2 source/build patch, the original Stage 60 seed-generation/provenance chain, the full per-case Judge v3 certificate/result files and exact historical execution environment, the independent inputs/template/builder for the complete outer solver, and the aggregate/submission Lean-certificate generator and exact toolchain. |
 
 Accordingly, this repository supports artifact-level reproducibility from committed
-evidence, not a from-scratch replay of the entire discovery and competition
-workflow.
+evidence. Key independent rerun components are now implemented, but the complete
+end-to-end reconstruction has not yet been demonstrated; byte-for-byte replay
+of the historical workflow remains blocked by unrecovered inputs and environments.
+The required external inputs, environments, and per-item acceptance gates are
+tracked in the [External Recovery Register](EXTERNAL_RECOVERY.md).
 
 ## Verify this checkout
 
@@ -134,6 +147,7 @@ imported or executed.
 | `tools/` | Streaming validation and reconstruction helpers |
 | `CLAIMS.csv` | One row per numerical or provenance claim |
 | `TIMELINE.md` | Phase grouping, stage order, GitHub PR history, and acceptance criteria |
+| `EXTERNAL_RECOVERY.md` | External restoration work items and acceptance gates |
 | `NOTICE.md`, `LICENSES/` | Provenance and rights-status notices |
 
 ## Evidence model

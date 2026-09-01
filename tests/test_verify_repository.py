@@ -118,7 +118,7 @@ class RepositoryFixtureTests(unittest.TestCase):
     def test_full_repository_contract(self) -> None:
         stage_count, artifact_count = verify_repository(ROOT)
         self.assertEqual(stage_count, 12)
-        self.assertEqual(artifact_count, 106)
+        self.assertEqual(artifact_count, 118)
 
     def test_stage_selection_includes_transitive_dependencies(self) -> None:
         stage_dirs = resolve_stage_directories(

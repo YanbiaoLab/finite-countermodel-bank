@@ -36,6 +36,15 @@ from tools.phase2_common import (
     extract_top_level_literals,
     read_bounded_file,
 )
+from tools.stage60_seedfree import (
+    RECONSTRUCTION_REPORT_SCHEMA,
+    Stage60SeedFreeError,
+    reconstruction_report_for_repository,
+)
+from tools.stage60_full_run_evidence import (
+    Stage60FullRunEvidenceError,
+    validate_committed_full_run_evidence,
+)
 
 
 SCHEMA_VERSION = "1.0.0"
@@ -69,6 +78,16 @@ STAGE80 = "80-finite149"
 STAGE81 = "81-finite149-portable-verification"
 STAGE90 = "90-payload-1487"
 STAGE100 = "100-opposite-closure-2901"
+
+STAGE81_PATH_RAW_SHA256 = (
+    "127e420e469b1a97d942f851542d99e03d4c30d5f73ec26ada0d04ff97f175df"
+)
+STAGE81_FINITE_GRAPH_SHA256 = (
+    "d609274eeb8289cf28596463626c1e6e3af21c24f76a5bb06167ef6a88a2f679"
+)
+STAGE81_FULL_ENTRIES_SHA256 = (
+    "c33dc30ee4630764b7e9c34addad9a4236b14611aee61834a32c503585cb98d3"
+)
 
 STAGE90_CORE_COUNT = 1_470
 STAGE90_FINITE149_COUNT = 17
@@ -1398,6 +1417,77 @@ def verify_stage60_semantics(
 
     if summary is None:
         raise VerificationError("Stage60 lacks its summary")
+    reconstruction_artifact = require_unique_role_artifact(
+        artifacts, "input-reconstruction-audit", stage_dir.name
+    )
+    reconstruction_path = safe_stage_path(stage_dir, reconstruction_artifact["path"])
+    reconstruction = load_json(reconstruction_path)
+    if reconstruction.get("schema") != RECONSTRUCTION_REPORT_SCHEMA:
+        raise VerificationError("Stage60 input-reconstruction report schema drift")
+    try:
+        rebuilt_reconstruction = reconstruction_report_for_repository(
+            stage_dir.parents[1]
+        )
+    except (OSError, ValueError, Stage60SeedFreeError) as exc:
+        raise VerificationError(
+            f"cannot independently reconstruct Stage60 seed-free inputs: {exc}"
+        ) from exc
+    if reconstruction != rebuilt_reconstruction:
+        raise VerificationError("Stage60 input-reconstruction audit drift")
+    full_run_artifact = require_unique_role_artifact(
+        artifacts, "full-run-evidence", stage_dir.name
+    )
+    full_run_logs_artifact = require_unique_role_artifact(
+        artifacts, "full-run-logs", stage_dir.name
+    )
+    if (
+        full_run_artifact.get("path") != "verification/seedfree-full-run.json"
+        or full_run_logs_artifact.get("path")
+        != "verification/seedfree-full-run-logs.jsonl.gz"
+    ):
+        raise VerificationError("Stage60 full-run evidence path drift")
+    full_run_path = safe_stage_path(stage_dir, full_run_artifact["path"])
+    full_run_logs_path = safe_stage_path(stage_dir, full_run_logs_artifact["path"])
+    try:
+        full_run = validate_committed_full_run_evidence(
+            stage_dir.parents[1], full_run_path, full_run_logs_path
+        )
+    except (OSError, ValueError, Stage60FullRunEvidenceError) as exc:
+        raise VerificationError(
+            f"cannot validate committed Stage60 full-run evidence: {exc}"
+        ) from exc
+    if (
+        full_run_artifact.get("record_count") != full_run["shards"]
+        or full_run_logs_artifact.get("record_count")
+        != full_run["sanitized_log_rows"]
+    ):
+        raise VerificationError("Stage60 full-run evidence record_count drift")
+    expected_seedfree_summary = {
+        "reconstructed_input_status": reconstruction["status"],
+        "reconstructed_files": reconstruction["files"],
+        "runner": "scripts/run_seedfree.py",
+        "engine_smoke_test": "scripts/smoke_test_engines.py",
+        "evidence_capture": "scripts/capture_seedfree_evidence.py",
+        "enumeration_method": "seed-free-all-bitslice-opposite-result-level",
+        "historical_seed_chain_used": False,
+        "full_run_demonstrated_in_repository": True,
+        "full_run_evidence_report": "verification/seedfree-full-run.json",
+        "full_run_sanitized_logs": (
+            "verification/seedfree-full-run-logs.jsonl.gz"
+        ),
+        "full_run_validation": full_run,
+        "runner_consumed_reconstructed_files": [
+            "equations.bin",
+            "equation_mirror_map.bin",
+        ],
+        "support_or_upstream_files_not_consumed_by_runner": [
+            "eq_size5.txt",
+            "singleton_family_mask.u8",
+            "singleton_primary.u8",
+        ],
+    }
+    if summary.get("seedfree_outcome_rerun") != expected_seedfree_summary:
+        raise VerificationError("Stage60 seed-free outcome-rerun summary drift")
     pair_artifacts = [artifact for artifact in artifacts if artifact["role"] == "pair-bitset"]
     expected_paths = {
         "normalized/324M_remaining_pairs.bitset.gz": (
@@ -3608,6 +3698,105 @@ def verify_stage70_transition(
         raise VerificationError("Stage70 core records differ from positive-marginal candidates")
 
 
+def verify_stage81_path_replay(result: dict[str, Any]) -> None:
+    """Validate the committed finite149 frozen-path edge-replay evidence."""
+
+    stage_dir = result["stage_dir"]
+    raw_path = stage_dir / "raw/finite149-path-source-snapshot.tar.gz"
+    if sha256_file(raw_path) != STAGE81_PATH_RAW_SHA256:
+        raise VerificationError("Stage81 path-source raw snapshot identity drift")
+    audit = load_json(stage_dir / "verification/path-edge-replay-audit.json")
+    boundary = load_json(stage_dir / "verification/path-evidence-boundary.json")
+    summary = load_json(stage_dir / "summary.json")
+    rows = load_jsonl_objects(
+        stage_dir / "normalized/path-edge-replay.jsonl.gz",
+        "Stage81 path-edge replay",
+    )
+    pairs = {(row.get("from"), row.get("to")) for row in rows}
+    nodes = {value for pair in pairs for value in pair}
+    path_ids = {row.get("path_index") for row in rows}
+    if (
+        len(rows) != 405
+        or len(pairs) != 159
+        or len(nodes) != 170
+        or path_ids != set(range(149))
+        or any(row.get("is_conjecture") is not False for row in rows)
+    ):
+        raise VerificationError("Stage81 path-edge replay cardinality drift")
+    facts_by_path: dict[int, list[dict[str, Any]]] = {}
+    for row in rows:
+        path_index = row.get("path_index")
+        if not isinstance(path_index, int):
+            raise VerificationError("Stage81 path-edge replay index drift")
+        if str(row.get("edge_kind", "")).startswith("facts-"):
+            facts_by_path.setdefault(path_index, []).append(row)
+    if set(facts_by_path) != set(range(149)):
+        raise VerificationError("Stage81 path-edge replay Facts coverage drift")
+    for path_index, facts in facts_by_path.items():
+        if len(facts) != 2 or any(
+            row.get("is_dual") is not row.get("uses_dual_path") for row in facts
+        ):
+            raise VerificationError(
+                f"Stage81 path-edge replay dual semantics drift at path {path_index}"
+            )
+    dual_paths = {
+        row["path_index"] for row in rows if row.get("uses_dual_path") is True
+    }
+    dual_facts = [
+        row
+        for rows_for_path in facts_by_path.values()
+        for row in rows_for_path
+        if row.get("is_dual") is True
+    ]
+    expected_counts = {
+        "dual_edge_instances": 40,
+        "dual_paths": 20,
+        "edge_instances": 405,
+        "failed_edges": 0,
+        "path_nodes": 170,
+        "paths": 149,
+        "reversed_only_edges": 0,
+        "source_files": 30,
+        "source_mismatches": 0,
+        "unique_directed_edges": 159,
+    }
+    if (
+        audit.get("counts") != expected_counts
+        or len(dual_paths) != 20
+        or len(dual_facts) != 40
+    ):
+        raise VerificationError("Stage81 path-edge replay audit drift")
+    graph_input = audit.get("graph_input", {})
+    algorithm = audit.get("algorithm", {})
+    if (
+        graph_input.get("finite_graph_sha256") != STAGE81_FINITE_GRAPH_SHA256
+        or graph_input.get("separate_full_entries_sha256")
+        != STAGE81_FULL_ENTRIES_SHA256
+        or graph_input.get("embedded_full_entries_used") is not True
+        or graph_input.get("separate_full_entries_used_for_replay") is not False
+        or algorithm.get("shortest_path_search_performed") is not False
+        or algorithm.get("upstream_graph_builder_rerun") is not False
+        or audit.get("lean_kernel_compilation_performed") is not False
+    ):
+        raise VerificationError("Stage81 path-edge replay scope boundary drift")
+    expected_boundary = {
+        "edge_instances_replayed": 405,
+        "edge_replay_performed": True,
+        "failed_edges": 0,
+        "historical_discovery_rerun": False,
+        "lean_kernel_compilation_performed": False,
+        "missing_path_source_files": [],
+        "reversed_only_edges": 0,
+        "shortest_path_search_performed": False,
+        "unique_directed_edges_replayed": 159,
+        "upstream_graph_builder_rerun": False,
+    }
+    if any(boundary.get(key) != value for key, value in expected_boundary.items()):
+        raise VerificationError("Stage81 path evidence boundary drift")
+    if summary.get("path_evidence_boundary", {}).get("edge_replay_performed") is not True:
+        raise VerificationError("Stage81 path replay summary drift")
+
+
 def verify_stage90_transition(
     result: dict[str, Any], previous: dict[str, Any]
 ) -> None:
@@ -4064,6 +4253,8 @@ def verify_repository(
         total_artifacts += artifact_count
         manifested_claims.update(stage_claims)
         stage_results[stage_dir.name] = stage_result
+        if stage_dir.name == STAGE81:
+            verify_stage81_path_replay(stage_result)
         suffix = f", {submission_count} submission records" if submission_count else ""
         print(f"OK {stage_dir.name}: {artifact_count} artifacts{suffix}")
 

@@ -90,7 +90,7 @@ Phase 2 contains three linked but separately reviewable stages:
 | Stage | Exact transition | Reproduction level |
 | --- | --- | --- |
 | `50-generator-prune-3535` | `10,059 - 241 - 6,283 = 3,535` tables | Static reconstruction with exact d17 payload match |
-| `60-fin4-residual-284151591` | `324,157,667 - 40,006,076 = 284,151,591` pairs | Frozen-artifact replay and independent validation |
+| `60-fin4-residual-284151591` | `324,157,667 - 40,006,076 = 284,151,591` pairs | Frozen-artifact validation plus a completed, exactly matching seed-free result-level rerun |
 | `70-positive-marginal-core-1470` | `3,535 - 2,065 = 1,470` tables | Deterministic selection replay with submission-prefix match |
 
 The one-time capture reads an explicit, stage-specific file list from the sibling
@@ -118,11 +118,16 @@ rows to canonical table identities and does not materialize the residual pair se
 Stage-targeted verifier commands automatically include transitive dependencies, so
 the cross-stage table identity and order checks are not skipped.
 
-Stage 60 has an important boundary: the singleton masks, the Fin4 runner's
-`equations.bin`, and the complete 6,173-model seed-generation chain are unavailable.
-It therefore validates the exact frozen 324M/284M bitsets, per-source partitions,
-and 256 completed shard records; it does not claim to regenerate the 324M universe
-or rerun the historical Fin4 enumeration from scratch. Stage 70 likewise replays
+Stage 60 now deterministically reconstructs `eq_size5.txt`, `equations.bin`, the
+mirror map, and both singleton masks byte for byte from its frozen snapshot. These
+are Stage 60 support/upstream files: the new runner consumes only `equations.bin`
+and the mirror map, while the singleton masks belong to upstream 324M construction.
+It also provides a guarded, resumable, seed-free all-bit-sliced runner and a bounded
+scalar/bitslice semantic smoke test. The new runner is a result-level method. Its
+complete 256-shard `2^32` execution finished without retries and reproduced the
+committed 284,151,591-pair bitset exactly; the compact report and sanitized logs
+are committed in the Stage 60 verification directory. The historical 6,173-model
+seed-generation/provenance chain remains unavailable. Stage 70 likewise replays
 the frozen coverage outputs by default; rerunning its historical C evaluator is
 outside the portable standard-library workflow.
 
@@ -151,14 +156,20 @@ exhaustive task checks, 11 transpose derivations, orientation/delta joins, exact
 zero-overlap, and submitted prefix/suffix comparisons, so replacing the historical
 high-memory command does not reduce CI semantic coverage.
 
-The correction also makes the ETP evidence boundary explicit: the 149 paths are a
-frozen inventory. The captured snapshot has the 17 table-source files but omits the
-finite graph and 13 other referenced path-source files, so it cannot replay every
-graph edge. Independent exhaustive finite-table semantics for all 149 directions
-remain available in Stage 80.
+The correction also completes the finite149 graph/path source closure. A companion
+raw archive preserves the pinned graph, dual mapping, graph-construction page,
+companion `full_entries.json`, exact Apache-2.0 license text, and the 13 path-only
+Lean files that supplement Stage 80's 17 table sources. The bounded replay ports
+the captured graph-consumer rules and validates all 405 edge instances of the 149
+frozen paths (159 unique directed edges, 170 nodes) with zero missing, reversed-only,
+or source-mismatched edges. It does not rerun upstream graph extraction/building,
+shortest-path discovery, Judge v3, Lean compilation, or outer-solver generation.
+Independent exhaustive finite-table semantics for all 149 directions remain
+available in Stage 80.
 
-Stage 81 has no `raw/` directory because it consumes the immutable Stage 80 archive,
-and no delta because it changes no table membership.
+Stage 81 adds the manifested companion `raw/` snapshot described above while
+leaving the immutable Stage 80 archive untouched. It has no delta because it
+changes no table membership.
 
 ## Phase 4 exact payload and runtime closure
 

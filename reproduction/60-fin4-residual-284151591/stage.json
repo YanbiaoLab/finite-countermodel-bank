@@ -17,14 +17,15 @@
       ]
     },
     {
-      "bytes": 2683,
+      "bytes": 8335,
       "media_type": "application/json",
       "path": "summary.json",
       "role": "stage-summary",
-      "sha256": "362c8b2a5d3424ed5e6181ca0842bf93e58591f2e66fdd6ae27ca23e8461cb1d",
+      "sha256": "956e7531aec0be8b2f899c0eaf6168563dc92e0441a0d2544b468c3c8a78ea9d",
       "source_ids": [
         "stage60-equation-index",
-        "stage60-local-snapshot"
+        "stage60-local-snapshot",
+        "stage60-seedfree-tooling"
       ]
     },
     {
@@ -81,6 +82,84 @@
       "source_ids": [
         "stage60-local-snapshot"
       ]
+    },
+    {
+      "bytes": 2204,
+      "media_type": "text/x-python",
+      "path": "scripts/reconstruct_inputs.py",
+      "role": "reconstruction-script",
+      "sha256": "f2cb0cc9eca7f8be5aa60d31658edda6dfcc6adef051593fa6c51ca4e273add2",
+      "source_ids": [
+        "stage60-seedfree-tooling"
+      ]
+    },
+    {
+      "bytes": 67488,
+      "media_type": "text/x-python",
+      "path": "scripts/run_seedfree.py",
+      "role": "runner-script",
+      "sha256": "cd91548752935526a66ef6bafc7d6fb44ee044045392cd37a6fc62e2a6af0828",
+      "source_ids": [
+        "stage60-seedfree-tooling"
+      ]
+    },
+    {
+      "bytes": 7994,
+      "media_type": "text/x-python",
+      "path": "scripts/smoke_test_engines.py",
+      "role": "engine-smoke-test",
+      "sha256": "5486aff9fe957a836e9cde05cff80746ffe9ff64f0dcae07aa44c5801207d3d3",
+      "source_ids": [
+        "stage60-seedfree-tooling"
+      ]
+    },
+    {
+      "bytes": 20426,
+      "media_type": "text/x-python",
+      "path": "scripts/capture_seedfree_evidence.py",
+      "role": "evidence-capture-script",
+      "sha256": "728803ea68c42dd8167c40fd20b18eeccb116de5be91516834cf1da1d91d45c9",
+      "source_ids": [
+        "stage60-seedfree-tooling"
+      ]
+    },
+    {
+      "bytes": 2231,
+      "media_type": "application/json",
+      "path": "verification/seedfree-input-reconstruction.json",
+      "role": "input-reconstruction-audit",
+      "sha256": "0888edafb438a5a7ff05595b54ebddc67ce499fecfb00d1c40ea70b503250d30",
+      "source_ids": [
+        "stage60-equation-index",
+        "stage60-local-snapshot",
+        "stage60-seedfree-tooling"
+      ]
+    },
+    {
+      "bytes": 295129,
+      "media_type": "application/json",
+      "path": "verification/seedfree-full-run.json",
+      "record_count": 256,
+      "role": "full-run-evidence",
+      "sha256": "003c7cbf40c9c03a335f73339d9150620b4969f04695305d8c238a4d2f8e712b",
+      "source_ids": [
+        "stage60-equation-index",
+        "stage60-local-snapshot",
+        "stage60-seedfree-tooling"
+      ]
+    },
+    {
+      "bytes": 62736,
+      "media_type": "application/x-ndjson+gzip",
+      "path": "verification/seedfree-full-run-logs.jsonl.gz",
+      "record_count": 5376,
+      "role": "full-run-logs",
+      "sha256": "653b73ed982593465b789115812b1069a70570af649a1ca9300703868dcc16e0",
+      "source_ids": [
+        "stage60-equation-index",
+        "stage60-local-snapshot",
+        "stage60-seedfree-tooling"
+      ]
     }
   ],
   "captured_at": "2026-08-31T15:30:00+08:00",
@@ -95,7 +174,9 @@
   "notes": [
     "324,157,667 is the targeted universe after Fin2/3 coverage and singleton-true exclusions, not the full 3,915,693,200 directed nonreflexive universe.",
     "The normalized gzip mirrors make exact standard-library verification portable; their decompressed bytes equal the captured bitsets.",
-    "Unavailable upstream seed inputs are listed in summary.json, so this stage is intentionally labeled frozen-artifact replay rather than from-scratch regeneration."
+    "Five standalone-missing Stage60 support/upstream files are now reconstructed byte-for-byte; only equations.bin and the mirror map are consumed by the new runner, while the singleton masks belong to upstream 324M construction.",
+    "The guarded seed-free all-bitslice runner is a new result-level method. Its complete 256-shard 2^32 run finished without retries and reproduced the committed 284,151,591-pair residual byte for byte.",
+    "The committed full-run report and sanitized logs bind all shard summaries, input and implementation hashes, resource measurements, and streamed bitset validation without claiming historical seeded-order replay."
   ],
   "pipeline_order": 60,
   "schema_version": "1.0.0",
@@ -120,6 +201,16 @@
       ],
       "revision": "6d8b449071a9168b3ddb35f77533e093833c70a4",
       "source_id": "stage60-local-snapshot"
+    },
+    {
+      "captured_at": "2026-08-31T15:30:00+08:00",
+      "kind": "generated",
+      "license_status": "not-specified; no license grant inferred",
+      "locator": "repository-authored deterministic Stage60 seed-free tooling",
+      "notes": [
+        "The tooling reconstructs byte-exact Stage60 support/upstream files from the committed snapshot and runs a new result-level method without the historical seed chain."
+      ],
+      "source_id": "stage60-seedfree-tooling"
     }
   ],
   "stage_id": "60-fin4-residual-284151591",
