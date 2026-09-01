@@ -177,7 +177,7 @@ Phase 4 contains two deterministic stages that consume only committed predecesso
 
 | Stage | Exact transition | Published boundary |
 | --- | --- | --- |
-| `90-payload-1487` | `1,470 + 17 = 1,487` embedded records | Exact inner canonical stream and submitted XZ/Base85 table literal |
+| `90-payload-1487` | `1,470 + 17 = 1,487` embedded records | Exact inner canonical stream and current 2026-09-01 submitted XZ/Base85 table literal |
 | `100-opposite-closure-2901` | `1,487 + 1,414 = 2,901` runtime records | Static replay of the generic missing-transpose closure |
 
 Rebuild and verify both stages with Python 3.11:
@@ -191,8 +191,9 @@ Stage 90 concatenates the Stage 70 core and Stage 80 base records in exact submi
 order, while taking the finite149 effective provenance from the merged Stage 81
 correction. The resulting 111,009-byte stream is regenerated as the exact submitted
 XZ payload using CRC64 and `9 | lzma.PRESET_EXTREME`, then Python Base85 encoded.
-All four submitted launchers are parsed as data through restricted AST extraction;
-none is imported or executed.
+All four current 2026-09-01 submitted launchers are parsed as data through
+restricted AST extraction; none is imported or executed. The superseded
+2026-08-31 submission bytes remain historical inputs to Stages 70–81.
 
 Stage 100 yields all 1,487 embedded records first, then scans those originals in
 order and appends a strict transpose only when its canonical bytes are absent. Nine
@@ -207,5 +208,5 @@ Stage 10 and the eleven required transposes were first recorded in Stage 80. Tho
 Neither stage has a new `raw/` directory because its complete inputs are already
 manifested dependencies. The byte-for-byte reconstruction covers the inner table
 payload and its pinned transformation; it does not rebuild or execute the complete
-498,047-byte outer solver launcher, rerun the finite149 search, or revalidate Lean
-certificate generation.
+current outer solver launchers (490,289-byte Solo and 499,149-byte Marathon), rerun
+the finite149 search, or revalidate Lean certificate generation.

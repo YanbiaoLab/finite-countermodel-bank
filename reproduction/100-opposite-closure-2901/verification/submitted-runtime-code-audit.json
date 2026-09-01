@@ -1,7 +1,7 @@
 {
-  "anchor_path": "reproduction/00-submission-anchor/raw/2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
-  "engine_bytes": 608143,
-  "engine_sha256": "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197",
+  "anchor_path": "reproduction/00-submission-anchor/raw/2026-09-01_marathon_openai-gpt-oss-120b_solver.py",
+  "engine_bytes": 608119,
+  "engine_sha256": "d55f4637d5187638b608d3c9bc6346c5286c412b654e109ad0c7cd3d0fbc9862",
   "functions": [
     {
       "end_line": 8188,

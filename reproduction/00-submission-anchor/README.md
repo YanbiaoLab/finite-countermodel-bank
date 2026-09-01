@@ -1,10 +1,21 @@
 # Stage 00 — SAIR submission anchor
 
-This stage freezes the four solver files shown on the authenticated SAIR Stage 2
-team submission page on 2026-08-31. Later payload reconstruction must compare its
-output against these bytes.
+This stage freezes both the current four solver files shown on the authenticated
+SAIR Stage 2 team submission page on 2026-09-01 and the superseded four-file
+capture from 2026-08-31. Later current-payload reconstruction compares against
+the 2026-09-01 bytes; historical Stages 70–81 retain their original 2026-08-31
+anchor references.
 
-## Captured participations
+## Current participations
+
+| Track | Model shown by SAIR | Displayed submission time | Bytes | SHA-256 |
+| --- | --- | --- | ---: | --- |
+| Solo | Google: Gemma 4 31B | Sep 1, 2026, 02:21 PM | 490,289 | `cdec40c1a31db314d94dd079a51064fa284627f7641749132e1787e85fd3971e` |
+| Solo | OpenAI: gpt-oss-120b | Sep 1, 2026, 02:22 PM | 490,289 | `cdec40c1a31db314d94dd079a51064fa284627f7641749132e1787e85fd3971e` |
+| Marathon | Google: Gemma 4 31B | Sep 1, 2026, 02:22 PM | 499,149 | `18c1ccec4724837440362b8f08433d2eb73296d71e1e81054fc9cca6f3f07284` |
+| Marathon | OpenAI: gpt-oss-120b | Sep 1, 2026, 02:22 PM | 499,149 | `18c1ccec4724837440362b8f08433d2eb73296d71e1e81054fc9cca6f3f07284` |
+
+## Superseded 2026-08-31 capture
 
 | Track | Model shown by SAIR | Displayed submission time | Bytes | SHA-256 |
 | --- | --- | --- | ---: | --- |
@@ -14,20 +25,23 @@ output against these bytes.
 | Marathon | OpenAI: gpt-oss-120b | Aug 31, 2026, 10:48 AM | 498,047 | `e301cbd091df1376c21ac297e1afb05decb70c34879cd6e485744d09e017c809` |
 
 The SAIR page did not display a timezone beside participation timestamps. The
-capture host and browser used Asia/Shanghai; `submissions.jsonl` preserves the
-literal display string and records that timezone only as context, not as an
+capture host and browser used Asia/Shanghai; both JSONL indexes preserve the
+literal display strings and record that timezone only as context, not as an
 assertion about SAIR's server timezone.
 
-The two files within each track are byte-identical. All four are retained because
-they are distinct participation records. Git stores identical content efficiently,
-while the separate paths preserve track/model provenance.
+Within each capture, the two files for a track are byte-identical. The current
+and historical captures differ at the outer-launcher and false-engine-source
+levels, while Phase 4 verifies that their 1,487-record embedded table payload is
+identical.
 
 ## Files
 
-- `raw/`: filenames observed in Chrome after each SAIR download; no content changes were made.
-- `submissions.jsonl`: one machine-readable record per participation.
-- `stage.json`: source and artifact manifest.
-- `SHA256SUMS`: exact hashes for the index and all four raw files.
+- `submissions.jsonl`: the authoritative current four-participation index.
+- `submissions-20260831.jsonl`: the superseded four-participation index.
+- `raw/2026-09-01_*`: current downloaded solver bytes.
+- `raw/2026-08-31_*`: superseded downloaded solver bytes retained unchanged.
+- `stage.json`: source and artifact manifest for both captures.
+- `SHA256SUMS`: exact hashes for both indexes and all eight raw files.
 
 ## Verification
 
@@ -37,13 +51,15 @@ From the repository root:
 python3 tools/verify_repository.py --stage 00-submission-anchor
 ```
 
-This checks safe paths, byte counts, SHA-256 hashes, source references, checksum
-agreement, unique participation IDs, and complete index coverage. It does not run
-the downloaded solvers.
+This checks safe paths, byte counts, SHA-256 hashes, current source references,
+checksum agreement, unique current participation IDs, and complete current-index
+coverage. Historical files and their index are hash-verified as manifested
+artifacts. No downloaded solver is executed.
 
 ## What this stage proves—and does not prove
 
-It proves that the committed files match the four captured downloads and records
-the metadata displayed by the submission page. It does not establish how the
-embedded tables were generated, whether every submission was evaluated, or whether
-the solvers are mathematically correct. Those are separate claims for later stages.
+It proves that the committed current files match the four 2026-09-01 downloads,
+and separately preserves the four 2026-08-31 downloads and their displayed
+metadata. It does not establish how the embedded tables were generated, whether
+every submission was evaluated, or whether the solvers are mathematically
+correct. Those are separate claims for later stages.

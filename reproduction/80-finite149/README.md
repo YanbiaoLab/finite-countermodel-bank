@@ -38,9 +38,9 @@ unknown rows must exactly equal the frozen semantic-type audit.
 
 `normalized/table-id-map.csv` is the authoritative compact inventory. Stable IDs
 `F149-001` through `F149-017` are fixed in the exact append order recovered from the
-committed Marathon submission. Every embedded record is expected in the **direct**
-orientation. `normalized/append-order.csv` records the corresponding submitted
-record indexes 1,470 through 1,486 (zero-based).
+committed historical 2026-08-31 Marathon submission. Every embedded record is
+expected in the **direct** orientation. `normalized/append-order.csv` records the
+corresponding submitted record indexes 1,470 through 1,486 (zero-based).
 
 Each canonical table is encoded as one order byte followed by `n²` row-major bytes;
 its stable content identity is `sha256:` of those exact bytes. The uncompressed
@@ -84,10 +84,11 @@ Exact canonical-byte comparison proves zero overlap between the 17 effective bas
 and the preceding 1,470 tables. The stronger audit also finds zero overlap for all
 28 task-oriented assets. See `verification/zero-overlap-with-core1470.json`.
 
-The committed Marathon solver is statically decoded in memory solely to verify that
-its first 1,470 records equal Stage 70 and its final 17 records equal the Stage 80
-inventory in order. The decoder never imports or executes submitted code and never
-writes the cumulative payload. See `verification/submission-suffix-audit.json`.
+The committed historical 2026-08-31 Marathon solver is statically decoded in memory
+solely to verify that its first 1,470 records equal Stage 70 and its final 17 records
+equal the Stage 80 inventory in order. The decoder never imports or executes
+submitted code and never writes the cumulative payload. See
+`verification/submission-suffix-audit.json`.
 The cumulative inner payload is subsequently materialized and verified by
 [`90-payload-1487`](../90-payload-1487/); the separate generic runtime closure is
 published by [`100-opposite-closure-2901`](../100-opposite-closure-2901/).

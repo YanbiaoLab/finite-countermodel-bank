@@ -1,8 +1,8 @@
 claim_id,stage_id,metric,expected_value,unit,derivation,status,evidence_path
-submission.participations,00-submission-anchor,downloaded participation artifacts,4,files,one file per track and model participation,captured,reproduction/00-submission-anchor/submissions.jsonl
-submission.unique_blobs,00-submission-anchor,byte-distinct submitted solvers,2,SHA-256 digests,four files collapse to one Solo digest and one Marathon digest,verified,reproduction/00-submission-anchor/SHA256SUMS
-submission.solo_bytes,00-submission-anchor,reported and captured Solo solver size,490327,bytes,SAIR display equals downloaded file size,verified,reproduction/00-submission-anchor/submissions.jsonl
-submission.marathon_bytes,00-submission-anchor,reported and captured Marathon solver size,498047,bytes,SAIR display equals downloaded file size,verified,reproduction/00-submission-anchor/submissions.jsonl
+submission.participations,00-submission-anchor,current downloaded participation artifacts,4,files,one current file per track and model participation,captured,reproduction/00-submission-anchor/submissions.jsonl
+submission.unique_blobs,00-submission-anchor,current byte-distinct submitted solvers,2,SHA-256 digests,four current files collapse to one Solo digest and one Marathon digest,verified,reproduction/00-submission-anchor/SHA256SUMS
+submission.solo_bytes,00-submission-anchor,current reported and captured Solo solver size,490289,bytes,SAIR display equals downloaded file size,verified,reproduction/00-submission-anchor/submissions.jsonl
+submission.marathon_bytes,00-submission-anchor,current reported and captured Marathon solver size,499149,bytes,SAIR display equals downloaded file size,verified,reproduction/00-submission-anchor/submissions.jsonl
 input.equations,10-primary-9450,order-at-most-5 equation universe,62576,equations,Equational Theories Project input snapshot,verified,reproduction/10-primary-9450/summary.json
 mining.model_identities,10-primary-9450,historical model identities,229666,identities,identity count before first-witness attribution,captured,reproduction/10-primary-9450/summary.json
 primary.nonzero_contributors,10-primary-9450,nonzero first-witness contributors,9452,models,historical first-witness attribution,verified,reproduction/10-primary-9450/summary.json

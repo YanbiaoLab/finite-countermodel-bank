@@ -8,7 +8,7 @@ This stage deterministically replays the historical selection of the embedded co
 
 The candidate bank comes from Stage 50 and the 284,151,591-pair residual universe
 comes from Stage 60. The output is the first 1,470 embedded records of the submitted
-Marathon solver in exact record order.
+Marathon solver in the historical 2026-08-31 capture, in exact record order.
 
 ## Frozen selection rule
 
@@ -60,8 +60,8 @@ python3 tools/capture_phase2_snapshots.py \
 
 Normal reconstruction reads the two small frozen coverage CSVs, maps their 3,535
 identities to the Stage 50 bank, emits every decision, and checks the selected
-records against the submitted solver. It does not need to materialize the 284M
-pair universe.
+records against the historical 2026-08-31 submitted solver. It does not need to
+materialize the 284M pair universe.
 
 ## Evidence boundary
 
@@ -69,7 +69,7 @@ The exact historical `d17_fix` solver named by the coverage manifests is no long
 available at its recorded digest. Its table identity is nevertheless anchored in
 two independent directions: all 3,535 coverage model digests map exactly to the
 published Stage 50 d17 bank, and the selected 1,470 records match the authenticated
-submission prefix exactly.
+2026-08-31 historical submission prefix exactly.
 
 Normal verification validates the frozen individual and deduplicated coverage
 outputs structurally and replays their deterministic selection. Re-executing the

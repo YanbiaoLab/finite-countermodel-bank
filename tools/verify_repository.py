@@ -131,7 +131,7 @@ STAGE100_RUNTIME_VECTOR_SHA256 = (
     "42c21dfecfaca35451ad1bc7f1216456ef682aadc6eb7edbf498417d81ae530e"
 )
 STAGE100_FALSE_ENGINE_SHA256 = (
-    "f2cc2d09479dff78761c3c34e288b8300105fe95d733e1232def43e9f3bec197"
+    "d55f4637d5187638b608d3c9bc6346c5286c412b654e109ad0c7cd3d0fbc9862"
 )
 STAGE100_FALSE_ENGINE_SOURCE_LIMIT = 2 * 1024 * 1024
 STAGE100_FALSE_ENGINE_FUNCTION_SHA256 = {
@@ -2760,7 +2760,7 @@ def verify_stage90_semantics(
         "false_engine_sha256": STAGE100_FALSE_ENGINE_SHA256,
         "primary_anchor": (
             "reproduction/00-submission-anchor/raw/"
-            "2026-08-31_marathon_openai-gpt-oss-120b_solver.py"
+            "2026-09-01_marathon_openai-gpt-oss-120b_solver.py"
         ),
         "schema_version": SCHEMA_VERSION,
         "stage_id": STAGE90,
@@ -3064,7 +3064,7 @@ def verify_stage100_semantics(
 
     primary_relative = (
         "reproduction/00-submission-anchor/raw/"
-        "2026-08-31_marathon_openai-gpt-oss-120b_solver.py"
+        "2026-09-01_marathon_openai-gpt-oss-120b_solver.py"
     )
     try:
         launcher = read_bounded_file(

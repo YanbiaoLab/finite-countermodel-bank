@@ -1,7 +1,7 @@
 # Stage 100 — generic opposite closure to 2,901
 
-This stage statically replays the submitted False Solver's generic runtime table
-transformation over the exact Stage 90 payload:
+This stage statically replays the current 2026-09-01 submitted False Solver's
+generic runtime table transformation over the exact Stage 90 payload:
 
 ```text
 1,487 embedded records + 1,414 missing strict transposes = 2,901 runtime records
@@ -9,8 +9,8 @@ transformation over the exact Stage 90 payload:
 
 ## Exact runtime order
 
-The submitted algorithm, inspected as source through static AST parsing, performs
-these operations:
+The current submitted algorithm, inspected as source through static AST parsing,
+performs these operations:
 
 1. seed exact-byte membership with all 1,487 embedded records;
 2. yield all embedded records in payload order;
@@ -61,8 +61,8 @@ those generic derivations and are verified as a subset, not appended again.
 
 There is no new `raw/` directory. The complete committed inputs are the Stage 90
 payload, its transitive historical table indexes (including the Stage 80 required
-transposes used for `first_seen_stage` joins), and the pinned Stage 00 submitted
-algorithm source.
+transposes used for `first_seen_stage` joins), and the pinned current 2026-09-01
+Stage 00 Marathon/OpenAI submitted algorithm source.
 
 ## Reproduce
 

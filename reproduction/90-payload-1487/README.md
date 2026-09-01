@@ -1,7 +1,7 @@
 # Stage 90 — exact 1,487-record payload
 
-This stage constructs the exact finite-table byte stream embedded in the submitted
-False Solver:
+This stage constructs the exact finite-table byte stream embedded in the current
+2026-09-01 submitted False Solver:
 
 ```text
 1,470 Stage 70 core records + 17 Stage 80 finite149 base records = 1,487
@@ -16,8 +16,8 @@ False Solver:
 - `reproduction/81-finite149-portable-verification/normalized/base-table-provenance.jsonl.gz`:
   effective provenance for the 17 appended records, including the corrected
   order-22 `F149-014` source.
-- the four Stage 00 submission anchors, parsed only as data through restricted AST
-  literal extraction.
+- the four current 2026-09-01 Stage 00 submission anchors, parsed only as data
+  through restricted AST literal extraction.
 
 There is no `raw/` directory. Every input byte is already immutable and manifested
 in a dependency stage; recapturing the current sibling development checkout would
@@ -75,6 +75,7 @@ semantic verifier.
 ## Evidence boundary
 
 This stage reconstructs the exact inner table stream and its XZ/Base85 literal. It
-does not claim to regenerate the complete 498,047-byte outer solver launcher or to
-execute submitted code. All four submitted launchers are statically inspected and
-contain the same false-engine source and the same table payload.
+does not claim to regenerate the complete current outer solver launchers
+(490,289-byte Solo and 499,149-byte Marathon) or to execute submitted code. All
+four current launchers are statically inspected and contain the same false-engine
+source and the same table payload.

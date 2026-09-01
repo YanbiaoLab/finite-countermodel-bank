@@ -10,18 +10,18 @@ while preserving the raw bytes, transitions, and claims.
 
 | Phase | Stage | Transition or anchor | Required evidence | GitHub history |
 | --- | --- | --- | --- | --- |
-| Phase 0 | `00-submission-anchor` | Four SAIR submissions → two byte-distinct solver blobs | Four downloaded files, submission index, hashes, schema, verifier | Merged in PR #2 |
+| Phase 0 | `00-submission-anchor` | Four current SAIR submissions → two byte-distinct solver blobs; four superseded files retained historically | Eight downloaded files, current and historical indexes, hashes, schema, verifier | Initial capture merged in PR #2; refreshed 2026-09-01 |
 | Phase 1 | `10-primary-9450` | 9,452 nonzero contributors → 9,450 recoverable exact tables | Historical inputs, recovery report, normalized tables, per-record provenance | Merged in PR #3 |
 | Phase 1 | `20-registered-9852` | 9,450 + 402 → 9,852 | Registry snapshot, exact-dedup delta | Merged in PR #3 |
 | Phase 1 | `30-early-deltas-9957` | 9,852 + (66 − 55) + (145 − 51) → 9,957 | Separate d1 and d2 snapshots and membership deltas | Merged in PR #3 |
 | Phase 1 | `40-delivery-10059` | 9,957 + 102 → 10,059 | Delivery snapshot, independent-check report, zero-overlap delta | Merged in PR #3 |
 | Phase 2 | `50-generator-prune-3535` | 10,059 − 241 − 6,283 → 3,535 | Affine witnesses, order-at-most-4 removal ledger, exact d17 match | Merged in PR #4 |
 | Phase 2 | `60-fin4-residual-284151591` | 324,157,667 − 40,006,076 → 284,151,591 directed pairs | Frozen bitsets, per-source partition, Fin4 shard ledger, byte-exact input recovery, and completed seed-free result-level rerun | Merged in PR #4; rerun tooling and full-run evidence added after merge |
-| Phase 2 | `70-positive-marginal-core-1470` | 3,535 − 2,065 → 1,470 | Residual coverage scores, fixed selection order, keep/drop delta, submission-prefix match | Merged in PR #4 |
+| Phase 2 | `70-positive-marginal-core-1470` | 3,535 − 2,065 → 1,470 | Residual coverage scores, fixed selection order, keep/drop delta, historical 2026-08-31 submission-prefix match | Merged in PR #4 |
 | Phase 3 | `80-finite149` | 789 no-submission directions → 149 finite directions → 17 base tables + 11 required opposite orientations | Official-path inventory, exhaustive task checks, zero-overlap audit, Refutation934 substitution record | Merged in PR #7 |
-| Phase 3 | `81-finite149-portable-verification` | Same table data; bounded semantic replay, provenance correction, and frozen-path edge validation | 789-cell streamed projection, full 149-task/transpose/overlap/suffix semantic gate, 17 Lean-table comparisons, corrected Refutation934 source, 30-file path-source closure, and 405 edge-instance replay | Merged in PR #8; graph/path evidence extended after merge |
-| Phase 4 | `90-payload-1487` | 1,470 + 17 → 1,487 embedded records | Exact inner-payload builder, canonical byte stream, XZ/Base85 literal, static submitted-source comparison | Merged in PR #9 |
-| Phase 4 | `100-opposite-closure-2901` | 1,487 + 1,414 missing strict transposes → 2,901 | Derivation ledger, exact-byte dedup report, historical first-seen joins, submitted-code audit, runtime scan manifest | Merged in PR #9 |
+| Phase 3 | `81-finite149-portable-verification` | Same table data; bounded semantic replay, provenance correction, and frozen-path edge validation | 789-cell streamed projection, full 149-task/transpose/overlap/historical-suffix semantic gate, 17 Lean-table comparisons, corrected Refutation934 source, 30-file path-source closure, and 405 edge-instance replay | Merged in PR #8; graph/path evidence extended after merge |
+| Phase 4 | `90-payload-1487` | 1,470 + 17 → 1,487 embedded records | Exact inner-payload builder, canonical byte stream, current 2026-09-01 XZ/Base85 literal, static submitted-source comparison | Merged in PR #9 |
+| Phase 4 | `100-opposite-closure-2901` | 1,487 + 1,414 missing strict transposes → 2,901 | Derivation ledger, exact-byte dedup report, historical first-seen joins, current 2026-09-01 submitted-code audit, runtime scan manifest | Merged in PR #9 |
 
 The Phase boundaries keep evidence from different points in the data flow separate.
 Phase 1 preserves historical accumulation; Phase 2 records pruning, frozen Fin4
@@ -86,8 +86,8 @@ sibling checkout; neither input is needed by the maintained rebuild command.
 | `70-positive-marginal-core-1470` | `members/wubing/artifacts/runs/d17-finite-model-284m-pair-coverage-20260818/` and `members/wubing/artifacts/runs/d17-finite-model-order5-law-counts-20260817/` |
 | `80-finite149` | `research_best/20260821_solo_v2_order4_full_generated/finite_not_generated_lean/`, its 789-direction audit, the exact finite-outcome matrix, and `research_best/20260825_solo_v5_finite149_static_library/` Refutation934 reduction record |
 | `81-finite149-portable-verification` | Immutable Stage 80 evidence plus the committed companion snapshot of the pinned finite graph, graph consumer, duals, license, and 13 path-only Lean sources |
-| `90-payload-1487` | Committed Stage 70 core, Stage 80 base records, Stage 81 corrected provenance, and the four Stage 00 submitted solver anchors |
-| `100-opposite-closure-2901` | Exact Stage 90 payload, its transitive historical table indexes (including Stage 80 required transposes), and the generic transpose-closure functions statically parsed from the committed Stage 00 false engine |
+| `90-payload-1487` | Committed Stage 70 core, Stage 80 base records, Stage 81 corrected provenance, and the four current 2026-09-01 Stage 00 submitted solver anchors |
+| `100-opposite-closure-2901` | Exact Stage 90 payload, its transitive historical table indexes (including Stage 80 required transposes), and the generic transpose-closure functions statically parsed from the current 2026-09-01 Stage 00 false engine |
 
 Many source paths listed above are ignored by the sibling repository. A file copied
 from such a path must be labeled as a captured local snapshot with capture time and

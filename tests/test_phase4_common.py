@@ -46,7 +46,7 @@ STAGE100 = ROOT / "reproduction/100-opposite-closure-2901"
 SUBMISSION = (
     ROOT
     / "reproduction/00-submission-anchor/raw/"
-    "2026-08-31_marathon_openai-gpt-oss-120b_solver.py"
+    "2026-09-01_marathon_openai-gpt-oss-120b_solver.py"
 )
 
 

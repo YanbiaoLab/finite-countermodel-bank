@@ -99,7 +99,7 @@ class RepositoryFixtureTests(unittest.TestCase):
             ROOT, ["00-submission-anchor"]
         )
         self.assertEqual(stage_count, 1)
-        self.assertEqual(artifact_count, 5)
+        self.assertEqual(artifact_count, 10)
 
     def test_full_phase1_repository_contract(self) -> None:
         stage_count, artifact_count = verify_repository(
@@ -113,12 +113,12 @@ class RepositoryFixtureTests(unittest.TestCase):
             ],
         )
         self.assertEqual(stage_count, 5)
-        self.assertEqual(artifact_count, 37)
+        self.assertEqual(artifact_count, 42)
 
     def test_full_repository_contract(self) -> None:
         stage_count, artifact_count = verify_repository(ROOT)
         self.assertEqual(stage_count, 12)
-        self.assertEqual(artifact_count, 118)
+        self.assertEqual(artifact_count, 123)
 
     def test_stage_selection_includes_transitive_dependencies(self) -> None:
         stage_dirs = resolve_stage_directories(
@@ -217,13 +217,13 @@ class RepositoryFixtureTests(unittest.TestCase):
             solver_target = (
                 reproduction
                 / "00-submission-anchor/raw/"
-                "2026-08-31_marathon_openai-gpt-oss-120b_solver.py"
+                "2026-09-01_marathon_openai-gpt-oss-120b_solver.py"
             )
             solver_target.parent.mkdir(parents=True)
             shutil.copy2(
                 ROOT
                 / "reproduction/00-submission-anchor/raw/"
-                "2026-08-31_marathon_openai-gpt-oss-120b_solver.py",
+                "2026-09-01_marathon_openai-gpt-oss-120b_solver.py",
                 solver_target,
             )
             audit_path = stage_dir / "verification/opposite-closure-audit.json"
