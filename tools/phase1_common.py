@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared, standard-library helpers for the PR 1 bank reconstruction."""
+"""Shared, standard-library helpers for the Phase 1 bank reconstruction."""
 
 from __future__ import annotations
 

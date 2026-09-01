@@ -17,14 +17,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Rebuild PR 1 from committed snapshots
+      - name: Rebuild Phase 1 from committed snapshots
         run: |
-          python3 tools/rebuild_pr1.py
+          python3 tools/rebuild_phase1.py
           git diff --exit-code
           test -z "$(git status --porcelain --untracked-files=all)"
-      - name: Rebuild PR 2 from committed snapshots
+      - name: Rebuild Phase 2 from committed snapshots
         run: |
-          python3 tools/rebuild_pr2.py
+          python3 tools/rebuild_phase2.py
           git diff --exit-code
           test -z "$(git status --porcelain --untracked-files=all)"
       - name: Run unified verification suite

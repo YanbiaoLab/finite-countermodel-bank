@@ -1,4 +1,4 @@
-# Stage 60 — Fin4 residual 284,151,591 / Fin4 剩余集合 284,151,591
+# Stage 60 — Fin4 residual 284,151,591
 
 This stage replays and independently validates the frozen pair artifacts for the
 transition
@@ -17,10 +17,7 @@ singleton-true exclusions. It is not the full directed nonreflexive universe:
 = 3,915,693,200 = 62,576 * 62,575
 ```
 
-本阶段验证冻结的 324M 与 284M 位图之间恰好相差 40,006,076 个有向问题对；324M
-是前序过滤后的目标集合，并非全部 3,915,693,200 个非自反有向对。
-
-## What is verified / 校验内容
+## What is verified
 
 The portable rebuild streams both 489,598,720-byte bitsets into deterministic gzip
 mirrors. It checks all 62,576 rows using one 7,824-byte row from each bitset at a
@@ -43,17 +40,13 @@ isomorphism classes: 58,254,198 from the first six scalar shards and 120,727,754
 from the remaining bit-sliced shards. These records are audited for range and count
 consistency; the historical engines are not executed by the normal rebuild.
 
-校验器逐行检查子集关系、位数、差集、每个 source 的数量恒等式以及对角线/越界位；同时
-核对 256 个分片是否无缝覆盖完整的 `2^32` 标号表区间。它只验证冻结结果，不把运行日志
-误写成重新执行历史搜索。
-
-## Reproduce / 复现
+## Reproduce
 
 The commands require CPython 3.9 or newer and were tested with CPython 3.9.6;
 only the standard library is used.
 
 ```bash
-python3 tools/rebuild_pr2.py
+python3 tools/rebuild_phase2.py
 python3 tools/verify_repository.py --stage 60-fin4-residual-284151591
 ```
 
@@ -66,14 +59,14 @@ The one-time capture command reads the two large source bitsets sequentially and
 therefore performs roughly a gigabyte of input I/O:
 
 ```bash
-python3 tools/capture_pr2_snapshots.py \
+python3 tools/capture_phase2_snapshots.py \
   --source-root ../math-distill-equational-stage2 \
   --stage 60-fin4-residual-284151591
 ```
 
 Normal reviewers do not need the sibling checkout and should not rerun capture.
 
-## Reproduction boundary / 复现边界
+## Reproduction boundary
 
 This is a frozen-artifact replay and validation stage, not a from-scratch Fin4
 rerun. The `singleton_family_mask.u8` and `singleton_primary.u8` inputs named by the
@@ -82,6 +75,3 @@ complete 6,173-model seed-generation chain are also unavailable. Those gaps prev
 regenerating the 324M universe and historical Fin4 search from their earliest
 inputs, even though the exact committed bitsets, per-source ledgers, 256 shard
 records, and their arithmetic can be independently checked.
-
-由于 singleton 输入、Fin4 的 `equations.bin` 及完整 6,173 模型种子链缺失，本阶段不能
-声称“从零重跑 Fin4”。可复现的是冻结产物的逐字节重建、流式校验及完整数量账本。

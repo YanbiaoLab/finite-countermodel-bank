@@ -4,9 +4,6 @@ This stage freezes the four solver files shown on the authenticated SAIR Stage 2
 team submission page on 2026-08-31. Later payload reconstruction must compare its
 output against these bytes.
 
-本阶段固定 2026-08-31 在 SAIR Stage 2 团队提交页显示的四份 solver。后续构建出的载荷
-必须与这些文件逐字节比较。
-
 ## Captured participations
 
 | Track | Model shown by SAIR | Displayed submission time | Bytes | SHA-256 |

@@ -30,8 +30,8 @@ from urllib.parse import urlparse
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools.pr2_common import (
-    Stage50Error as Pr2PayloadError,
+from tools.phase2_common import (
+    Stage50Error as Phase2PayloadError,
     extract_embedded_false_solver_table_payload,
     extract_top_level_literals,
     read_bounded_file,
@@ -1905,7 +1905,7 @@ def verify_stage70_semantics(
             submission_source,
             context=str(submission_path),
         )
-    except Pr2PayloadError as exc:
+    except Phase2PayloadError as exc:
         raise VerificationError(f"cannot statically decode submitted false engine: {exc}") from exc
     if (
         submitted_payload.model_count != 1_487
@@ -2181,7 +2181,7 @@ def verify_table_index(
                 None,
             )
             if historical is None:
-                raise VerificationError(f"PR 1 table lacks historical alias: {index_path}:{line_number}")
+                raise VerificationError(f"Phase 1 table lacks historical alias: {index_path}:{line_number}")
             historical_ids.append(historical)
             order_key = str(record["order"])
             order_counts[order_key] = order_counts.get(order_key, 0) + 1
@@ -2433,7 +2433,7 @@ def decode_submitted_false_engine(launcher_source: bytes) -> bytes:
         expected_sha256 = literals["_ENGINE_PAYLOAD_SHA256"]["false"]
         payload_format = literals["_ENGINE_PAYLOAD_FORMAT"]["false"]
         dictionary_size = literals["_ENGINE_LZMA_DICT_SIZE"]
-    except (KeyError, TypeError, Pr2PayloadError) as exc:
+    except (KeyError, TypeError, Phase2PayloadError) as exc:
         raise VerificationError(f"invalid submitted false-engine literals: {exc}") from exc
     if not isinstance(encoded, bytes) or len(encoded) > 2 * 1024 * 1024:
         raise VerificationError("invalid submitted false-engine Base85 literal")
@@ -2605,13 +2605,13 @@ def verify_stage90_semantics(
         solver_path = anchor_dir / artifact_ref["path"]
         try:
             launcher = read_bounded_file(solver_path, limit=2 * 1024 * 1024)
-        except Pr2PayloadError as exc:
+        except Phase2PayloadError as exc:
             raise VerificationError(f"cannot read submitted solver {solver_path}: {exc}") from exc
         try:
             payload = extract_embedded_false_solver_table_payload(
                 launcher, context=str(solver_path)
             )
-        except Pr2PayloadError as exc:
+        except Phase2PayloadError as exc:
             raise VerificationError(
                 f"cannot statically decode submitted payload {solver_path}: {exc}"
             ) from exc
@@ -2980,7 +2980,7 @@ def verify_stage100_semantics(
         launcher = read_bounded_file(
             root / primary_relative, limit=2 * 1024 * 1024
         )
-    except Pr2PayloadError as exc:
+    except Phase2PayloadError as exc:
         raise VerificationError(f"cannot read primary submission anchor: {exc}") from exc
     static_audit = audit_submitted_runtime_functions(
         decode_submitted_false_engine(launcher)
@@ -3373,24 +3373,24 @@ def verify_stage(
             submission_summary,
         )
 
-    pr2_semantics = None
-    pr4_semantics = None
+    phase2_semantics = None
+    phase4_semantics = None
     if stage_dir.name == STAGE50:
-        pr2_semantics = verify_stage50_semantics(
+        phase2_semantics = verify_stage50_semantics(
             stage_dir, artifacts, bank, delta, summary
         )
     elif stage_dir.name == STAGE60:
-        pr2_semantics = verify_stage60_semantics(stage_dir, artifacts, summary)
+        phase2_semantics = verify_stage60_semantics(stage_dir, artifacts, summary)
     elif stage_dir.name == STAGE70:
-        pr2_semantics = verify_stage70_semantics(
+        phase2_semantics = verify_stage70_semantics(
             stage_dir, artifacts, bank, delta, summary
         )
     elif stage_dir.name == STAGE90:
-        pr4_semantics = verify_stage90_semantics(
+        phase4_semantics = verify_stage90_semantics(
             stage_dir, artifacts, bank, delta, summary
         )
     elif stage_dir.name == STAGE100:
-        pr4_semantics = verify_stage100_semantics(
+        phase4_semantics = verify_stage100_semantics(
             stage_dir, artifacts, bank, delta, summary
         )
 
@@ -3400,8 +3400,8 @@ def verify_stage(
         "bank": bank,
         "delta": delta,
         "summary": summary,
-        "pr2": pr2_semantics,
-        "pr4": pr4_semantics,
+        "phase2": phase2_semantics,
+        "phase4": phase4_semantics,
     }
 
 
@@ -3488,7 +3488,7 @@ def verify_stage50_transition(
 ) -> None:
     bank = result["bank"]
     previous_bank = previous["bank"]
-    semantics = result.get("pr2")
+    semantics = result.get("phase2")
     if bank is None or previous_bank is None or not isinstance(semantics, dict):
         raise VerificationError("Stage50 transition lacks semantic bank evidence")
     if previous_bank["count"] != STAGE50_INPUT_COUNT:
@@ -3585,7 +3585,7 @@ def verify_stage70_transition(
 ) -> None:
     bank = result["bank"]
     candidate_bank = previous["bank"]
-    semantics = result.get("pr2")
+    semantics = result.get("phase2")
     if bank is None or candidate_bank is None or not isinstance(semantics, dict):
         raise VerificationError("Stage70 transition lacks semantic bank evidence")
     if candidate_bank["count"] != STAGE70_CANDIDATE_COUNT:
@@ -3615,7 +3615,7 @@ def verify_stage90_transition(
 
     bank = result["bank"]
     previous_bank = previous["bank"]
-    semantics = result.get("pr4")
+    semantics = result.get("phase4")
     delta = result["delta"]
     if (
         bank is None
@@ -3735,7 +3735,7 @@ def verify_stage100_transition(
 
     bank = result["bank"]
     previous_bank = previous["bank"]
-    semantics = result.get("pr4")
+    semantics = result.get("phase4")
     delta = result["delta"]
     if (
         bank is None
@@ -3964,16 +3964,16 @@ def verify_stage_transitions(
                         f"first_seen_stage changed for {table_id} in {stage_id}"
                     )
             elif first_stage != stage_id:
-                pr4_semantics = result.get("pr4")
+                phase4_semantics = result.get("phase4")
                 stage90_inherited = (
                     stage_id == STAGE90
-                    and isinstance(pr4_semantics, dict)
+                    and isinstance(phase4_semantics, dict)
                     and first_stage == STAGE80
-                    and table_id in pr4_semantics.get("stage80_ids", set())
+                    and table_id in phase4_semantics.get("stage80_ids", set())
                 )
                 historical = (
-                    pr4_semantics.get("historical", {}).get(table_id)
-                    if stage_id == STAGE100 and isinstance(pr4_semantics, dict)
+                    phase4_semantics.get("historical", {}).get(table_id)
+                    if stage_id == STAGE100 and isinstance(phase4_semantics, dict)
                     else None
                 )
                 stage100_reintroduced = (

@@ -1212,7 +1212,7 @@ def build(
         "depends_on": [STAGE70],
         "notes": [
             "This stage publishes only the 17-record augmentation and 11 task-required transposes, never the cumulative 1,487-record payload.",
-            "The 2,901-record runtime opposite closure is deferred to PR 4.",
+            "The 2,901-record runtime opposite closure is deferred to Phase 4.",
             "All 149 task directions and the five Refutation934 directions are exhaustively evaluated over every assignment.",
         ],
         "pipeline_order": 80,

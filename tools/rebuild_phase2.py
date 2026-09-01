@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild PR 2's pruning, Fin4 residual, and positive-marginal core.
+"""Rebuild Phase 2's pruning, Fin4 residual, and positive-marginal core.
 
 The command reads only committed raw snapshots plus earlier committed stages.
 Historical Python files are parsed as data and are never imported or executed.
@@ -24,7 +24,7 @@ import zipfile
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools.pr1_common import (
+from tools.phase1_common import (
     HISTORICAL_ID_SCHEME,
     SCHEMA_VERSION,
     TABLE_ENCODING,
@@ -36,7 +36,7 @@ from tools.pr1_common import (
     sha256_bytes,
     sha256_path,
 )
-from tools.pr2_common import (
+from tools.phase2_common import (
     D15_SOURCE_PATH,
     D17_DIRECT_AFFINE_INVENTORY_PATH,
     D17_SOURCE_PATH,
@@ -53,7 +53,7 @@ from tools.pr2_common import (
     validate_pair_bitset_streams,
     write_deterministic_gzip_copy,
 )
-from tools.pr2_stage70 import (
+from tools.phase2_stage70 import (
     FINAL_REMAINING_COUNT,
     FINAL_UNION_COUNT,
     MODEL_COUNT,
@@ -63,7 +63,7 @@ from tools.pr2_stage70 import (
     ZERO_MARGINAL_COUNT,
     derive_positive_marginal_core,
 )
-from tools.rebuild_pr1 import (
+from tools.rebuild_phase1 import (
     Table,
     atomic_binary,
     bank_details,
@@ -103,7 +103,7 @@ SUBMITTED_MARATHON_SHA256 = (
 
 
 class ReconstructionError(RuntimeError):
-    """Raised when a committed PR 2 source or derived invariant drifts."""
+    """Raised when a committed Phase 2 source or derived invariant drifts."""
 
 
 def ensure(condition: bool, message: str) -> None:
@@ -971,7 +971,7 @@ def finalize_stage(
             "checksum_file": "SHA256SUMS",
             "command": f"python3 tools/verify_repository.py --stage {stage_id}",
             "notes": [
-                "Run python3 tools/rebuild_pr2.py first to regenerate PR 2 normalized outputs from committed snapshots.",
+                "Run python3 tools/rebuild_phase2.py first to regenerate Phase 2 normalized outputs from committed snapshots.",
                 "Large bitsets are processed as bounded forward-only streams.",
             ],
         },
@@ -980,7 +980,7 @@ def finalize_stage(
     write_json(stage_dir / "stage.json", manifest)
 
 
-def finalize_pr2(root: Path, summaries: dict[str, dict]) -> None:
+def finalize_phase2(root: Path, summaries: dict[str, dict]) -> None:
     s50_local = "stage50-local-snapshot"
     s50_prior = "stage50-prior-bank"
     s60_local = "stage60-local-snapshot"
@@ -1095,8 +1095,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{STAGE60}: {stage60['metrics']['pairs.residual']} residual pairs")
     _core, stage70 = build_stage70(root, candidates)
     print(f"{STAGE70}: {stage70['bank']['table_count']} tables")
-    finalize_pr2(root, {STAGE50: stage50, STAGE60: stage60, STAGE70: stage70})
-    print("PR 2 manifests and checksums regenerated")
+    finalize_phase2(root, {STAGE50: stage50, STAGE60: stage60, STAGE70: stage70})
+    print("Phase 2 manifests and checksums regenerated")
     return 0
 
 

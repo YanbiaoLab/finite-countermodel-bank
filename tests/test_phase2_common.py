@@ -1,7 +1,7 @@
 from pathlib import Path
 import unittest
 
-from tools.pr2_common import (
+from tools.phase2_common import (
     Stage50Error,
     extract_embedded_false_solver_table_payload,
 )

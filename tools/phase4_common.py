@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared, bounded helpers for PR 4 payload and opposite-closure replay."""
+"""Shared, bounded helpers for Phase 4 payload and opposite-closure replay."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ import lzma
 from pathlib import Path
 from typing import Iterable, Sequence
 
-from tools.pr2_common import (
+from tools.phase2_common import (
     canonical_table_id,
     extract_top_level_literals,
     parse_canonical_table_records,
@@ -93,13 +93,13 @@ FALSE_ENGINE_FUNCTION_SHA256 = {
 }
 
 
-class Pr4Error(RuntimeError):
-    """Raised when a PR 4 reconstruction invariant drifts."""
+class Phase4Error(RuntimeError):
+    """Raised when a Phase 4 reconstruction invariant drifts."""
 
 
 def ensure(condition: bool, message: str) -> None:
     if not condition:
-        raise Pr4Error(message)
+        raise Phase4Error(message)
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -340,7 +340,7 @@ def parse_exact_records(raw: bytes, count: int, context: str) -> tuple[bytes, ..
             raw, model_count=count, context=context, require_unique=True
         )
     except Exception as exc:
-        raise Pr4Error(f"cannot parse {context}: {exc}") from exc
+        raise Phase4Error(f"cannot parse {context}: {exc}") from exc
 
 
 def decode_false_engine_source(launcher_source: bytes) -> bytes:
@@ -387,7 +387,7 @@ def decode_false_engine_source(launcher_source: bytes) -> bytes:
             compressed, max_length=FALSE_ENGINE_SOURCE_LIMIT + 1
         )
     except lzma.LZMAError as exc:
-        raise Pr4Error(f"invalid false engine LZMA payload: {exc}") from exc
+        raise Phase4Error(f"invalid false engine LZMA payload: {exc}") from exc
     ensure(
         len(source) <= FALSE_ENGINE_SOURCE_LIMIT,
         "false engine source exceeds bound",

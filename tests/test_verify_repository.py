@@ -101,7 +101,7 @@ class RepositoryFixtureTests(unittest.TestCase):
         self.assertEqual(stage_count, 1)
         self.assertEqual(artifact_count, 5)
 
-    def test_full_pr1_repository_contract(self) -> None:
+    def test_full_phase1_repository_contract(self) -> None:
         stage_count, artifact_count = verify_repository(
             ROOT,
             [
@@ -261,7 +261,7 @@ class RepositoryFixtureTests(unittest.TestCase):
             ):
                 verify_stage(stage_dir, verify_claims(ROOT))
 
-    def test_pr4_transitions_reject_trailing_delta_rows_cleanly(self) -> None:
+    def test_phase4_transitions_reject_trailing_delta_rows_cleanly(self) -> None:
         claims = verify_claims(ROOT)
         stage70 = verify_stage(
             ROOT / "reproduction/70-positive-marginal-core-1470", claims

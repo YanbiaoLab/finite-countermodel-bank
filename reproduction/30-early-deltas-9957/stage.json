@@ -166,7 +166,7 @@
     "checksum_file": "SHA256SUMS",
     "command": "python3 tools/verify_repository.py --stage 30-early-deltas-9957",
     "notes": [
-      "Run python3 tools/rebuild_pr1.py first to regenerate normalized outputs from committed raw snapshots.",
+      "Run python3 tools/rebuild_phase1.py first to regenerate normalized outputs from committed raw snapshots.",
       "All archive and data processing is bounded or forward-only; historical Python is never executed."
     ]
   }

@@ -10,8 +10,8 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from tools import pr4_common
-from tools.pr4_common import (
+from tools import phase4_common
+from tools.phase4_common import (
     DERIVED_CANONICAL_ID_VECTOR_SHA256,
     DERIVED_RAW_BYTES,
     DERIVED_RAW_SHA256,
@@ -30,7 +30,7 @@ from tools.pr4_common import (
     RUNTIME_COUNT,
     RUNTIME_RAW_BYTES,
     RUNTIME_RAW_SHA256,
-    Pr4Error,
+    Phase4Error,
     audit_false_engine_functions,
     canonical_id_vector_sha256,
     decode_false_engine_source,
@@ -78,15 +78,15 @@ class TransposeTests(unittest.TestCase):
         originals = (self_transpose, pair_left, pair_right, missing_source)
 
         with (
-            patch.object(pr4_common, "EMBEDDED_COUNT", 4),
-            patch.object(pr4_common, "SELF_TRANSPOSE_COUNT", 1),
+            patch.object(phase4_common, "EMBEDDED_COUNT", 4),
+            patch.object(phase4_common, "SELF_TRANSPOSE_COUNT", 1),
             patch.object(
-                pr4_common,
+                phase4_common,
                 "EMBEDDED_NONTRIVIAL_TRANSPOSE_SOURCE_COUNT",
                 2,
             ),
-            patch.object(pr4_common, "DERIVED_TRANSPOSE_COUNT", 1),
-            patch.object(pr4_common, "RUNTIME_COUNT", 5),
+            patch.object(phase4_common, "DERIVED_TRANSPOSE_COUNT", 1),
+            patch.object(phase4_common, "RUNTIME_COUNT", 5),
         ):
             closure = replay_runtime_closure(originals)
 
@@ -106,7 +106,7 @@ class TransposeTests(unittest.TestCase):
         self.assertEqual(closure.classifications[3]["runtime_index"], 4)
 
 
-class ActualPr4RegressionTests(unittest.TestCase):
+class ActualPhase4RegressionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.payload_raw = (STAGE90 / "normalized/tables.bin").read_bytes()
@@ -224,9 +224,9 @@ class ActualPr4RegressionTests(unittest.TestCase):
             f"_ENGINE_LZMA_DICT_SIZE = {dictionary_size}\n"
         ).encode("ascii")
         with (
-            patch.object(pr4_common, "FALSE_ENGINE_SOURCE_LIMIT", limit),
-            patch.object(pr4_common, "FALSE_ENGINE_SHA256", digest),
-            self.assertRaisesRegex(Pr4Error, "exceeds bound"),
+            patch.object(phase4_common, "FALSE_ENGINE_SOURCE_LIMIT", limit),
+            patch.object(phase4_common, "FALSE_ENGINE_SHA256", digest),
+            self.assertRaisesRegex(Phase4Error, "exceeds bound"),
         ):
             decode_false_engine_source(launcher)
 

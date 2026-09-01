@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate and verify both PR 4 stages without executing submitted code."""
+"""Regenerate and verify both Phase 4 stages without executing submitted code."""
 
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ import tempfile
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools import rebuild_pr4  # noqa: E402
-from tools.pr4_common import (  # noqa: E402
+from tools import rebuild_phase4  # noqa: E402
+from tools.phase4_common import (  # noqa: E402
     DERIVED_TRANSPOSE_COUNT,
     EMBEDDED_COUNT,
     HISTORICAL_REINTRODUCTION_COUNT,
@@ -56,14 +56,14 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     if sys.version_info < (3, 10):
         raise RuntimeError(
-            "PR 4 requires Python 3.10+; Python 3.11 matches the official sandbox"
+            "Phase 4 requires Python 3.10+; Python 3.11 matches the official sandbox"
         )
     args = parse_args()
     repository = args.repository_root.resolve()
     compared = 0
-    with tempfile.TemporaryDirectory(prefix="finite-bank-pr4-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="finite-bank-phase4-") as temporary:
         generated_root = Path(temporary) / "reproduction"
-        generated = rebuild_pr4.build(generated_root, repository)
+        generated = rebuild_phase4.build(generated_root, repository)
         for stage_id in (STAGE90, STAGE100):
             committed_stage = repository / "reproduction" / stage_id
             generated_stage = generated_root / stage_id
@@ -85,7 +85,7 @@ def main() -> int:
                 actual = generated_stage / Path(PurePosixPath(relative))
                 if not files_equal(expected, actual):
                     raise RuntimeError(
-                        f"nondeterministic PR 4 artifact: {stage_id}/{relative}"
+                        f"nondeterministic Phase 4 artifact: {stage_id}/{relative}"
                     )
                 compared += 1
             for relative in ("SHA256SUMS", "stage.json"):
@@ -93,7 +93,7 @@ def main() -> int:
                     committed_stage / relative, generated_stage / relative
                 ):
                     raise RuntimeError(
-                        f"nondeterministic PR 4 metadata: {stage_id}/{relative}"
+                        f"nondeterministic Phase 4 metadata: {stage_id}/{relative}"
                     )
                 compared += 1
             for artifact in committed_manifest["artifacts"]:

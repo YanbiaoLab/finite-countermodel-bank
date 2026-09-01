@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Stage 70 coverage scores and derive the 1,470-table core.
+"""Validate Phase 2 Stage 70 coverage scores and derive the 1,470-table core.
 
 The historical coverage run contains only 3,535 CSV rows, so this module keeps
 small row/identity indexes in memory.  It never reads the 284M pair bitset or

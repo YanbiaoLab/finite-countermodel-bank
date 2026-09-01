@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild PR 1's 9,450 -> 10,059 finite-table timeline.
+"""Rebuild Phase 1's 9,450 -> 10,059 finite-table timeline.
 
 The command reads only committed deterministic snapshots.  Historical Python
 files are parsed as data and are never imported or executed.  Large archives,
@@ -31,7 +31,7 @@ import zlib
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools.pr1_common import (
+from tools.phase1_common import (
     HISTORICAL_ID_SCHEME,
     SCHEMA_VERSION,
     TABLE_ENCODING,
@@ -1925,7 +1925,7 @@ def finalize_stage(
             "checksum_file": "SHA256SUMS",
             "command": f"python3 tools/verify_repository.py --stage {stage_id}",
             "notes": [
-                "Run python3 tools/rebuild_pr1.py first to regenerate normalized outputs from committed raw snapshots.",
+                "Run python3 tools/rebuild_phase1.py first to regenerate normalized outputs from committed raw snapshots.",
                 "All archive and data processing is bounded or forward-only; historical Python is never executed.",
             ],
         },
@@ -1934,7 +1934,7 @@ def finalize_stage(
     write_json(stage_dir / "stage.json", manifest)
 
 
-def finalize_pr1(root: Path, summaries: dict[str, dict]) -> None:
+def finalize_phase1(root: Path, summaries: dict[str, dict]) -> None:
     local10 = "stage10-local-snapshot"
     local20 = "stage20-local-snapshot"
     local30 = "stage30-local-snapshot"
@@ -2109,11 +2109,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{STAGE30}: {stage30['bank']['table_count']} tables")
     _bank10059, stage40 = build_stage40(root, bank9957)
     print(f"{STAGE40}: {stage40['bank']['table_count']} tables")
-    finalize_pr1(
+    finalize_phase1(
         root,
         {STAGE10: stage10, STAGE20: stage20, STAGE30: stage30, STAGE40: stage40},
     )
-    print("PR 1 manifests and checksums regenerated")
+    print("Phase 1 manifests and checksums regenerated")
     return 0
 
 

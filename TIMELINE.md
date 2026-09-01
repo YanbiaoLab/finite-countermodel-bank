@@ -1,42 +1,46 @@
 # Reproduction timeline / 复现时间线
 
 This file is the review order for reconstructing the False Solver data lineage.
-Each numbered stage is append-only after merge. A later correction adds a new
-manifested artifact or superseding stage; it does not silently replace historical
-raw files.
+Historical raw bytes and scientific claims are not silently replaced after merge.
+A correction adds a manifested artifact or superseding stage; a repository-wide
+terminology migration may update maintained script names and manifest commands
+while preserving the raw bytes, transitions, and claims.
 
-本文档规定 False Solver 数据血缘的复现及 review 顺序。每个编号阶段合并后保持只追加；
-如需修正，应增加带 manifest 的新文件或后继阶段，不静默覆盖历史原始文件。
+本文档规定 False Solver 数据血缘的复现及 review 顺序。合并后不静默替换历史 raw 字节
+或科学结论；内容修正应增加带 manifest 的文件或后继阶段。全仓库术语迁移可以更新受维护
+脚本的名称及 manifest 命令，但必须保留 raw 字节、阶段转移与结论。
 
-## PR and stage order / PR 与阶段顺序
+## Phase, Stage, and GitHub history / Phase、Stage 与 GitHub 历史
 
-| PR | Stage | Transition or anchor | Required evidence | Status |
+| Phase | Stage | Transition or anchor | Required evidence | GitHub history |
 | --- | --- | --- | --- | --- |
-| PR 0 | `00-submission-anchor` | Four SAIR submissions → two byte-distinct solver blobs | Four downloaded files, submission index, hashes, schema, verifier | Merged in PR #2 |
-| PR 1 | `10-primary-9450` | 9,452 nonzero contributors → 9,450 recoverable exact tables | Historical inputs, recovery report, normalized tables, per-record provenance | Merged in PR #3 |
-| PR 1 | `20-registered-9852` | 9,450 + 402 → 9,852 | Registry snapshot, exact-dedup delta | Merged in PR #3 |
-| PR 1 | `30-early-deltas-9957` | 9,852 + (66 − 55) + (145 − 51) → 9,957 | Separate d1 and d2 snapshots and membership deltas | Merged in PR #3 |
-| PR 1 | `40-delivery-10059` | 9,957 + 102 → 10,059 | Delivery snapshot, independent-check report, zero-overlap delta | Merged in PR #3 |
-| PR 2 | `50-generator-prune-3535` | 10,059 − 241 − 6,283 → 3,535 | Affine witnesses, order-at-most-4 removal ledger, exact d17 match | Merged in PR #4 |
-| PR 2 | `60-fin4-residual-284151591` | 324,157,667 − 40,006,076 → 284,151,591 directed pairs | Frozen bitsets, per-source partition, Fin4 shard ledger, bounded validation | Merged in PR #4; frozen-artifact replay |
-| PR 2 | `70-positive-marginal-core-1470` | 3,535 − 2,065 → 1,470 | Residual coverage scores, fixed selection order, keep/drop delta, submission-prefix match | Merged in PR #4 |
-| PR 3 | `80-finite149` | 789 no-submission directions → 149 finite directions → 17 base tables + 11 required opposite orientations | Official-path inventory, exhaustive task checks, zero-overlap audit, Refutation934 substitution record | Merged in PR #7 |
-| PR 3 correction | `81-finite149-portable-verification` | Same Stage 80 data; bounded replay and provenance correction | 789-cell streamed projection, full 149-task/transpose/overlap/suffix semantic gate, 17 Lean-source comparisons, corrected Refutation934 source, explicit path boundary | Merged in PR #8 |
-| PR 4 | `90-payload-1487` | 1,470 + 17 → 1,487 embedded records | Exact inner-payload builder, canonical byte stream, XZ/Base85 literal, static submitted-source comparison | Merged in PR #9 |
-| PR 4 | `100-opposite-closure-2901` | 1,487 + 1,414 missing strict transposes → 2,901 | Derivation ledger, exact-byte dedup report, historical first-seen joins, submitted-code audit, runtime scan manifest | Merged in PR #9 |
+| Phase 0 | `00-submission-anchor` | Four SAIR submissions → two byte-distinct solver blobs | Four downloaded files, submission index, hashes, schema, verifier | Merged in PR #2 |
+| Phase 1 | `10-primary-9450` | 9,452 nonzero contributors → 9,450 recoverable exact tables | Historical inputs, recovery report, normalized tables, per-record provenance | Merged in PR #3 |
+| Phase 1 | `20-registered-9852` | 9,450 + 402 → 9,852 | Registry snapshot, exact-dedup delta | Merged in PR #3 |
+| Phase 1 | `30-early-deltas-9957` | 9,852 + (66 − 55) + (145 − 51) → 9,957 | Separate d1 and d2 snapshots and membership deltas | Merged in PR #3 |
+| Phase 1 | `40-delivery-10059` | 9,957 + 102 → 10,059 | Delivery snapshot, independent-check report, zero-overlap delta | Merged in PR #3 |
+| Phase 2 | `50-generator-prune-3535` | 10,059 − 241 − 6,283 → 3,535 | Affine witnesses, order-at-most-4 removal ledger, exact d17 match | Merged in PR #4 |
+| Phase 2 | `60-fin4-residual-284151591` | 324,157,667 − 40,006,076 → 284,151,591 directed pairs | Frozen bitsets, per-source partition, Fin4 shard ledger, bounded validation | Merged in PR #4; frozen-artifact replay |
+| Phase 2 | `70-positive-marginal-core-1470` | 3,535 − 2,065 → 1,470 | Residual coverage scores, fixed selection order, keep/drop delta, submission-prefix match | Merged in PR #4 |
+| Phase 3 | `80-finite149` | 789 no-submission directions → 149 finite directions → 17 base tables + 11 required opposite orientations | Official-path inventory, exhaustive task checks, zero-overlap audit, Refutation934 substitution record | Merged in PR #7 |
+| Phase 3 | `81-finite149-portable-verification` | Same Stage 80 data; bounded replay and provenance correction | 789-cell streamed projection, full 149-task/transpose/overlap/suffix semantic gate, 17 Lean-source comparisons, corrected Refutation934 source, explicit path boundary | Merged in PR #8 |
+| Phase 4 | `90-payload-1487` | 1,470 + 17 → 1,487 embedded records | Exact inner-payload builder, canonical byte stream, XZ/Base85 literal, static submitted-source comparison | Merged in PR #9 |
+| Phase 4 | `100-opposite-closure-2901` | 1,487 + 1,414 missing strict transposes → 2,901 | Derivation ledger, exact-byte dedup report, historical first-seen joins, submitted-code audit, runtime scan manifest | Merged in PR #9 |
 
-The PR boundaries are intentional. PR 1 preserves historical accumulation; PR 2
-records later pruning, frozen Fin4 residual validation, and coverage-based
-selection; PR 3 isolates the independent finite149 augmentation; its Stage 81
-correction fixes the review path without changing Stage 80 data; PR 4 reconstructs
-the exact inner finite-table payload and its runtime opposite closure. It does not
-claim to rebuild the complete outer solver launcher. Work does not advance to the
-next PR until the previous PR has received human review.
+The Phase boundaries keep evidence from different points in the data flow separate.
+Phase 1 preserves historical accumulation; Phase 2 records pruning, frozen Fin4
+residual validation, and coverage-based selection; Phase 3 isolates the finite149
+augmentation and its portable correction; Phase 4 reconstructs the exact inner
+finite-table payload and runtime opposite closure. It does not claim to rebuild the
+complete outer solver launcher. `PR` in the final column refers only to the actual
+GitHub pull request in which the evidence was merged; Phase numbers are independent
+of PR numbers.
 
-这些 PR 边界用于避免把不同时间点的数据混在一起：PR 1 保存历史累积，PR 2 保存后续
-精简及覆盖筛选，PR 3 单独保存 finite149 增补，Stage 81 只修正其复现与来源说明，PR 4
-精确重建内层有限表 payload 及其运行时 opposite closure，但不声称重建完整外层 solver。
-前一个 PR 未完成人工 review 前，不推进下一个 PR。
+Phase 边界用于避免把数据流中不同时间点的证据混在一起：Phase 1 保存历史累积，Phase 2
+保存后续精简、冻结 Fin4 residual 校验及覆盖筛选，Phase 3 单独保存 finite149 增补及其
+可移植修正，Phase 4 精确重建内层有限表 payload 与运行时 opposite closure，但不声称
+重建完整外层 solver。末列的 `PR` 仅表示证据实际合入时使用的 GitHub pull request，
+与 Phase 编号相互独立。
 
 ## Arithmetic checkpoints / 数量检查点
 
@@ -51,14 +55,14 @@ next PR until the previous PR has received human review.
 1,487 + 1,414                                   = 2,901
 ```
 
-Values through 10,059 are reconstructed and verified in PR 1. The 3,535-table
+Values through 10,059 are reconstructed and verified in Phase 1. The 3,535-table
 candidate bank, exact 324M-to-284M frozen-bitset transition, and 1,470-table core
-are reconstructed or independently validated in PR 2. Stage 60 does not claim a
+are reconstructed or independently validated in Phase 2. Stage 60 does not claim a
 from-scratch Fin4 rerun because required singleton and seed-chain inputs are
-missing. PR 3 verifies the separate 17-base finite149 augmentation and its 11
+missing. Phase 3 verifies the separate 17-base finite149 augmentation and its 11
 task-required transposes without constructing the cumulative 1,487-record payload.
 Stage 81 supersedes only the portable verification and provenance description; all
-Stage 80 arithmetic and table membership remain unchanged. PR 4 now publishes and
+Stage 80 arithmetic and table membership remain unchanged. Phase 4 publishes and
 verifies the exact 1,487-record inner payload, then derives 1,414 missing exact
 transposes to form the 2,901-record runtime scan. The derived records are not extra
 embedded payload entries. The Stage 100 delta is relative to Stage 90 membership:
@@ -69,15 +73,16 @@ status.
 ## Source routing / 源文件入口
 
 Paths below are relative to the sibling `math-distill-equational-stage2` checkout.
-Stages 10–40 are fixed by the raw snapshots in PR 1, Stages 50–70 by the raw
-snapshots in PR 2, and Stage 80 by the deterministic raw snapshot in PR 3. Stages
+Stages 10–40 are fixed by the raw snapshots in Phase 1, Stages 50–70 by the raw
+snapshots in Phase 2, and Stage 80 by the deterministic raw snapshot in Phase 3.
+Stages
 81, 90, and 100 consume only immutable artifacts already committed to this
 repository; they require no new sibling-checkout capture.
 
 以下路径相对于同级 `math-distill-equational-stage2` checkout。Stage 10–40 已由
-PR 1 的 raw 快照固定，Stage 50–70 已由 PR 2 的 raw 快照固定，Stage 80 已由 PR 3 的
-确定性 raw 快照固定；Stage 81、90 与 100 只使用本仓库已提交的不可变产物，不需要再次
-从 sibling checkout 抓取数据。
+Phase 1 的 raw 快照固定，Stage 50–70 已由 Phase 2 的 raw 快照固定，Stage 80 已由
+Phase 3 的确定性 raw 快照固定；Stage 81、90 与 100 只使用本仓库已提交的不可变产物，
+不需要再次从 sibling checkout 抓取数据。
 
 | Stage | Audited starting point |
 | --- | --- |
